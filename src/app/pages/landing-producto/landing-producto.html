@@ -1,0 +1,282 @@
+<!-- ─── Navbar ─────────────────────────────────────────────────────────────── -->
+<nav class="inkmap-nav">
+  <div class="container d-flex align-items-center">
+    <a class="inkmap-brand" routerLink="/inkmap">
+      <span class="brand-dot"></span>InkMap
+    </a>
+    <div class="inkmap-nav-links mx-auto d-flex gap-5">
+      <a class="inkmap-nav-link" href="#features">Features</a>
+      <a class="inkmap-nav-link" href="#how-it-works">How it works</a>
+      <a class="inkmap-nav-link" href="#pricing">Pricing</a>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <a routerLink="/login" class="inkmap-nav-link">Sign in</a>
+      <a routerLink="/login" class="btn-inkmap-cta">Get started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── Hero ──────────────────────────────────────────────────────────────── -->
+<section class="inkmap-hero">
+  <div class="hero-bg-glow"></div>
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="hero-badge">✦ Visual storytelling platform</span>
+        <h1 class="hero-headline mt-3">
+          Plan your stories<br>
+          <em class="hero-accent">visually.</em>
+        </h1>
+        <p class="hero-sub mt-4">
+          Organize characters, maps, plots, relationships, and ideas in one unified creative workspace.
+          Where your narrative comes to life.
+        </p>
+        <div class="d-flex flex-wrap gap-3 mt-5">
+          <a routerLink="/login" class="btn-hero-primary">Start for free</a>
+          <button class="btn-google-signin" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              <path fill="none" d="M0 0h48v48H0z"/>
+            </svg>
+            Sign in with Google
+          </button>
+        </div>
+        <div class="hero-stats d-flex gap-5 mt-5">
+          <div>
+            <span class="stat-num">10k+</span>
+            <span class="stat-label">Active writers</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div>
+            <span class="stat-num">50k+</span>
+            <span class="stat-label">Stories created</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div>
+            <span class="stat-num">4.9★</span>
+            <span class="stat-label">User rating</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decorative workspace canvas -->
+      <div class="col-lg-6">
+        <div class="hero-canvas">
+          <svg class="canvas-lines" viewBox="0 0 460 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="230" y1="110" x2="100" y2="210" stroke="#4A7C7E" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5"/>
+            <line x1="230" y1="110" x2="360" y2="210" stroke="#4A7C7E" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5"/>
+            <line x1="230" y1="110" x2="230" y2="280" stroke="#C17767" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.45"/>
+            <circle cx="230" cy="110" r="4" fill="#4A7C7E"/>
+            <circle cx="100" cy="210" r="3" fill="#8B7355"/>
+            <circle cx="360" cy="210" r="3" fill="#8B7355"/>
+            <circle cx="230" cy="280" r="3" fill="#C17767"/>
+          </svg>
+          <div class="canvas-node node-main">
+            <span class="node-icon">◎</span>Chapter 1
+          </div>
+          <div class="canvas-node node-char">
+            <span class="node-icon">👤</span>Aria
+          </div>
+          <div class="canvas-node node-loc">
+            <span class="node-icon">📍</span>Dark Forest
+          </div>
+          <div class="canvas-node node-plot">
+            <span class="node-icon">⚡</span>Plot twist
+          </div>
+          <div class="canvas-mini-card card-a">
+            <span class="mini-dot teal"></span>World building
+          </div>
+          <div class="canvas-mini-card card-b">
+            <span class="mini-dot terra"></span>Relationships
+          </div>
+          <div class="canvas-mini-card card-c">
+            <span class="mini-dot brown"></span>Timeline
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Features ──────────────────────────────────────────────────────────── -->
+<section class="inkmap-features" id="features">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-eyebrow">Features</span>
+      <h2 class="section-title mt-2">Everything your story needs</h2>
+      <p class="section-sub">From character sheets to narrative maps — all in one place.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="feat-card">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="4" stroke="#4A7C7E" stroke-width="2"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#4A7C7E" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h5>Character Profiles</h5>
+          <p>Create rich character sheets with backstory, personality, relationships, and arc tracking across your entire narrative.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feat-card">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="5" cy="12" r="2" stroke="#4A7C7E" stroke-width="2"/>
+              <circle cx="19" cy="6" r="2" stroke="#4A7C7E" stroke-width="2"/>
+              <circle cx="19" cy="18" r="2" stroke="#4A7C7E" stroke-width="2"/>
+              <path d="M7 12h5M14 7.5l-2 3M14 16.5l-2-3" stroke="#4A7C7E" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h5>Relationship Graph</h5>
+          <p>Map out complex relationships between characters, locations, and events. Never lose a narrative thread again.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feat-card">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#4A7C7E" stroke-width="2"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#4A7C7E" stroke-width="2"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#4A7C7E" stroke-width="2"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#4A7C7E" stroke-width="2"/>
+            </svg>
+          </div>
+          <h5>Narrative Maps</h5>
+          <p>Visualize story arcs, plot branches, and chapter structures. See the full shape of your story at a glance.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feat-card">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#4A7C7E" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M2 17l10 5 10-5" stroke="#4A7C7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12l10 5 10-5" stroke="#4A7C7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h5>World Building</h5>
+          <p>Design detailed locations, cultures, timelines, and systems that give your world internal consistency.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feat-card">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3c-1.2 5.4-5 7-9 7 0 5.4 3.6 9.9 9 11 5.4-1.1 9-5.6 9-11-4 0-7.8-1.6-9-7z" stroke="#4A7C7E" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h5>AI Writing Assistant</h5>
+          <p>Get intelligent suggestions to strengthen your narrative, refine dialogue, and overcome creative blocks.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feat-card">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#4A7C7E" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="9" cy="7" r="4" stroke="#4A7C7E" stroke-width="2"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#4A7C7E" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h5>Real-time Collaboration</h5>
+          <p>Co-write with your team in real time. Comments, edits, and updates sync instantly across all collaborators.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── How it works ──────────────────────────────────────────────────────── -->
+<section class="inkmap-howitworks" id="how-it-works">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-eyebrow">Process</span>
+      <h2 class="section-title mt-2">How InkMap works</h2>
+      <p class="section-sub">Three steps from blank canvas to living story world.</p>
+    </div>
+    <div class="row g-4 align-items-stretch">
+      <div class="col-md-4">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h5 class="mt-4">Create your world</h5>
+          <p>Start with a blank canvas. Add characters, locations, and story elements as cards on your visual workspace.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step-card step-card--accent">
+          <div class="step-num">02</div>
+          <h5 class="mt-4">Connect the dots</h5>
+          <p>Draw relationships between elements. Build your narrative structure by linking scenes, arcs, and characters.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h5 class="mt-4">Write and evolve</h5>
+          <p>Use your workspace to guide your writing. Your map grows and adapts as your story does.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Hivemind Banner ────────────────────────────────────────────────────── -->
+<section class="inkmap-hivemind-banner">
+  <div class="container text-center">
+    <p class="hivemind-eyebrow">Built with purpose by</p>
+    <h3 class="hivemind-name">Hivemind</h3>
+    <p class="hivemind-desc">
+      We design intelligent digital products at the intersection of technology and human creativity.
+    </p>
+    <a routerLink="/" class="btn-hivemind-cta">Meet Hivemind →</a>
+  </div>
+</section>
+
+<!-- ─── Footer ────────────────────────────────────────────────────────────── -->
+<footer class="inkmap-footer">
+  <div class="container">
+    <div class="row g-4 align-items-start">
+      <div class="col-md-4">
+        <span class="footer-brand">InkMap</span>
+        <p class="footer-tagline mt-2">A creative workspace for storytellers who think visually.</p>
+      </div>
+      <div class="col-md-2 offset-md-2">
+        <h6 class="footer-col-title">Product</h6>
+        <ul class="footer-nav-list">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="col-md-2">
+        <h6 class="footer-col-title">Company</h6>
+        <ul class="footer-nav-list">
+          <li><a routerLink="/">Hivemind</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="col-md-2">
+        <h6 class="footer-col-title">Legal</h6>
+        <ul class="footer-nav-list">
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Cookies</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom mt-5 d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <span>© 2025 InkMap · A Hivemind product</span>
+      <div class="d-flex gap-3">
+        <a href="#" class="footer-social">Twitter</a>
+        <a href="#" class="footer-social">LinkedIn</a>
+        <a href="#" class="footer-social">Instagram</a>
+      </div>
+    </div>
+  </div>
+</footer>
