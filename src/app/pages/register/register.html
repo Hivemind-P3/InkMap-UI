@@ -13,14 +13,32 @@
     <div class="auth-brand">
       <span class="brand-dot"></span>InkMap
     </div>
-    <h1 class="auth-title">Welcome back</h1>
-    <p class="auth-subtitle">Sign in to continue your creative journey</p>
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-subtitle">Start building your creative world today</p>
 
     <!-- Form -->
-    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
 
       <div class="field-group">
-        <label class="field-label" for="email">Email address</label>
+        <label class="field-label" for="fullName">Full Name</label>
+        <input
+          id="fullName"
+          type="text"
+          class="field-input"
+          placeholder="Your name"
+          [(ngModel)]="fullName"
+          name="fullName"
+          required
+          #nameInput="ngModel"
+          [class.field-input--error]="nameInput.invalid && nameInput.touched"
+        />
+        @if (nameInput.invalid && nameInput.touched) {
+          <span class="field-error">Full name is required</span>
+        }
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="email">Email Address</label>
         <input
           id="email"
           type="email"
@@ -39,20 +57,17 @@
       </div>
 
       <div class="field-group">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <label class="field-label mb-0" for="password">Password</label>
-          <a href="#" class="link-secondary" (click)="$event.preventDefault()">Forgot password?</a>
-        </div>
+        <label class="field-label" for="password">Password</label>
         <div class="field-input-wrapper">
           <input
             id="password"
             [type]="showPassword() ? 'text' : 'password'"
             class="field-input"
-            placeholder="Enter your password"
+            placeholder="At least 8 characters"
             [(ngModel)]="password"
             name="password"
             required
-            minlength="6"
+            minlength="8"
             #passwordInput="ngModel"
             [class.field-input--error]="passwordInput.invalid && passwordInput.touched"
           />
@@ -71,12 +86,48 @@
           </button>
         </div>
         @if (passwordInput.invalid && passwordInput.touched) {
-          <span class="field-error">Password must be at least 6 characters</span>
+          <span class="field-error">Password must be at least 8 characters</span>
         }
       </div>
 
-      <button type="submit" class="btn-primary-auth" [disabled]="loginForm.invalid">
-        Sign In
+      <div class="field-group">
+        <label class="field-label" for="confirmPassword">Confirm Password</label>
+        <div class="field-input-wrapper">
+          <input
+            id="confirmPassword"
+            [type]="showConfirm() ? 'text' : 'password'"
+            class="field-input"
+            placeholder="Repeat your password"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            required
+            [class.field-input--error]="passwordMismatch"
+          />
+          <button type="button" class="eye-toggle" (click)="toggleConfirm()" aria-label="Toggle confirm password">
+            @if (showConfirm()) {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            } @else {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            }
+          </button>
+        </div>
+        @if (passwordMismatch) {
+          <span class="field-error">Passwords do not match</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary-auth"
+        [disabled]="registerForm.invalid || passwordMismatch"
+      >
+        Create Account
       </button>
 
     </form>
@@ -98,10 +149,19 @@
       Continue with Google
     </a>
 
-    <!-- Create account -->
+    <!-- Sign in link -->
     <p class="auth-switch">
-      Don't have an account?
-      <a routerLink="/register" class="link-accent">Create account</a>
+      Already have an account?
+      <a routerLink="/login" class="link-accent">Sign in</a>
+    </p>
+
+    <!-- Footer note -->
+    <p class="auth-footer-note">
+      By creating an account you agree to our
+      <a href="#" class="link-muted">Terms of Service</a>
+      and
+      <a href="#" class="link-muted">Privacy Policy</a>.
+      <br>A <a routerLink="/hivemind" class="link-muted">Hivemind</a> product.
     </p>
 
   </div>
