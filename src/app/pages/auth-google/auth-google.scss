@@ -1,0 +1,217 @@
+// ── Variables ───────────────────────────────────────────────────────────────
+$dark-blue: #2c3e50;
+$beige: #e8dcc4;
+$brown: #8b7355;
+$teal: #4a7c7e;
+$terra: #c17767;
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+.google-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $beige;
+  padding: 2rem 1rem;
+}
+
+// ── Card ─────────────────────────────────────────────────────────────────────
+.google-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2.5rem 2.25rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba($dark-blue, 0.1);
+}
+
+// ── Header ───────────────────────────────────────────────────────────────────
+.google-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.google-logo {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1rem;
+}
+
+.google-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: $dark-blue;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.02em;
+}
+
+.google-subtitle {
+  font-size: 0.9rem;
+  color: $brown;
+  margin: 0;
+
+  .app-name {
+    color: $teal;
+    font-weight: 700;
+  }
+}
+
+// ── Accounts list ────────────────────────────────────────────────────────────
+.accounts-list {
+  border: 1.5px solid #e0d9ce;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.accounts-hint {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $brown;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1.1rem 0.5rem;
+  margin: 0;
+  border-bottom: 1px solid #f0ebe3;
+}
+
+.account-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.1rem;
+  background: #fff;
+  border: none;
+  border-top: 1px solid #f0ebe3;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+
+  &:first-of-type {
+    border-top: none;
+  }
+
+  &:hover {
+    background: #faf9f7;
+  }
+
+  &--selected {
+    background: rgba($teal, 0.06);
+
+    .account-name {
+      color: $teal;
+    }
+  }
+
+  &--other {
+    .account-name {
+      color: $dark-blue;
+      font-weight: 500;
+    }
+  }
+}
+
+.account-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+
+  &--outline {
+    background: #f0ebe3;
+    color: $brown;
+  }
+}
+
+.account-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.account-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $dark-blue;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-email {
+  font-size: 0.78rem;
+  color: $brown;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-arrow {
+  color: #b5aca0;
+  flex-shrink: 0;
+}
+
+// ── Info text ─────────────────────────────────────────────────────────────────
+.google-info-text {
+  font-size: 0.78rem;
+  color: #b5aca0;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+// ── Back link ────────────────────────────────────────────────────────────────
+.google-back {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: $brown;
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $teal;
+  }
+}
+
+// ── Footer ───────────────────────────────────────────────────────────────────
+.google-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0ebe3;
+}
+
+.footer-link {
+  font-size: 0.75rem;
+  color: $brown;
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $teal;
+    text-decoration: underline;
+  }
+}
+
+.footer-sep {
+  color: #b5aca0;
+  font-size: 0.75rem;
+}
