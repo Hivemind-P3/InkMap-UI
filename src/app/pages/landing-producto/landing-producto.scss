@@ -1,33 +1,54 @@
 // ── Variables ─────────────────────────────────────────────────────────────────
-$dark:   #2C3E50;
-$beige:  #E8DCC4;
-$brown:  #8B7355;
-$teal:   #4A7C7E;
-$terra:  #C17767;
+$dark:  #2C3E50;
+$beige: #E8DCC4;
+$brown: #8B7355;
+$teal:  #4A7C7E;
+$terra: #C17767;
 
-// ── Navbar ────────────────────────────────────────────────────────────────────
+// ── Navbar ── (Bootstrap .navbar base, custom overrides) ──────────────────────
 .inkmap-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
   background: rgba(#fff, 0.96);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba($dark, 0.08);
-  height: 64px;
-  display: flex;
-  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1030; // above Bootstrap default
+
+  .navbar-brand { padding: 0; }
+
+  // Bootstrap .nav-link override
+  .nav-link {
+    color: rgba($dark, 0.6);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.4rem 0.6rem;
+    transition: color 0.2s;
+
+    &:hover, &:focus { color: $dark; }
+  }
+
+  .navbar-toggler {
+    border-color: rgba($dark, 0.2);
+
+    &:focus { box-shadow: none; }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(44,62,80,0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+  }
 }
 
 .inkmap-brand {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 800;
   color: $dark;
-  text-decoration: none;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   gap: 8px;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
+  text-decoration: none;
+
+  &:hover { color: $dark; }
 
   .brand-dot {
     width: 8px;
@@ -39,40 +60,68 @@ $terra:  #C17767;
   }
 }
 
-.inkmap-nav-link {
-  color: rgba($dark, 0.6);
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.2s;
+// ── Buttons ── (Bootstrap .btn base, custom color overrides) ──────────────────
+.btn-inkmap {
+  background-color: $teal;
+  border-color: $teal;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 4px 18px rgba($teal, 0.28);
+  transition: background-color 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
 
-  &:hover { color: $dark; }
+  &:hover, &:focus {
+    background-color: darken($teal, 7%);
+    border-color: darken($teal, 7%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba($teal, 0.32);
+  }
 }
 
-.btn-inkmap-cta {
-  background: $teal;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.2s, transform 0.15s;
-  white-space: nowrap;
+.btn-google-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  color: $dark;
+  border: 1.5px solid rgba($dark, 0.15);
+  border-radius: 10px;
+  padding: 12px 22px;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
 
   &:hover {
-    background: $terra;
+    border-color: rgba($dark, 0.3);
+    box-shadow: 0 2px 12px rgba($dark, 0.08);
+  }
+
+  svg { flex-shrink: 0; }
+}
+
+.btn-hivemind-cta {
+  border: 1.5px solid rgba(#fff, 0.32);
+  color: #fff;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(#fff, 0.1);
+    border-color: rgba(#fff, 0.6);
     color: #fff;
-    transform: translateY(-1px);
   }
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 .inkmap-hero {
   background: linear-gradient(160deg, #fff 55%, rgba($beige, 0.45) 100%);
-  padding: 96px 0 80px;
+  padding: 80px 0 72px;
   position: relative;
   overflow: hidden;
 
@@ -94,7 +143,7 @@ $terra:  #C17767;
   color: $teal;
   border: 1px solid rgba($teal, 0.25);
   border-radius: 100px;
-  padding: 6px 16px;
+  padding: 5px 14px;
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -122,52 +171,7 @@ $terra:  #C17767;
   margin: 0;
 }
 
-.btn-hero-primary {
-  display: inline-block;
-  background: $teal;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 14px 28px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 4px 20px rgba($teal, 0.3);
-
-  &:hover {
-    background: darken($teal, 6%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba($teal, 0.35);
-    color: #fff;
-  }
-}
-
-.btn-google-signin {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
-  color: $dark;
-  border: 1.5px solid rgba($dark, 0.15);
-  border-radius: 10px;
-  padding: 13px 22px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  font-family: inherit;
-
-  &:hover {
-    border-color: rgba($dark, 0.3);
-    box-shadow: 0 2px 12px rgba($dark, 0.08);
-  }
-
-  svg { flex-shrink: 0; }
-}
-
 .hero-stats {
-  padding-top: 8px;
   align-items: flex-start;
 
   .stat-num {
@@ -183,18 +187,18 @@ $terra:  #C17767;
     display: block;
     font-size: 0.75rem;
     color: rgba($dark, 0.5);
-    margin-top: 4px;
+    margin-top: 3px;
   }
 
   .stat-divider {
     width: 1px;
-    height: 40px;
+    height: 38px;
     background: rgba($dark, 0.12);
     align-self: center;
   }
 }
 
-// ── Hero Canvas ───────────────────────────────────────────────────────────────
+// ── Hero Canvas ── (entirely custom, no Bootstrap equivalent) ─────────────────
 .hero-canvas {
   position: relative;
   width: 100%;
@@ -299,8 +303,8 @@ $terra:  #C17767;
 
 // ── Features ──────────────────────────────────────────────────────────────────
 .inkmap-features {
-  padding: 100px 0;
   background: $beige;
+  padding: 96px 0;
 }
 
 .section-eyebrow {
@@ -324,15 +328,14 @@ $terra:  #C17767;
   color: rgba($dark, 0.55);
   font-size: 1rem;
   max-width: 480px;
-  margin: 10px auto 0;
+  margin-left: auto;
+  margin-right: auto;
   line-height: 1.7;
 }
 
+// Bootstrap .h-100 .p-4 .rounded-3 handle layout/spacing; custom below handles visuals
 .feat-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 28px;
-  height: 100%;
   border: 1px solid rgba($dark, 0.06);
   transition: box-shadow 0.25s, transform 0.25s;
 
@@ -344,21 +347,14 @@ $terra:  #C17767;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 18px;
   }
 
-  h5 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: $dark;
-    margin-bottom: 8px;
-  }
+  h5 { color: $dark; }
 
   p {
     font-size: 0.875rem;
     color: rgba($dark, 0.6);
     line-height: 1.65;
-    margin: 0;
   }
 
   &:hover {
@@ -369,15 +365,13 @@ $terra:  #C17767;
 
 // ── How it works ──────────────────────────────────────────────────────────────
 .inkmap-howitworks {
-  padding: 100px 0;
   background: #fff;
+  padding: 96px 0;
 }
 
+// Bootstrap .h-100 .p-4/.p-lg-5 .rounded-4 handle layout; custom below handles visuals
 .step-card {
   background: $beige;
-  border-radius: 18px;
-  padding: 40px 32px;
-  height: 100%;
   border: 1px solid rgba($dark, 0.06);
 
   .step-num {
@@ -388,19 +382,8 @@ $terra:  #C17767;
     letter-spacing: -0.04em;
   }
 
-  h5 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: $dark;
-    margin-bottom: 10px;
-  }
-
-  p {
-    font-size: 0.875rem;
-    color: rgba($dark, 0.6);
-    line-height: 1.7;
-    margin: 0;
-  }
+  h5 { color: $dark; }
+  p  { font-size: 0.875rem; color: rgba($dark, 0.6); line-height: 1.7; }
 
   &--accent {
     background: $teal;
@@ -423,7 +406,6 @@ $terra:  #C17767;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    margin-bottom: 10px;
   }
 
   .hivemind-name {
@@ -431,40 +413,19 @@ $terra:  #C17767;
     font-weight: 800;
     color: #fff;
     letter-spacing: -0.03em;
-    margin-bottom: 14px;
   }
 
   .hivemind-desc {
     color: rgba(#fff, 0.55);
     font-size: 1rem;
     max-width: 440px;
-    margin: 0 auto 32px;
     line-height: 1.75;
-  }
-}
-
-.btn-hivemind-cta {
-  display: inline-block;
-  border: 1.5px solid rgba(#fff, 0.3);
-  color: #fff;
-  border-radius: 10px;
-  padding: 12px 28px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.2s, border-color 0.2s;
-
-  &:hover {
-    background: rgba(#fff, 0.1);
-    border-color: rgba(#fff, 0.6);
-    color: #fff;
   }
 }
 
 // ── Footer ────────────────────────────────────────────────────────────────────
 .inkmap-footer {
   background: lighten($dark, 5%);
-  padding: 64px 0 32px;
   color: rgba(#fff, 0.55);
 
   .footer-brand {
@@ -472,14 +433,12 @@ $terra:  #C17767;
     font-weight: 800;
     color: #fff;
     letter-spacing: -0.02em;
-    display: block;
   }
 
   .footer-tagline {
     font-size: 0.875rem;
     line-height: 1.65;
     max-width: 280px;
-    margin: 0;
   }
 
   .footer-col-title {
@@ -488,14 +447,9 @@ $terra:  #C17767;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: rgba(#fff, 0.35);
-    margin-bottom: 14px;
   }
 
   .footer-nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-
     li { margin-bottom: 9px; }
 
     a {
@@ -508,11 +462,9 @@ $terra:  #C17767;
     }
   }
 
-  .footer-bottom {
-    border-top: 1px solid rgba(#fff, 0.08);
-    padding-top: 24px;
-    font-size: 0.8rem;
-  }
+  .footer-divider { border-color: rgba(#fff, 0.08); }
+
+  .footer-copy { font-size: 0.8rem; }
 
   .footer-social {
     color: rgba(#fff, 0.4);
