@@ -75,10 +75,6 @@
         }
       </div>
 
-      @if (errorMessage()) {
-        <div class="auth-error-banner">{{ errorMessage() }}</div>
-      }
-
       <button type="submit" class="btn-primary-auth" [disabled]="loginForm.invalid || loading()">
         @if (loading()) { Signing in… } @else { Sign In }
       </button>

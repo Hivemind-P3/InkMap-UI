@@ -1,6 +1,7 @@
 import { Component, AfterViewInit, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { environment } from '../../../environments/environment.local';
 
 declare const google: any;
@@ -14,6 +15,7 @@ declare const google: any;
 export class AuthGoogle implements AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   loading = signal(false);
   errorMessage = signal('');
@@ -52,13 +54,13 @@ export class AuthGoogle implements AfterViewInit {
     this.authService.loginWithGoogle(credential).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/']);
+        this.router.navigate(['/projects']);
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(
-          err?.error?.message ?? 'Google authentication failed. Please try again.',
-        );
+        const message = err?.error?.message ?? 'Google authentication failed. Please try again.';
+        this.errorMessage.set(message);
+        this.toast.show('error', message);
       },
     });
   }
