@@ -122,12 +122,16 @@
         }
       </div>
 
+      @if (errorMessage()) {
+        <div class="auth-error-banner">{{ errorMessage() }}</div>
+      }
+
       <button
         type="submit"
         class="btn-primary-auth"
-        [disabled]="registerForm.invalid || passwordMismatch"
+        [disabled]="registerForm.invalid || passwordMismatch || loading()"
       >
-        Create Account
+        @if (loading()) { Creating account… } @else { Create Account }
       </button>
 
     </form>

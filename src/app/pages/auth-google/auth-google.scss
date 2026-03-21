@@ -160,6 +160,51 @@ $terra: #c17767;
   flex-shrink: 0;
 }
 
+// ── Google sign-in section ───────────────────────────────────────────────────
+.google-signin-section {
+  margin-bottom: 1.25rem;
+}
+
+.auth-error-banner {
+  background: rgba(#c17767, 0.08);
+  border: 1px solid rgba(#c17767, 0.25);
+  border-radius: 8px;
+  color: #c17767;
+  font-size: 0.84rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.google-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.25rem 0;
+  color: #8b7355;
+  font-size: 0.88rem;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e0d9ce;
+  border-top-color: #4a7c7e;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 // ── Info text ─────────────────────────────────────────────────────────────────
 .google-info-text {
   font-size: 0.78rem;

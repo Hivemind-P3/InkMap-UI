@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, signal, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -9,12 +10,17 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './register.scss',
 })
 export class Register {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   fullName = '';
   email = '';
   password = '';
   confirmPassword = '';
   showPassword = signal(false);
   showConfirm = signal(false);
+  loading = signal(false);
+  errorMessage = signal('');
 
   togglePassword() {
     this.showPassword.update((v) => !v);
@@ -29,7 +35,19 @@ export class Register {
   }
 
   onSubmit() {
-    // TODO: connect to auth service
-    console.log('Register attempt', { fullName: this.fullName, email: this.email });
+    if (this.loading() || this.passwordMismatch) return;
+    this.loading.set(true);
+    this.errorMessage.set('');
+
+    this.authService.register(this.fullName, this.email, this.password).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMessage.set(err?.error?.message ?? 'Registration failed. Please try again.');
+      },
+    });
   }
 }

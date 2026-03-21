@@ -246,6 +246,17 @@ $terra: #c17767;
   }
 }
 
+// ── Error banner ─────────────────────────────────────────────────────────────
+.auth-error-banner {
+  background: rgba($terra, 0.08);
+  border: 1px solid rgba($terra, 0.25);
+  border-radius: 8px;
+  color: $terra;
+  font-size: 0.84rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
 // ── Text ─────────────────────────────────────────────────────────────────────
 .auth-switch {
   text-align: center;
