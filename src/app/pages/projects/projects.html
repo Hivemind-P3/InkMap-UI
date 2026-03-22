@@ -5,7 +5,7 @@
     </div>
     <div class="header-actions">
       @if (userName) {
-        <span class="user-name">{{ userName }}</span>
+        <span class="user-name"><a routerLink="/profile" class="user-name">{{ userName }}</a></span>
       }
       <button class="btn-logout" (click)="logout()">Sign out</button>
     </div>
