@@ -75,8 +75,8 @@
         }
       </div>
 
-      <button type="submit" class="btn-primary-auth" [disabled]="loginForm.invalid">
-        Sign In
+      <button type="submit" class="btn-primary-auth" [disabled]="loginForm.invalid || loading()">
+        @if (loading()) { Signing in… } @else { Sign In }
       </button>
 
     </form>

@@ -67,9 +67,8 @@
             [(ngModel)]="password"
             name="password"
             required
-            minlength="8"
             #passwordInput="ngModel"
-            [class.field-input--error]="passwordInput.invalid && passwordInput.touched"
+            [class.field-input--error]="passwordInput.touched && !pwValid"
           />
           <button type="button" class="eye-toggle" (click)="togglePassword()" aria-label="Toggle password">
             @if (showPassword()) {
@@ -85,8 +84,27 @@
             }
           </button>
         </div>
-        @if (passwordInput.invalid && passwordInput.touched) {
-          <span class="field-error">Password must be at least 8 characters</span>
+        @if (passwordInput.touched && password.length > 0) {
+          <div class="pw-rules">
+            <div class="pw-rule" [class.pw-rule--ok]="pwHasMin">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              At least 8 characters
+            </div>
+            <div class="pw-rule" [class.pw-rule--ok]="pwHasUpper">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              At least one uppercase letter
+            </div>
+            <div class="pw-rule" [class.pw-rule--ok]="pwHasSpecial">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              At least one special character
+            </div>
+          </div>
         }
       </div>
 
@@ -125,9 +143,9 @@
       <button
         type="submit"
         class="btn-primary-auth"
-        [disabled]="registerForm.invalid || passwordMismatch"
+        [disabled]="registerForm.invalid || passwordMismatch || !pwValid || loading()"
       >
-        Create Account
+        @if (loading()) { Creating account… } @else { Create Account }
       </button>
 
     </form>

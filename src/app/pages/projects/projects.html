@@ -1,0 +1,28 @@
+<div class="projects-page">
+  <header class="projects-header">
+    <div class="projects-brand">
+      <span class="brand-dot"></span>InkMap
+    </div>
+    <div class="header-actions">
+      @if (userName) {
+        <span class="user-name">{{ userName }}</span>
+      }
+      <button class="btn-logout" (click)="logout()">Sign out</button>
+    </div>
+  </header>
+
+  <main class="projects-main">
+    <div class="empty-state">
+      <div class="empty-icon" aria-hidden="true">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <h1 class="empty-title">Projects</h1>
+      <p class="empty-subtitle">Your projects will appear here soon.</p>
+    </div>
+  </main>
+</div>

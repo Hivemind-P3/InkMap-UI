@@ -246,6 +246,48 @@ $terra: #c17767;
   }
 }
 
+// ── Password rules ────────────────────────────────────────────────────────────
+.pw-rules {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pw-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.77rem;
+  color: #b5aca0;
+  transition: color 0.2s;
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+
+  &--ok {
+    color: $teal;
+
+    svg {
+      opacity: 1;
+    }
+  }
+}
+
+// ── Error banner ─────────────────────────────────────────────────────────────
+.auth-error-banner {
+  background: rgba($terra, 0.08);
+  border: 1px solid rgba($terra, 0.25);
+  border-radius: 8px;
+  color: $terra;
+  font-size: 0.84rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
 // ── Text ─────────────────────────────────────────────────────────────────────
 .auth-switch {
   text-align: center;
