@@ -1,0 +1,69 @@
+<div class="page-wrapper secondary-color">
+    <div class="profile-title">
+        Profile
+    </div>
+    
+    <div class="profile-wrapper">
+        <div class="profile-info">
+            <span class="name">{{ userData.name }}</span>
+
+            <div class="email-wrapper profile-item d-flex flex-row">
+                <div class="info-icon-wrapper d-flex align-items-center justify-content-center">
+                    <i class="fa-regular fa-envelope accent2-color"></i>
+                </div>
+                <div class="info-wrapper d-flex flex-column">
+                    <span class="accent1-color">Email</span>
+                    <span>{{ userData.email }}</span>
+                </div>
+            </div>
+
+            <div class="role-wrapper profile-item d-flex flex-row">
+                <div class="info-icon-wrapper d-flex align-items-center justify-content-center">
+                    <i class="fa-regular fa-address-card accent1-color"></i>
+                </div>
+                <div class="info-wrapper d-flex flex-column">
+                    <span class="accent1-color">Role</span>
+                    <span>{{ userData.role }}</span>
+                </div>
+            </div>
+
+            <div class="startDt-wrapper profile-item d-flex flex-row">
+                <div class="info-icon-wrapper d-flex align-items-center justify-content-center">
+                    <i class="fa-regular fa-calendar accent3-color"></i>
+                </div>
+                <div class="info-wrapper d-flex flex-column">
+                    <span class="accent1-color">Member since</span>
+                    <span>{{ userData.startDt | date:'yyyy/MM/dd' }}</span>
+                </div>
+            </div>
+
+            <div class="btns-wrapper d-flex">
+                <button type="button" class="btn btn-profile">Edit profile</button>
+                <button type="button" class="btn btn-preferences">Preferences</button>
+            </div>
+        </div>
+        <div class="stats-wrapper d-flex flex-row justify-content-between">
+            <div class="projects d-flex align-items-center justify-content-center flex-column">
+                <div class="stats-icon-wrapper accent2-background-color d-flex align-items-center justify-content-center">
+                    <i class="fa-solid fa-book"></i>
+                </div>
+                <span class="accent1-color stats-text">Projects</span>
+                <span class="stats-text">{{ userData.projects }}</span>
+            </div>
+            <div class="characters d-flex align-items-center justify-content-center flex-column">
+                <div class="stats-icon-wrapper accent1-background-color d-flex align-items-center justify-content-center">
+                    <i class="fa-solid fa-user-pen"></i>
+                </div>
+                <span class="accent1-color stats-text">Characters</span>
+                <span class="stats-text">{{ userData.characters }}</span>
+            </div>
+            <div class="collaborators d-flex align-items-center justify-content-center flex-column">
+                <div class="stats-icon-wrapper accent3-background-color d-flex align-items-center justify-content-center">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <span class="accent1-color stats-text">Collaborators</span>
+                <span class="stats-text">{{ userData.collaborators }}</span>
+            </div>
+        </div>
+    </div>
+</div>
