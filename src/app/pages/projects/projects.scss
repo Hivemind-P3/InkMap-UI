@@ -1,0 +1,102 @@
+$dark-blue: #2c3e50;
+$beige: #e8dcc4;
+$brown: #8b7355;
+$teal: #4a7c7e;
+$terra: #c17767;
+
+.projects-page {
+  min-height: 100vh;
+  background: $beige;
+  display: flex;
+  flex-direction: column;
+}
+
+.projects-header {
+  background: #fff;
+  border-bottom: 1px solid #e0d9ce;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.projects-brand {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: $dark-blue;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  .brand-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $teal;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  color: $brown;
+  font-weight: 500;
+}
+
+.btn-logout {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $brown;
+  background: none;
+  border: 1.5px solid #e0d9ce;
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+
+  &:hover {
+    color: $terra;
+    border-color: $terra;
+  }
+}
+
+.projects-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  max-width: 380px;
+}
+
+.empty-icon {
+  color: #c8bfb4;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.empty-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: $dark-blue;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.empty-subtitle {
+  font-size: 0.95rem;
+  color: $brown;
+  margin-bottom: 0;
+}
