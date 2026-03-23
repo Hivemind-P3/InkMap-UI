@@ -33,7 +33,7 @@ export class AdminPanel implements OnInit {
         this.loading = false;
       },
       error: () => {
-        alert('Error cargando usuarios');
+        alert('Could not load users');
         this.loading = false;
       },
     });
@@ -45,21 +45,21 @@ export class AdminPanel implements OnInit {
         role: user.role,
       })
       .subscribe({
-        next: () => alert('Rol actualizado'),
-        error: () => alert('Error actualizando rol'),
+        next: () => alert('Role updated'),
+        error: () => alert('Could not update role'),
       });
   }
 
   deleteUser(user: User) {
-    if (!confirm(`¿Eliminar usuario ${user.email}?`)) return;
+    if (!confirm(`Delete user ${user.email}?`)) return;
 
     this.http.delete(`/api/users/${user.id}`).subscribe({
       next: () => {
-        alert('Usuario eliminado');
+        alert('User deleted successfully');
         this.loadUsers();
       },
       error: (err) => {
-        alert(err.error?.message || 'Error eliminando usuario');
+        alert(err.error?.message || 'Could not delete user');
       },
     });
   }

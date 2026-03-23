@@ -1,15 +1,15 @@
 <div class="admin-container">
 
-  <h1>Panel de Administrador</h1>
+  <h1>Administrator Panel</h1>
 
-  <div *ngIf="loading">Cargando usuarios...</div>
+  <div *ngIf="loading">Loading users...</div>
 
   <table *ngIf="!loading">
     <thead>
     <tr>
       <th>Email</th>
-      <th>Rol</th>
-      <th>Acciones</th>
+      <th>Role</th>
+      <th>Actions</th>
     </tr>
     </thead>
 
@@ -27,12 +27,12 @@
 
       <td class="actions">
         <button (click)="updateRole(user)">
-          Guardar
+          Save
         </button>
 
         <button class="delete"
                 (click)="deleteUser(user)">
-          Eliminar
+          Delete
         </button>
       </td>
 
