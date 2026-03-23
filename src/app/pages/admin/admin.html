@@ -1,0 +1,43 @@
+<div class="admin-container">
+
+  <h1>Panel de Administrador</h1>
+
+  <div *ngIf="loading">Cargando usuarios...</div>
+
+  <table *ngIf="!loading">
+    <thead>
+    <tr>
+      <th>Email</th>
+      <th>Rol</th>
+      <th>Acciones</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let user of users">
+
+      <td>{{ user.email }}</td>
+
+      <td>
+        <select [(ngModel)]="user.role">
+          <option value="USER">USER</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+      </td>
+
+      <td class="actions">
+        <button (click)="updateRole(user)">
+          Guardar
+        </button>
+
+        <button class="delete"
+                (click)="deleteUser(user)">
+          Eliminar
+        </button>
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+
+</div>
