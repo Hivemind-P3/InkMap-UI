@@ -13,3 +13,12 @@ export interface CreateProjectRequest {
   medium: string;
   tags: string[];
 }
+
+export interface ProjectPage {
+  content: Project[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}

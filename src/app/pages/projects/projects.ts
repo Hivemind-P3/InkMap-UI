@@ -18,10 +18,20 @@ export class Projects implements OnInit {
   private readonly projectsService = inject(ProjectsService);
   private readonly toastService = inject(ToastService);
 
+  private readonly PAGE_SIZE = 9;
+
   // ── List state ────────────────────────────────────────────────────────────
   readonly projects = signal<Project[]>([]);
   readonly isLoading = signal(false);
   readonly errorMessage = signal('');
+
+  // ── Search & pagination ───────────────────────────────────────────────────
+  searchQuery = '';
+  readonly currentPage = signal(0);
+  readonly totalPages = signal(0);
+  readonly totalElements = signal(0);
+  // true/false once determined; null only before the very first load completes
+  readonly userHasProjects = signal<boolean | null>(null);
 
   // ── Modal state ───────────────────────────────────────────────────────────
   readonly showModal = signal(false);
@@ -64,9 +74,15 @@ export class Projects implements OnInit {
   loadProjects(): void {
     this.isLoading.set(true);
     this.errorMessage.set('');
-    this.projectsService.getMyProjects().subscribe({
-      next: (data) => {
-        this.projects.set(data);
+    this.projectsService.getMyProjects(this.currentPage(), this.PAGE_SIZE, this.searchQuery).subscribe({
+      next: (page) => {
+        this.projects.set(page.content);
+        this.totalPages.set(page.totalPages);
+        this.totalElements.set(page.totalElements);
+        // Only update the "does this user own any projects" flag on unfiltered loads
+        if (!this.searchQuery.trim()) {
+          this.userHasProjects.set(page.totalElements > 0);
+        }
         this.isLoading.set(false);
       },
       error: () => {
@@ -75,6 +91,27 @@ export class Projects implements OnInit {
       },
     });
   }
+
+  applySearch(): void {
+    this.currentPage.set(0);
+    this.loadProjects();
+  }
+
+  previousPage(): void {
+    if (this.currentPage() > 0) {
+      this.currentPage.update((p) => p - 1);
+      this.loadProjects();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages() - 1) {
+      this.currentPage.update((p) => p + 1);
+      this.loadProjects();
+    }
+  }
+
+  // ── Modal ─────────────────────────────────────────────────────────────────
 
   openModal(): void {
     this.resetForm();
@@ -159,6 +196,7 @@ export class Projects implements OnInit {
         next: () => {
           this.isSubmitting.set(false);
           this.closeModal();
+          this.currentPage.set(0);
           this.loadProjects();
           this.toastService.show('success', 'Project created successfully.');
         },

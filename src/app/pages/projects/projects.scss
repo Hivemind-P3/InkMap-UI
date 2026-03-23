@@ -10,28 +10,34 @@ $terra: #c17767;
   min-height: 100vh;
   background: $beige;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
-// ─── Header ───────────────────────────────────────────────────────────────────
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
 
-.projects-header {
-  background: #fff;
-  border-bottom: 1px solid #e0d9ce;
-  padding: 1rem 2rem;
+.app-sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: $dark-blue;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
-.projects-brand {
-  font-size: 1.3rem;
+.sidebar-brand {
+  font-size: 1.2rem;
   font-weight: 800;
-  color: $dark-blue;
+  color: #fff;
   letter-spacing: -0.02em;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
   .brand-dot {
     display: inline-block;
@@ -42,34 +48,114 @@ $terra: #c17767;
   }
 }
 
-.header-actions {
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+  flex: 1;
+}
+
+.nav-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.25rem 0.35rem;
+}
+
+.nav-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
-
-.user-name {
-  font-size: 0.875rem;
-  color: $brown;
+  gap: 0.6rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  text-decoration: none;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0.55rem 1.25rem;
+  border-radius: 0;
+  cursor: default;
+  transition: color 0.15s, background 0.15s;
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.55;
+  }
+
+  &--active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    font-weight: 600;
+
+    svg {
+      opacity: 1;
+      color: $teal;
+    }
+  }
+
+  &--disabled {
+    opacity: 0.5;
+  }
 }
 
-.btn-logout {
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.25rem 0;
+  gap: 0.5rem;
+}
+
+.sidebar-user-name {
   font-size: 0.82rem;
   font-weight: 600;
-  color: $brown;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
   background: none;
-  border: 1.5px solid #e0d9ce;
-  border-radius: 8px;
-  padding: 0.4rem 0.85rem;
+  border: none;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
+  padding: 0.3rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
 
   &:hover {
     color: $terra;
-    border-color: $terra;
+    background: rgba(193, 119, 103, 0.1);
   }
+}
+
+// ─── App body ─────────────────────────────────────────────────────────────────
+
+.app-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 // ─── Main area ────────────────────────────────────────────────────────────────
@@ -77,9 +163,9 @@ $terra: #c17767;
 .projects-main {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 3rem 2rem;
+  padding: 2.5rem 2rem;
 }
 
 // ─── Loading & error states ───────────────────────────────────────────────────
@@ -214,12 +300,139 @@ $terra: #c17767;
   }
 }
 
+// ─── Search bar ───────────────────────────────────────────────────────────────
+
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 0.9rem;
+  color: $dark-blue;
+  background: #fff;
+  border: 1.5px solid #e0d9ce;
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: $teal;
+  }
+
+  &::placeholder {
+    color: #c8bfb4;
+  }
+}
+
+.btn-search {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $teal;
+  background: rgba(74, 124, 126, 0.08);
+  border: 1.5px solid rgba(74, 124, 126, 0.3);
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(74, 124, 126, 0.15);
+    border-color: $teal;
+  }
+}
+
+// ─── Inline empty state (user has no projects) ────────────────────────────────
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.empty-content-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $dark-blue;
+  margin-bottom: 0.35rem;
+}
+
+.empty-content-subtitle {
+  font-size: 0.88rem;
+  color: $brown;
+  margin: 0;
+}
+
+// ─── No results ───────────────────────────────────────────────────────────────
+
+.no-results {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.no-results-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $dark-blue;
+  margin-bottom: 0.35rem;
+}
+
+.no-results-hint {
+  font-size: 0.88rem;
+  color: $brown;
+  margin: 0;
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0d9ce;
+}
+
+.page-info {
+  font-size: 0.85rem;
+  color: $brown;
+}
+
+.btn-page {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $brown;
+  background: none;
+  border: 1.5px solid #e0d9ce;
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+
+  &:hover:not(:disabled) {
+    color: $teal;
+    border-color: $teal;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
 // ─── Project list ─────────────────────────────────────────────────────────────
 
 .projects-container {
   width: 100%;
-  max-width: 1100px;
-  align-self: flex-start;
+  max-width: 1060px;
 }
 
 .list-header {
@@ -254,10 +467,21 @@ $terra: #c17767;
 
 // ─── Project grid ─────────────────────────────────────────────────────────────
 
+.grid-area {
+  display: flex;
+  flex-direction: column;
+  min-height: 580px;
+
+  .pagination {
+    margin-top: auto;
+  }
+}
+
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.25rem;
+  align-content: start;
 }
 
 .project-card {
@@ -332,11 +556,37 @@ $terra: #c17767;
   padding: 0.15rem 0.5rem;
 }
 
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 0.25rem;
+  gap: 0.5rem;
+}
+
 .card-date {
   font-size: 0.78rem;
   color: #b0a799;
-  margin-top: auto;
-  padding-top: 0.25rem;
+}
+
+.btn-open-project {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $teal;
+  background: none;
+  border: 1.5px solid rgba(74, 124, 126, 0.4);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(74, 124, 126, 0.08);
+    border-color: $teal;
+  }
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────

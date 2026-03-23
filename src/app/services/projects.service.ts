@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.local';
 import { AuthService } from './auth.service';
-import { Project, CreateProjectRequest } from '../models/project.model';
+import { Project, ProjectPage, CreateProjectRequest } from '../models/project.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectsService {
@@ -16,8 +16,15 @@ export class ProjectsService {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
-  getMyProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.baseUrl}/projects/me`, { headers: this.getHeaders() });
+  getMyProjects(page: number, size: number, search: string): Observable<ProjectPage> {
+    let params = new HttpParams().set('page', String(page)).set('size', String(size));
+    if (search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    return this.http.get<ProjectPage>(`${this.baseUrl}/projects/me`, {
+      headers: this.getHeaders(),
+      params,
+    });
   }
 
   createProject(data: CreateProjectRequest): Observable<Project> {
