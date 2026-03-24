@@ -1,28 +1,365 @@
 <div class="projects-page">
-  <header class="projects-header">
-    <div class="projects-brand">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+  <aside class="app-sidebar">
+    <div class="sidebar-brand">
       <span class="brand-dot"></span>InkMap
     </div>
-    <div class="header-actions">
-      @if (userName) {
-        <span class="user-name">{{ userName }}</span>
-      }
-      <button class="btn-logout" (click)="logout()">Sign out</button>
-    </div>
-  </header>
 
-  <main class="projects-main">
-    <div class="empty-state">
-      <div class="empty-icon" aria-hidden="true">
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Workspace</span>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
           <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
           <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
           <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
         </svg>
+        Dashboard
       </div>
-      <h1 class="empty-title">Projects</h1>
-      <p class="empty-subtitle">Your projects will appear here soon.</p>
+      <div class="nav-item nav-item--active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="7" width="20" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="2" y="12" width="20" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="2" y="17" width="20" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="2" y="2" width="20" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        Projects
+      </div>
+
+      <span class="nav-section-label">Story</span>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Characters
+      </div>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        Worldbuilding
+      </div>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6l4-3 4 3 4-3 4 3v13l-4-3-4 3-4-3-4 3V6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        Maps
+      </div>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="6" cy="18" r="2" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="6" r="2" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="18" cy="14" r="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 8v6M14 8l4 4M10 8l-4 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Narrative Maps
+      </div>
+
+      <span class="nav-section-label">Tools</span>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        Editor
+      </div>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75L19 14z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        AI Tools
+      </div>
+
+      <span class="nav-section-label">Team</span>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M3 20c0-3.3 2.7-6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="17" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M15 14c3.3 0 6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Collaboration
+      </div>
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Notifications
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="nav-item nav-item--disabled">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Settings
+      </div>
+      <div class="sidebar-user">
+        @if (userName) {
+          <a routerLink="/profile" class="sidebar-user-name">{{ userName }}</a>
+        }
+        <button class="sidebar-logout" type="button" (click)="logout()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Sign out
+        </button>
+      </div>
     </div>
-  </main>
+  </aside>
+
+  <!-- ── Main body ───────────────────────────────────────────────────────── -->
+  <div class="app-body">
+    <main class="projects-main">
+
+      @if (isLoading()) {
+        <div class="state-center">
+          <div class="loading-spinner"></div>
+          <p class="state-label">Loading projects...</p>
+        </div>
+
+      } @else if (errorMessage()) {
+        <div class="state-center">
+          <p class="error-message">{{ errorMessage() }}</p>
+          <button class="btn-retry" (click)="loadProjects()">Try again</button>
+        </div>
+
+      } @else {
+        <!-- Container always visible after loading -->
+        <div class="projects-container">
+
+          <!-- Always visible: section header + create button -->
+          <div class="list-header">
+            <div class="list-header-left">
+              <h1 class="section-title">My Projects</h1>
+              @if (totalElements() > 0) {
+                <span class="project-count">{{ totalElements() }}</span>
+              }
+            </div>
+            <button class="btn-create" (click)="openModal()">Create new project</button>
+          </div>
+
+          <!-- Always visible: search bar -->
+          <div class="search-bar">
+            <input
+              class="search-input"
+              [(ngModel)]="searchQuery"
+              name="search"
+              type="text"
+              placeholder="Search by title or tag..."
+              autocomplete="off"
+              (keydown.enter)="applySearch()"
+            />
+            <button class="btn-search" type="button" (click)="applySearch()">Search</button>
+          </div>
+
+          <!-- Content area: changes based on state -->
+          @if (userHasProjects() === false) {
+            <!-- User has no projects at all -->
+            <div class="empty-content">
+              <div class="empty-icon" aria-hidden="true">
+                <div class="empty-icon-circle">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                </div>
+              </div>
+              <p class="empty-content-title">No projects yet</p>
+              <p class="empty-content-subtitle">Create your first project to get started.</p>
+            </div>
+
+          } @else if (projects().length === 0) {
+            <!-- User has projects but current search/page has no results -->
+            <div class="no-results">
+              <p class="no-results-text">No matching projects found.</p>
+              <p class="no-results-hint">Try a different search term.</p>
+            </div>
+
+          } @else {
+            <div class="grid-area">
+              <!-- Project grid -->
+              <div class="projects-grid">
+                @for (project of projects(); track project.id) {
+                  <div class="project-card">
+                    <div class="card-top">
+                      <h2 class="card-title">{{ project.title }}</h2>
+                      @if (project.medium) {
+                        <span class="card-medium">{{ project.medium }}</span>
+                      }
+                    </div>
+                    @if (project.description) {
+                      <p class="card-description">{{ project.description }}</p>
+                    }
+                    @if (project.tags && project.tags.length > 0) {
+                      <div class="card-tags">
+                        @for (tag of project.tags; track tag) {
+                          <span class="card-tag">{{ tag }}</span>
+                        }
+                      </div>
+                    }
+                    <div class="card-footer">
+                      @if (project.createdAt) {
+                        <span class="card-date">{{ project.createdAt | date: 'mediumDate' }}</span>
+                      } @else {
+                        <span></span>
+                      }
+                      <button class="btn-open-project" type="button" title="Coming soon">
+                        Open Project
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              @if (totalPages() > 1) {
+                <div class="pagination">
+                  <button
+                    class="btn-page"
+                    type="button"
+                    [disabled]="currentPage() === 0"
+                    (click)="previousPage()"
+                  >Previous</button>
+                  <span class="page-info">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+                  <button
+                    class="btn-page"
+                    type="button"
+                    [disabled]="currentPage() >= totalPages() - 1"
+                    (click)="nextPage()"
+                  >Next</button>
+                </div>
+              }
+            </div>
+          }
+
+        </div>
+      }
+
+    </main>
+  </div>
+
+  <!-- ── Create project modal ──────────────────────────────────────────────── -->
+  @if (showModal()) {
+    <div class="modal-overlay">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+          <h2 class="modal-title">New Project</h2>
+          <button class="modal-close" type="button" (click)="cancelModal()" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <form class="modal-form" (ngSubmit)="submitForm()">
+
+          <div class="form-field">
+            <label class="form-label" for="proj-title">Title</label>
+            <input
+              id="proj-title"
+              class="form-input"
+              [class.form-input--error]="titleError"
+              [(ngModel)]="formTitle"
+              name="title"
+              type="text"
+              placeholder="Your project title"
+              autocomplete="off"
+            />
+            @if (titleError) {
+              <span class="field-error">{{ titleError }}</span>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="proj-desc">Description</label>
+            <textarea
+              id="proj-desc"
+              class="form-input form-textarea"
+              [class.form-input--error]="descriptionError"
+              [(ngModel)]="formDescription"
+              name="description"
+              placeholder="What is this project about?"
+              rows="3"
+            ></textarea>
+            @if (descriptionError) {
+              <span class="field-error">{{ descriptionError }}</span>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="proj-medium">Medium</label>
+            <select
+              id="proj-medium"
+              class="form-input form-select"
+              [class.form-input--error]="mediumError"
+              [(ngModel)]="formMedium"
+              name="medium"
+            >
+              <option value="" disabled>Select a medium</option>
+              @for (opt of mediumOptions; track opt) {
+                <option [value]="opt">{{ opt }}</option>
+              }
+            </select>
+            @if (mediumError) {
+              <span class="field-error">{{ mediumError }}</span>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">
+              Tags <span class="label-optional">(optional)</span>
+            </label>
+            <div class="tag-input-row">
+              <input
+                class="form-input"
+                [(ngModel)]="formTagInput"
+                name="tagInput"
+                type="text"
+                placeholder="Add a tag and press Enter"
+                autocomplete="off"
+                (keydown.enter)="$event.preventDefault(); addTag()"
+              />
+              <button type="button" class="btn-add-tag" (click)="addTag()">Add</button>
+            </div>
+            @if (formTags.length > 0) {
+              <div class="form-tags">
+                @for (tag of formTags; track tag) {
+                  <span class="form-tag">
+                    {{ tag }}
+                    <button
+                      type="button"
+                      class="tag-remove"
+                      (click)="removeTag(tag)"
+                      aria-label="Remove tag"
+                    >&times;</button>
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          @if (submitError()) {
+            <p class="submit-error">{{ submitError() }}</p>
+          }
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" (click)="cancelModal()">Cancel</button>
+            <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
+              {{ isSubmitting() ? 'Creating...' : 'Create project' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  }
+
 </div>

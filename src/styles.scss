@@ -1,1 +1,21 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+body {
+    margin: 0;
+}
+
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+    --primary-color: #2C3E50;
+    --secondary-color: #E8DCC4;
+
+    --accent1: #8B7355;
+    --accent2: #4A7C7E;
+    --accent3: #C17767;
+    
+    --title: 2.5rem;
+    --header1: 2rem;
+    --header2: 1.5rem;
+    --header3: 0.5rem;
+}
