@@ -54,7 +54,7 @@ export class AuthGoogle implements AfterViewInit {
     this.authService.loginWithGoogle(credential).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/projects']);
+        this.router.navigate([this.authService.getHomeRoute()]);
       },
       error: (err) => {
         this.loading.set(false);
