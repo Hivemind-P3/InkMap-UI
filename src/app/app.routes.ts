@@ -6,6 +6,7 @@ import { Register } from './pages/register/register';
 import { AuthGoogle } from './pages/auth-google/auth-google';
 import { Projects } from './pages/projects/projects';
 import { Profile } from './pages/profile/profile';
+import { EditProfile } from './pages/edit-profile/edit-profile';
 
 export const routes: Routes = [
   { path: '', component: LandingProducto },
@@ -14,5 +15,6 @@ export const routes: Routes = [
   { path: 'register', component: Register },
   { path: 'auth/google', component: AuthGoogle },
   { path: 'projects', component: Projects },
-  { path: 'profile', component: Profile }
+  { path: 'profile', component: Profile },
+  { path: 'update-profile', component: EditProfile }
 ];

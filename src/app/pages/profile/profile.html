@@ -1,33 +1,24 @@
-<header class="projects-header">
-    <div class="projects-brand">
-      <span class="brand-dot"></span>InkMap
-    </div>
-    <div class="header-actions">
-      @if (userData) {
-        <span class="user-name"><a routerLink="/profile" class="user-name">{{ userData.name }}</a></span>
-      }
-      <button class="btn-logout" (click)="logout()">Sign out</button>
-    </div>
-</header>
-<div class="page-wrapper secondary-color">
-    <div class="profile-title">
+<app-header></app-header>
+
+<div class="page-wrapper p-5 secondary-color">
+    <div class="profile-title default-header">
         Profile
     </div>
     
     <div class="profile-wrapper">
         <div class="profile-info">
-            <span class="name">{{ userData.name }}</span>
+            <span class="name default-header">{{ userData.name }}</span>
             
-            <div class="profile-info-wrapper d-flex flex-column flex-md-row gap-5 mt-3">
-              <div class="profile-info-left d-flex flex-column">
-                <span class="accent3-color mb-3">Email notifications</span>
+            <div class="profile-info-wrapper d-flex flex-column flex-md-row mt-3">
+              <div class="profile-info-left d-flex flex-column w-100">
+                <span class="accent3-color mb-3 default-header">User Information</span>
                 <div class="d-flex flex-column justify-content-between gap-5">
                   <div class="email-wrapper profile-item d-flex flex-row">
                     <div class="info-icon-wrapper d-flex align-items-center justify-content-center">
                         <i class="fa-regular fa-envelope accent2-color"></i>
                     </div>
                     <div class="info-wrapper d-flex flex-column">
-                        <span class="accent1-color">Email</span>
+                        <span class="accent1-color default-header">Email</span>
                         <span>{{ userData.email }}</span>
                     </div>
                   </div>
@@ -37,7 +28,7 @@
                         <i class="fa-regular fa-address-card accent1-color"></i>
                     </div>
                     <div class="info-wrapper d-flex flex-column">
-                        <span class="accent1-color">Role</span>
+                        <span class="accent1-color default-header">Role</span>
                         <span>{{ userData.role }}</span>
                     </div>
                   </div>
@@ -47,54 +38,58 @@
                         <i class="fa-regular fa-calendar accent3-color"></i>
                     </div>
                     <div class="info-wrapper d-flex flex-column">
-                        <span class="accent1-color">Member since</span>
+                        <span class="accent1-color default-header">Member since</span>
                         <span>{{ userData.startDt | date:'yyyy/MM/dd' }}</span>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div class="profile-info-right d-flex flex-column justify-content-between">
-                <div class="color-code-title mb-3">Color code for Worldbuilding</div>
+              <div class="profile-info-right d-flex flex-column justify-content-between w-100">
+                <div class="color-code-title mb-3 default-header">Color code for Worldbuilding</div>
                 <div class="d-flex flex-row">
                   <div class="d-flex flex-column justify-content-between gap-3">
                     <div class="d-flex flex-row gap-2 align-items-center">
                       <div class="color-circle" [ngStyle]="{ 'background-color': colors.place }"></div>
-                      <span class="accent1-color">Place</span>
+                      <span>Place</span>
                     </div>
                     <div class="d-flex flex-row gap-2 align-items-center">
                       <div class="color-circle" [ngStyle]="{ 'background-color': colors.character }"></div>
-                      <span class="accent1-color">Character</span>
+                      <span>Character</span>
                     </div>
                     <div class="d-flex flex-row gap-2 align-items-center">
                       <div class="color-circle" [ngStyle]="{ 'background-color': colors.culture }"></div>
-                      <span class="accent1-color">Culture</span>
+                      <span>Culture</span>
                     </div>
                     <div class="d-flex flex-row gap-2 align-items-center">
                       <div class="color-circle" [ngStyle]="{ 'background-color': colors.system }"></div>
-                      <span class="accent1-color">System</span>
+                      <span>System</span>
                     </div>
                     <div class="d-flex flex-row gap-2 align-items-center">
                       <div class="color-circle" [ngStyle]="{ 'background-color': colors.object }"></div>
-                      <span class="accent1-color">Object</span>
+                      <span>Object</span>
                     </div>
                     <div class="d-flex flex-row gap-2 align-items-center">
                       <div class="color-circle" [ngStyle]="{ 'background-color': colors.other }"></div>
-                      <span class="accent1-color">Other</span>
+                      <span>Other</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="d-flex flex-column">
-                <span class="accent3-color mb-3">Email notifications</span>
-                <span>{{ userData.preferences.notificacionesCorreo ? 'Enabled' : 'Disabled' }}</span>
+              <div class="d-flex flex-column w-100">
+                <span class="accent3-color mb-3 default-header">Email notifications</span>
+                <div class="d-flex justify-content-start">
+                  <div class="me-2">
+                    <input class="form-check-input" type="checkbox" [checked]="userData.preferences?.notificacionesCorreo" id="notif" disabled>
+                  </div>
+                  <label class="form-check-label pl-2" for="notif">Recieve email notifications</label>
+                </div>
               </div>
             </div>
 
             <div class="btns-wrapper d-flex mt-5">
-                <button type="button" class="btn btn-profile">Edit profile</button>
-                <button type="button" class="btn btn-preferences">Preferences</button>
+                <button type="button" class="btn btn-profile px-4" routerLink="/update-profile">Edit</button>
             </div>
         </div>
         <div class="stats-wrapper d-flex flex-column flex-md-row gap-4 justify-content-between">
@@ -102,68 +97,25 @@
                 <div class="stats-icon-wrapper accent2-background-color d-flex align-items-center justify-content-center">
                     <i class="fa-solid fa-book"></i>
                 </div>
-                <span class="accent1-color stats-text">Projects</span>
+                <span class="accent1-color stats-text default-header">Projects</span>
                 <span class="stats-text">{{ userData.projects || 0 }}</span>
             </div>
             <div class="characters d-flex align-items-center justify-content-center flex-column">
                 <div class="stats-icon-wrapper accent1-background-color d-flex align-items-center justify-content-center">
                     <i class="fa-solid fa-user-pen"></i>
                 </div>
-                <span class="accent1-color stats-text">Characters</span>
+                <span class="accent1-color stats-text default-header">Characters</span>
                 <span class="stats-text">{{ userData.characters || 0 }}</span>
             </div>
             <div class="collaborators d-flex align-items-center justify-content-center flex-column">
                 <div class="stats-icon-wrapper accent3-background-color d-flex align-items-center justify-content-center">
                     <i class="fa-solid fa-users"></i>
                 </div>
-                <span class="accent1-color stats-text">Collaborators</span>
+                <span class="accent1-color stats-text default-header">Collaborators</span>
                 <span class="stats-text">{{ userData.collaborators || 0 }}</span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ─── Footer ────────────────────────────────────────────────────────────── -->
-<footer class="inkmap-footer py-5">
-  <div class="container">
-    <div class="row g-4 align-items-start">
-      <div class="col-md-4">
-        <span class="footer-brand d-block">InkMap</span>
-        <p class="footer-tagline mt-2 mb-0">A creative workspace for storytellers who think visually.</p>
-      </div>
-      <div class="col-md-2 offset-md-2">
-        <h6 class="footer-col-title">Product</h6>
-        <ul class="list-unstyled footer-nav-list mt-2">
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How it works</a></li>
-          <li><a href="#">Pricing</a></li>
-        </ul>
-      </div>
-      <div class="col-md-2">
-        <h6 class="footer-col-title">Company</h6>
-        <ul class="list-unstyled footer-nav-list mt-2">
-          <li><a routerLink="/hivemind">Hivemind</a></li>
-          <li><a href="#">Blog</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </div>
-      <div class="col-md-2">
-        <h6 class="footer-col-title">Legal</h6>
-        <ul class="list-unstyled footer-nav-list mt-2">
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Terms</a></li>
-          <li><a href="#">Cookies</a></li>
-        </ul>
-      </div>
-    </div>
-    <hr class="footer-divider mt-4 mb-3">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-      <span class="footer-copy">© 2025 InkMap · A Hivemind product</span>
-      <div class="d-flex gap-3">
-        <a href="#" class="footer-social">Twitter</a>
-        <a href="#" class="footer-social">LinkedIn</a>
-        <a href="#" class="footer-social">Instagram</a>
-      </div>
-    </div>
-  </div>
-</footer>
+<app-footer></app-footer>

@@ -1,3 +1,3 @@
 export interface ColorCode {
-    colores: String[];
+    colores: string[];
 }
