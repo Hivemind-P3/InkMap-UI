@@ -19,3 +19,19 @@ body {
     --header2: 1.5rem;
     --header3: 0.5rem;
 }
+
+// Global classes
+.default-header {
+    font-weight: 600;
+}
+
+.default-header-primary {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.default-title {
+    font-weight: 600;
+    font-size: 2rem;
+    color: var(--primary-color);
+}
