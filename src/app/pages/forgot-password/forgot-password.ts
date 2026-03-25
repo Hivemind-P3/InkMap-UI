@@ -1,35 +1,42 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { environment } from '../../../environments/environment.local';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-forgot-password',
+  imports: [FormsModule, RouterLink],
   templateUrl: './forgot-password.html',
   imports: [FormsModule],
   styleUrls: ['./forgot-password.scss'],
 })
 export class ForgotPassword {
   email = '';
-  message = '';
-  loading = false;
+  loading = signal(false);
+  sent = signal(false);
+
+  private toast = inject(ToastService);
 
   constructor(private http: HttpClient) {}
 
   submit() {
-    this.loading = true;
+    if (!this.email.trim()) return;
+
+    this.loading.set(true);
 
     this.http
-      .post('/api/auth/forgot-password', {
-        email: this.email,
-      })
+      .post(`${environment.apiBaseUrl}/auth/forgot-password`, { email: this.email }, { responseType: 'text' })
       .subscribe({
         next: () => {
-          this.message = 'Check your email to continue.';
-          this.loading = false;
+          this.loading.set(false);
+          this.sent.set(true);
+          this.toast.show('success', 'Reset link sent. Please check your email.');
         },
         error: () => {
-          this.message = 'Could not send email';
-          this.loading = false;
+          this.loading.set(false);
+          this.toast.show('error', 'Could not send the reset email. Please try again.');
         },
       });
   }

@@ -60,6 +60,10 @@ export class AuthService {
     return !!this.getToken();
   }
 
+  getHomeRoute(): string {
+    return this.getUser()?.role === 'ADMIN' ? '/admin' : '/projects';
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);

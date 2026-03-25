@@ -1,43 +1,66 @@
-<div class="admin-container">
+<div class="admin-page">
 
-  <h1>Administrator Panel</h1>
+  <div class="admin-header">
+    <h1 class="admin-title">User Management</h1>
+    <p class="admin-subtitle">Manage roles and accounts for all registered users.</p>
+  </div>
 
-  <div *ngIf="loading">Loading users...</div>
-
-  <table *ngIf="!loading">
-    <thead>
-    <tr>
-      <th>Email</th>
-      <th>Role</th>
-      <th>Actions</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    <tr *ngFor="let user of users">
-
-      <td>{{ user.email }}</td>
-
-      <td>
-        <select [(ngModel)]="user.role">
-          <option value="USER">USER</option>
-          <option value="ADMIN">ADMIN</option>
-        </select>
-      </td>
-
-      <td class="actions">
-        <button (click)="updateRole(user)">
-          Save
-        </button>
-
-        <button class="delete"
-                (click)="deleteUser(user)">
-          Delete
-        </button>
-      </td>
-
-    </tr>
-    </tbody>
-  </table>
+  @if (loading) {
+    <p class="admin-loading">Loading users…</p>
+  } @else if (users.length === 0) {
+    <p class="admin-empty">No users found.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.id) {
+            <tr [class.row--self]="isSelf(user)">
+              <td>
+                {{ user.name }}
+                @if (isSelf(user)) {
+                  <span class="you-badge">you</span>
+                }
+              </td>
+              <td>{{ user.email }}</td>
+              <td>
+                <select
+                  [(ngModel)]="user.role"
+                  [name]="'role-' + user.id"
+                  [disabled]="isSelf(user)"
+                >
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </td>
+              <td class="actions">
+                <button
+                  class="btn-save"
+                  (click)="updateRole(user)"
+                  [disabled]="isSelf(user) || savingId === user.id"
+                >
+                  {{ savingId === user.id ? 'Saving…' : 'Save' }}
+                </button>
+                <button
+                  class="btn-delete"
+                  (click)="deleteUser(user)"
+                  [disabled]="isSelf(user) || deletingId === user.id"
+                >
+                  {{ deletingId === user.id ? 'Deleting…' : 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 
 </div>
