@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.html',
+  imports: [FormsModule],
   styleUrls: ['./reset-password.scss'],
 })
 export class ResetPassword implements OnInit {

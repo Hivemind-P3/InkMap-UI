@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.html',
+  imports: [FormsModule],
   styleUrls: ['./forgot-password.scss'],
 })
 export class ForgotPassword {
