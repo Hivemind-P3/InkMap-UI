@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { NgForOf, NgIf } from '@angular/common';
+import { environment } from '../../../environments/environment.local';
+import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
-interface User {
+interface AdminUser {
   id: number;
+  name: string;
   email: string;
   role: string;
 }
@@ -13,53 +16,95 @@ interface User {
   selector: 'app-admin',
   templateUrl: './admin.html',
   styleUrls: ['./admin.scss'],
-  imports: [FormsModule, NgIf, NgForOf],
+  imports: [FormsModule],
 })
 export class AdminPanel implements OnInit {
-  users: User[] = [];
+  users: AdminUser[] = [];
   loading = false;
+  savingId: number | null = null;
+  deletingId: number | null = null;
+  currentUserId: number | null = null;
+
+  private readonly baseUrl = environment.apiBaseUrl;
+  private readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.currentUserId = this.auth.getUser()?.id ?? null;
     this.loadUsers();
   }
 
-  loadUsers() {
+  private headers(): HttpHeaders {
+    const token = this.auth.getToken();
+    return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  }
+
+  isSelf(user: AdminUser): boolean {
+    return user.id === this.currentUserId;
+  }
+
+  loadUsers(): void {
     this.loading = true;
-    this.http.get<User[]>('/api/users').subscribe({
+    this.http.get<AdminUser[]>(`${this.baseUrl}/users`, { headers: this.headers() }).subscribe({
       next: (data) => {
         this.users = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
-        alert('Could not load users');
+      error: (err) => {
+        this.toast.show('error', err.error?.message || 'Could not load users.');
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
 
-  updateRole(user: User) {
+  updateRole(user: AdminUser): void {
+    if (this.isSelf(user)) {
+      this.toast.show('error', 'You cannot change your own role.');
+      return;
+    }
+
+    this.savingId = user.id;
     this.http
-      .patch(`/api/users/${user.id}/role`, {
-        role: user.role,
-      })
+      .patch(`${this.baseUrl}/users/${user.id}/role`, { role: user.role }, { headers: this.headers() })
       .subscribe({
-        next: () => alert('Role updated'),
-        error: () => alert('Could not update role'),
+        next: () => {
+          this.savingId = null;
+          this.toast.show('success', `Role updated for ${user.email}.`);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.savingId = null;
+          this.toast.show('error', err.error?.message || 'Could not update role.');
+          this.cdr.detectChanges();
+        },
       });
   }
 
-  deleteUser(user: User) {
-    if (!confirm(`Delete user ${user.email}?`)) return;
+  deleteUser(user: AdminUser): void {
+    if (this.isSelf(user)) {
+      this.toast.show('error', 'You cannot delete your own account.');
+      return;
+    }
 
-    this.http.delete(`/api/users/${user.id}`).subscribe({
+    if (!confirm(`Are you sure you want to delete "${user.email}"?\nThis action cannot be undone.`)) return;
+
+    this.deletingId = user.id;
+    this.http.delete(`${this.baseUrl}/users/${user.id}`, { headers: this.headers() }).subscribe({
       next: () => {
-        alert('User deleted successfully');
-        this.loadUsers();
+        this.deletingId = null;
+        this.toast.show('success', `User ${user.email} deleted successfully.`);
+        this.users = this.users.filter((u) => u.id !== user.id);
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        alert(err.error?.message || 'Could not delete user');
+        this.deletingId = null;
+        this.toast.show('error', err.error?.message || 'Could not delete user.');
+        this.cdr.detectChanges();
       },
     });
   }
