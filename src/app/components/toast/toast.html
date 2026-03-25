@@ -1,6 +1,6 @@
 <div class="toast-stack">
   @for (toast of toastService.toasts(); track toast.id) {
-    <div class="toast" [ngClass]="'toast--' + toast.type" role="alert" aria-live="assertive">
+    <div class="toast-item" [ngClass]="'toast-item--' + toast.type" role="alert" aria-live="assertive">
       <span class="toast-icon" aria-hidden="true">
         @if (toast.type === 'success') {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
