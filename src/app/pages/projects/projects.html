@@ -211,9 +211,14 @@
                       } @else {
                         <span></span>
                       }
-                      <button class="btn-open-project" type="button" title="Coming soon">
-                        Open Project
-                      </button>
+                      <div class="card-actions">
+                        <button class="btn-edit-project" type="button" (click)="openEditModal(project)" title="Edit project">
+                          Edit
+                        </button>
+                        <button class="btn-open-project" type="button" title="Coming soon">
+                          Open
+                        </button>
+                      </div>
                     </div>
                   </div>
                 }
@@ -251,7 +256,7 @@
       <div class="modal-box" (click)="$event.stopPropagation()">
 
         <div class="modal-header">
-          <h2 class="modal-title">New Project</h2>
+          <h2 class="modal-title">{{ modalMode === 'edit' ? 'Edit Project' : 'New Project' }}</h2>
           <button class="modal-close" type="button" (click)="cancelModal()" aria-label="Close">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -351,9 +356,14 @@
           }
 
           <div class="modal-actions">
-            <button type="button" class="btn-cancel" (click)="cancelModal()">Cancel</button>
-            <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
-              {{ isSubmitting() ? 'Creating...' : 'Create project' }}
+            @if (modalMode === 'edit') {
+              <button type="button" class="btn-delete" (click)="confirmDelete()" [disabled]="isDeleting() || isSubmitting()">
+                {{ isDeleting() ? 'Deleting...' : 'Delete project' }}
+              </button>
+            }
+            <button type="button" class="btn-cancel" (click)="cancelModal()" [disabled]="isDeleting()">Cancel</button>
+            <button type="submit" class="btn-submit" [disabled]="isSubmitting() || isDeleting()">
+              {{ isSubmitting() ? (modalMode === 'edit' ? 'Saving...' : 'Creating...') : (modalMode === 'edit' ? 'Save changes' : 'Create project') }}
             </button>
           </div>
 

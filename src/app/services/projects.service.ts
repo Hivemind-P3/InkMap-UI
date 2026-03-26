@@ -30,4 +30,12 @@ export class ProjectsService {
   createProject(data: CreateProjectRequest): Observable<Project> {
     return this.http.post<Project>(`${this.baseUrl}/projects`, data, { headers: this.getHeaders() });
   }
+
+  updateProject(id: number, data: CreateProjectRequest): Observable<Project> {
+    return this.http.put<Project>(`${this.baseUrl}/projects/${id}`, data, { headers: this.getHeaders() });
+  }
+
+  deleteProject(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/projects/${id}`, { headers: this.getHeaders() });
+  }
 }
