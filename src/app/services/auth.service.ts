@@ -10,6 +10,7 @@ import {
   RegisterRequest,
   GoogleAuthRequest,
 } from '../models/auth.models';
+import { User } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -67,5 +68,10 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.router.navigate(['/login']);
+  }
+
+  updateUser(user: User): void {
+    localStorage.removeItem(this.USER_KEY);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
   }
 }

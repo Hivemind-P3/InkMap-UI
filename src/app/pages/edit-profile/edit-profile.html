@@ -1,0 +1,163 @@
+<app-header></app-header>
+
+<div class="p-5 page-wrapper d-flex justify-content-center">
+    <div class="w-75 h-100 p-5 form-wrapper">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="d-flex flex-md-row flex-column justify-content-between-gap-5 mb-5">
+                <div class="w-100 d-flex flex-column justify-content-between gap-4">
+                    <div class="mb-3 d-flex flex-column">
+                        <span class="default-title mb-3">Your info</span>
+                        <span class="required-asterisk"><small>Updating your profile will sign you out.</small></span>
+                    </div>
+                    <div class="field d-flex flex-column w-75">
+                        <label class="default-header-primary mb-1">
+                            <span class="required-asterisk">* </span>Name
+                        </label>
+                        <input formControlName="name" type="text" class="form-control" 
+                        [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched">
+                            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                                <div class="invalid-feedback">Name is required</div>
+                            }
+                    </div>
+                    <div class="field d-flex flex-column w-75">
+                        <label class="default-header-primary mb-1">
+                            <span class="required-asterisk">* </span> Email
+                        </label>
+                        <input formControlName="email" type="email" class="form-control" 
+                        [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched">
+                            @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                                <div class="invalid-feedback">
+                                    @if (form.get('email')?.errors?.['required']) {
+                                        Email is required
+                                    } @else if (form.get('email')?.errors?.['email']) {
+                                        Enter a valid email address
+                                    }
+                                </div>
+                            }
+                    </div>
+                    <div class="field d-flex flex-column w-75">
+                        <label class="default-header-primary mb-1">New Password</label>
+                        <div class="input-group" [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+                            <input 
+                                formControlName="password" 
+                                [type]="showPassword ? 'text' : 'password'" 
+                                class="form-control"
+                                autocomplete="new-password"
+                                [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched"
+                            />
+                                <div class="input-group-append">
+                                    <button class="btn btn-eye" type="button" (click)="showPassword = !showPassword">
+                                        <i [class]="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @if (form.get('password')?.invalid && form.get('password')?.touched) {
+                                @if (form.get('password')?.errors?.['minlength']) {
+                                    <div class="invalid-feedback d-block">
+                                    <i class="fa-solid fa-x"></i> Must be at least 8 characters
+                                    </div>
+                                }
+                                @if (form.get('password')?.errors?.['noUpperCase']) {
+                                    <div class="invalid-feedback d-block">
+                                    <i class="fa-solid fa-x"></i> Must contain at least 1 uppercase letter
+                                    </div>
+                                }
+                                @if (form.get('password')?.errors?.['noSpecialChar']) {
+                                    <div class="invalid-feedback d-block">
+                                    <i class="fa-solid fa-x"></i> Must contain at least 1 special character
+                                    </div>
+                                }
+                            }
+                        
+                    </div>
+                    <div class="field d-flex flex-column w-75">
+                        <label class="default-header-primary mb-1">Confirm Password</label>
+                        <div class="input-group" [class.is-invalid]="form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched">
+                            <input 
+                            formControlName="confirmPassword" 
+                            [type]="showConfirmPassword ? 'text' : 'password'" 
+                            class="form-control"
+                            autocomplete="new-password"
+                            [class.is-invalid]="form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched"
+                            />
+                            <div class="input-group-append">
+                                <button class="btn btn-eye" type="button" (click)="showConfirmPassword = !showConfirmPassword">
+                                    <i [class]="showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                                </button>
+                            </div>
+                        </div>
+                            @if (form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
+                                <div class="invalid-feedback d-block">
+                                Passwords do not match
+                                </div>
+                            }
+                        </div>
+                </div>
+                <div class="w-100">
+                    <div class="mb-3">
+                        <span class="default-title">Preferences</span>
+                    </div>
+                    <div class="w-100 d-flex flex-md-row flex-column justify-content-between gap-5">
+                        <div class="w-100">
+                            <div class="mb-4">
+                                <span class="default-header-primary">Color code for Worldbuilding</span>
+                            </div>
+                            <div class="d-flex flex-column justify-content-between gap-3">
+                                <div class="d-flex flex-row gap-2">
+                                    <input readonly class="rounded-circle color-circle" [cpOutputFormat]="'hex'" [cpAlphaChannel]="'disabled'" 
+                                        [(colorPicker)]="user.preferences.colorCode.colores[0]" [style.background]="user.preferences.colorCode.colores[0]">
+                                    <span>Place</span>
+                                </div>
+                                <div class="d-flex flex-row gap-2">
+                                    <input readonly class="rounded-circle color-circle" [cpOutputFormat]="'hex'" [cpAlphaChannel]="'disabled'"
+                                        [(colorPicker)]="user.preferences.colorCode.colores[1]" [style.background]="user.preferences.colorCode.colores[1]">
+                                    <span>Character</span>
+                                </div>
+                                <div class="d-flex flex-row gap-2">
+                                    <input readonly class="rounded-circle color-circle" [cpOutputFormat]="'hex'" [cpAlphaChannel]="'disabled'"
+                                        [(colorPicker)]="user.preferences.colorCode.colores[2]" [style.background]="user.preferences.colorCode.colores[2]">
+                                    <span>Culture</span>
+                                </div>
+                                <div class="d-flex flex-row gap-2">
+                                    <input readonly class="rounded-circle color-circle" [cpOutputFormat]="'hex'" [cpAlphaChannel]="'disabled'"
+                                        [(colorPicker)]="user.preferences.colorCode.colores[3]" [style.background]="user.preferences.colorCode.colores[3]">
+                                    <span>System</span>
+                                </div>
+                                <div class="d-flex flex-row gap-2">
+                                    <input readonly class="rounded-circle color-circle" [cpOutputFormat]="'hex'" [cpAlphaChannel]="'disabled'"
+                                        [(colorPicker)]="user.preferences.colorCode.colores[4]" [style.background]="user.preferences.colorCode.colores[4]">
+                                    <span>Object</span>
+                                </div>
+                                <div class="d-flex flex-row gap-2">
+                                    <input readonly class="rounded-circle color-circle" [cpOutputFormat]="'hex'" [cpAlphaChannel]="'disabled'"
+                                        [(colorPicker)]="user.preferences.colorCode.colores[5]" [style.background]="user.preferences.colorCode.colores[5]">
+                                    <span>Other</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-100">
+                            <div class="mb-4">
+                                <span class="default-header-primary">Notifications</span>
+                            </div>
+                            <div class="form-check">
+                                <input 
+                                    formControlName="notificacionesCorreo"
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    id="notificacionesCorreo"
+                                />
+                                <label class="form-check-label" for="notificacionesCorreo">
+                                    Email notifications
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <button type="submit" [disabled]="form.invalid" class="btn btn-save align-self px-4">Save</button>
+        </form>
+    </div>
+</div>
+
+<app-footer></app-footer>

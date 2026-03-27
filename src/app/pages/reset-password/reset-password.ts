@@ -9,6 +9,7 @@ import { ToastService } from '../../services/toast.service';
   selector: 'app-reset-password',
   imports: [FormsModule, RouterLink],
   templateUrl: './reset-password.html',
+  imports: [FormsModule],
   styleUrls: ['./reset-password.scss'],
 })
 export class ResetPassword implements OnInit {
