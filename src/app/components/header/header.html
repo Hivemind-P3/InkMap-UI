@@ -1,0 +1,11 @@
+<header class="projects-header">
+    <div class="projects-brand">
+      <span class="brand-dot"></span>InkMap
+    </div>
+    <div class="header-actions">
+      @if (user) {
+        <span class="user-name"><a routerLink="/profile" class="user-name">{{ user.name }}</a></span>
+      }
+      <button class="btn-logout" (click)="logout()">Sign out</button>
+    </div>
+</header>

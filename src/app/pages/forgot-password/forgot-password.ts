@@ -9,6 +9,7 @@ import { ToastService } from '../../services/toast.service';
   selector: 'app-forgot-password',
   imports: [FormsModule, RouterLink],
   templateUrl: './forgot-password.html',
+
   styleUrls: ['./forgot-password.scss'],
 })
 export class ForgotPassword {
