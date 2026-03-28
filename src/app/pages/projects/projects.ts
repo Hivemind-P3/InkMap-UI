@@ -36,7 +36,10 @@ export class Projects implements OnInit {
   // ── Modal state ───────────────────────────────────────────────────────────
   readonly showModal = signal(false);
   readonly isSubmitting = signal(false);
+  readonly isDeleting = signal(false);
   readonly submitError = signal('');
+  modalMode: 'create' | 'edit' = 'create';
+  selectedProject: Project | null = null;
 
   // ── Form fields ───────────────────────────────────────────────────────────
   formTitle = '';
@@ -114,7 +117,24 @@ export class Projects implements OnInit {
   // ── Modal ─────────────────────────────────────────────────────────────────
 
   openModal(): void {
+    this.modalMode = 'create';
+    this.selectedProject = null;
     this.resetForm();
+    this.showModal.set(true);
+  }
+
+  openEditModal(project: Project): void {
+    this.modalMode = 'edit';
+    this.selectedProject = project;
+    this.formTitle = project.title;
+    this.formDescription = project.description ?? '';
+    this.formMedium = project.medium ?? '';
+    this.formTags = project.tags ? [...project.tags] : [];
+    this.formTagInput = '';
+    this.titleError = '';
+    this.descriptionError = '';
+    this.mediumError = '';
+    this.submitError.set('');
     this.showModal.set(true);
   }
 
@@ -123,15 +143,18 @@ export class Projects implements OnInit {
   }
 
   cancelModal(): void {
-    const hasData =
-      this.formTitle.trim() ||
-      this.formDescription.trim() ||
-      this.formMedium ||
-      this.formTags.length > 0;
+    if (this.modalMode === 'create') {
+      const hasData =
+        this.formTitle.trim() ||
+        this.formDescription.trim() ||
+        this.formMedium ||
+        this.formTags.length > 0;
 
-    if (!hasData || confirm('Discard this project draft?\nYour changes will be lost.')) {
-      this.closeModal();
+      if (hasData && !confirm('Discard this project draft?\nYour changes will be lost.')) {
+        return;
+      }
     }
+    this.closeModal();
   }
 
   private resetForm(): void {
@@ -185,14 +208,32 @@ export class Projects implements OnInit {
     this.isSubmitting.set(true);
     this.submitError.set('');
 
-    this.projectsService
-      .createProject({
-        title: this.formTitle.trim(),
-        description: this.formDescription.trim(),
-        medium: this.formMedium,
-        tags: this.formTags,
-      })
-      .subscribe({
+    const payload = {
+      title: this.formTitle.trim(),
+      description: this.formDescription.trim(),
+      medium: this.formMedium,
+      tags: this.formTags,
+    };
+
+    if (this.modalMode === 'edit' && this.selectedProject !== null) {
+      this.projectsService.updateProject(this.selectedProject.id, payload).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.closeModal();
+          this.loadProjects();
+          this.toastService.show('success', 'Project updated successfully.');
+        },
+        error: (err) => {
+          this.isSubmitting.set(false);
+          if (err.status === 409) {
+            this.submitError.set('A project with this title already exists.');
+          } else {
+            this.submitError.set('Something went wrong. Please try again.');
+          }
+        },
+      });
+    } else {
+      this.projectsService.createProject(payload).subscribe({
         next: () => {
           this.isSubmitting.set(false);
           this.closeModal();
@@ -209,6 +250,32 @@ export class Projects implements OnInit {
           }
         },
       });
+    }
+  }
+
+  confirmDelete(): void {
+    if (this.selectedProject === null) return;
+
+    const { id, title } = this.selectedProject;
+
+    if (!confirm(`¿Quieres eliminar el proyecto: ${title}?`)) return;
+
+    this.isDeleting.set(true);
+    this.projectsService.deleteProject(id).subscribe({
+      next: () => {
+        this.isDeleting.set(false);
+        this.closeModal();
+        if (this.projects().length === 1 && this.currentPage() > 0) {
+          this.currentPage.update((p) => p - 1);
+        }
+        this.loadProjects();
+        this.toastService.show('success', 'Project deleted successfully.');
+      },
+      error: () => {
+        this.isDeleting.set(false);
+        this.toastService.show('error', 'Could not delete the project. Please try again.');
+      },
+    });
   }
 
   logout(): void {

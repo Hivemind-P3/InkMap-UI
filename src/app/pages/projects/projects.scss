@@ -570,6 +570,32 @@ $terra: #c17767;
   color: #b0a799;
 }
 
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.btn-edit-project {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $brown;
+  background: none;
+  border: 1.5px solid rgba(139, 115, 85, 0.3);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(139, 115, 85, 0.08);
+    border-color: $brown;
+  }
+}
+
 .btn-open-project {
   font-size: 0.75rem;
   font-weight: 600;
@@ -803,6 +829,29 @@ $terra: #c17767;
   justify-content: flex-end;
   gap: 0.75rem;
   padding-top: 0.25rem;
+}
+
+.btn-delete {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $terra;
+  background: none;
+  border: 1.5px solid rgba(193, 119, 103, 0.35);
+  border-radius: 8px;
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  margin-right: auto;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: rgba(193, 119, 103, 0.08);
+    border-color: $terra;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .btn-cancel {
