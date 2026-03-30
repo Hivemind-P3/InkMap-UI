@@ -5,6 +5,7 @@ import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { AuthGoogle } from './pages/auth-google/auth-google';
 import { Projects } from './pages/projects/projects';
+import { Characters } from './pages/characters/characters';
 import { AdminPanel } from './pages/admin/admin';
 import { ForgotPassword } from './pages/forgot-password/forgot-password';
 import { ResetPassword } from './pages/reset-password/reset-password';
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'register', component: Register },
   { path: 'auth/google', component: AuthGoogle },
   { path: 'projects', component: Projects },
+  { path: 'projects/:projectId/characters', component: Characters },
   { path: 'profile', component: Profile },
   { path: 'update-profile', component: EditProfile },
   { path: 'admin', component: AdminPanel },
