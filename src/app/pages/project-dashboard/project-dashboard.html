@@ -9,7 +9,7 @@
             <span class="project-subtitle">Every great story starts here. Shape your world, your characters, and your lore</span>
             <hr class="section-divider mt-3 mb-4">
         </div>
-        <div class="py-4 row row-cols-1 row-cols-md-3 g-5">
+        <div class="py-4 row row-cols-1 row-cols-xl-3 g-5">
             <div class="col">
                 <app-project-section-card
                     [title]="'Geographic Maps'"
@@ -21,26 +21,11 @@
             </div>
             <div class="col">
                 <app-project-section-card
-                    [title]="'Geographic Maps'"
-                    [description]="'Design geographic maps for your story, world, regions and important locations.'"
-                    [icon]="'fa-regular fa-map'"
-                    [image]="'geographic-map.png'"
-                ></app-project-section-card>
-            </div>
-            <div class="col">
-                <app-project-section-card
-                    [title]="'Geographic Maps'"
-                    [description]="'Design geographic maps for your story, world, regions and important locations.'"
-                    [icon]="'fa-regular fa-map'"
-                    [image]="'geographic-map.png'"
-                ></app-project-section-card>
-            </div>
-            <div class="col">
-                <app-project-section-card
-                    [title]="'Geographic Maps'"
-                    [description]="'Design geographic maps for your story, world, regions and important locations.'"
-                    [icon]="'fa-regular fa-map'"
-                    [image]="'geographic-map.png'"
+                    [title]="'Characters'"
+                    [description]="'Manage character profiles for your story'"
+                    [icon]="'fa-solid fa-person'"
+                    [image]="'character-design.png'"
+                    [route]="'/app/projects/' + projectId + '/characters'"
                 ></app-project-section-card>
             </div>
         </div>

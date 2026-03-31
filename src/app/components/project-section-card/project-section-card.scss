@@ -2,17 +2,35 @@
     background-color: white;
     border-radius: 15px;
     overflow: hidden;
-    transition: box-shadow 0.15s ease-in-out;
-    transition: border 0.15s ease-in-out;
-
+    transition: box-shadow 0.15s ease-in-out, border 0.15s ease-in-out;
+    height: 100% !important; // back to 100% so cards stretch equally
+    display: flex;
+    flex-direction: column;
     span {
         color: var(--primary-color);
     }
-
     &:hover {
         cursor: pointer;
         box-shadow: 0px 0px 20px rgba(49, 49, 49, 0.178);
         border: 1px solid var(--accent2);
+    }
+}
+.img {
+    overflow: hidden;
+    height: 300px;
+    flex-shrink: 0;
+}
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.card-bottom {
+    flex: 1;
+    
+    .d-flex.flex-row {
+        align-items: flex-start;
     }
 }
 
@@ -25,15 +43,5 @@
     width: 3rem;
     min-width: 3rem;
     min-height: 3rem;
-}
-
-.img {
-    overflow: hidden;
-}
-
-.card-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+    flex-shrink: 0; // add this so it doesn't shrink
 }
