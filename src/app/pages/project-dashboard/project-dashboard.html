@@ -1,0 +1,48 @@
+<div class="page-wrapper w-100 h-100 p-5">
+    @if (isLoading) {
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="spinner-border text-secondary" role="status"></div>
+        </div>
+    } @else {
+        <div class="d-flex flex-column">
+            <span class="project-title default-header">{{ project.title | titlecase }}</span>
+            <span class="project-subtitle">Every great story starts here. Shape your world, your characters, and your lore</span>
+            <hr class="section-divider mt-3 mb-4">
+        </div>
+        <div class="py-4 row row-cols-1 row-cols-md-3 g-5">
+            <div class="col">
+                <app-project-section-card
+                    [title]="'Geographic Maps'"
+                    [description]="'Design geographic maps for your story, world, regions and important locations.'"
+                    [icon]="'fa-regular fa-map'"
+                    [image]="'geographic-map.png'"
+                    [route]="'/app/geographic-maps/' + projectId"
+                ></app-project-section-card>
+            </div>
+            <div class="col">
+                <app-project-section-card
+                    [title]="'Geographic Maps'"
+                    [description]="'Design geographic maps for your story, world, regions and important locations.'"
+                    [icon]="'fa-regular fa-map'"
+                    [image]="'geographic-map.png'"
+                ></app-project-section-card>
+            </div>
+            <div class="col">
+                <app-project-section-card
+                    [title]="'Geographic Maps'"
+                    [description]="'Design geographic maps for your story, world, regions and important locations.'"
+                    [icon]="'fa-regular fa-map'"
+                    [image]="'geographic-map.png'"
+                ></app-project-section-card>
+            </div>
+            <div class="col">
+                <app-project-section-card
+                    [title]="'Geographic Maps'"
+                    [description]="'Design geographic maps for your story, world, regions and important locations.'"
+                    [icon]="'fa-regular fa-map'"
+                    [image]="'geographic-map.png'"
+                ></app-project-section-card>
+            </div>
+        </div>
+    }
+</div>
