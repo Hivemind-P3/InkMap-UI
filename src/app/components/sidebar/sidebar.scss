@@ -1,0 +1,254 @@
+$dark-blue: #2c3e50;
+$beige: #e8dcc4;
+$brown: #8b7355;
+$teal: #4a7c7e;
+$terra: #c17767;
+
+.app-sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: $dark-blue;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  transition: width 0.3s ease, min-width 0.3s ease;
+
+  &--collapsed {
+    width: 56px;
+    min-width: 56px;
+  }
+}
+
+.sidebar-brand {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: padding 0.3s ease, justify-content 0.3s ease;
+
+  .brand-dot {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $teal;
+  }
+
+  span {
+    opacity: 1;
+    width: auto;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, width 0.3s ease;
+  }
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+  flex: 1;
+}
+
+.nav-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.25rem 0.35rem;
+  opacity: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, height 0.3s ease, padding 0.3s ease;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0.55rem 1.25rem;
+  border-radius: 0;
+  cursor: default;
+  transition: color 0.15s, background 0.15s, padding 0.3s ease;
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.55;
+  }
+
+  span {
+    opacity: 1;
+    width: auto;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, width 0.3s ease;
+  }
+
+  &--active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    font-weight: 600;
+    svg {
+      opacity: 1;
+      color: $teal;
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    font-weight: 600;
+    svg {
+      opacity: 1;
+      color: $teal;
+    }
+  }
+}
+
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.25rem 0;
+  gap: 0.5rem;
+  transition: padding 0.3s ease;
+}
+
+.sidebar-user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transition: color 0.15s, opacity 0.2s ease, width 0.3s ease;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+
+  span {
+    opacity: 1;
+    width: auto;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, width 0.3s ease;
+  }
+
+  &:hover {
+    color: $terra;
+    background: rgba(193, 119, 103, 0.1);
+  }
+}
+
+// Collapsed
+.app-sidebar--collapsed {
+    width: 4rem;
+    min-width: 4rem;
+
+  .sidebar-brand {
+    padding: 0 0 1.5rem;
+    justify-content: center;
+
+    span {
+      opacity: 0;
+      width: 0;
+    }
+  }
+
+  .nav-section-label {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+  }
+
+  .nav-item {
+    padding: 0.55rem 0;
+    justify-content: center;
+    gap: 0;
+
+    transition: color 0.15s, background 0.15s, padding 0.3s ease, gap 0.3s ease;
+
+    span {
+      opacity: 0;
+      width: 0;
+    }
+  }
+
+  .sidebar-user {
+    padding: 0.6rem 0 0;
+    justify-content: center;
+  }
+
+  .sidebar-user-name {
+    opacity: 0;
+    width: 0;
+  }
+
+  .sidebar-logout {
+    span {
+      opacity: 0;
+      width: 0;
+    }
+  }
+}
+
+.btn-menu {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0 0 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn-open-collapse {
+    color: var(--accent2);
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}

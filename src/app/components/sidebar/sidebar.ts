@@ -1,17 +1,18 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { RouterLink } from '@angular/router';
 import { SidebarService } from '../../services/sidebar.service';
+import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-header',
-  imports: [RouterLink],
-  templateUrl: './header.html',
-  styleUrl: './header.scss',
+  selector: 'app-sidebar',
+  imports: [RouterLink, NgClass],
+  templateUrl: './sidebar.html',
+  styleUrl: './sidebar.scss',
 })
-export class Header{
+export class Sidebar {
   private readonly authService = inject(AuthService);
-  
+
   protected sidebar = inject(SidebarService);
 
   user = this.authService.getUser();
