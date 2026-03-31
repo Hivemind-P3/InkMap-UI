@@ -1,0 +1,16 @@
+<div class="sidebar">
+  <div class="header">
+    <h3>Chapters</h3>
+    <button (click)="create()">＋</button>
+  </div>
+
+  <div class="list">
+    <div
+      class="item"
+      *ngFor="let c of narratives"
+      (click)="select(c)"
+    >
+      {{ c.titulo }}
+    </div>
+  </div>
+</div>

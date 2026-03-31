@@ -15,6 +15,7 @@ import { roleGuard } from './guards/role-guard';
 import { NotFound } from './pages/not-found/not-found';
 import { ProjectDashboard } from './pages/project-dashboard/project-dashboard';
 import { GeographicMaps } from './pages/geographic-maps/geographic-maps';
+import { EditorComponent } from './pages/editor/editor';
 
 export const routes: Routes = [
   { 
@@ -72,6 +73,10 @@ export const routes: Routes = [
       {
         path: 'projects/:projectId/characters',
         component: Characters
+      },
+      {
+        path: 'editor/:projectId',
+        component: EditorComponent
       }
     ]
   },
