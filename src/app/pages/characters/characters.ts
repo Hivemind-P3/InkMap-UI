@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe, TitleCasePipe } from '@angular/common';
@@ -67,6 +67,8 @@ export class Characters implements OnInit {
   formAgeUnknown = false;
   formGender = '';
   formRace = '';
+
+  @ViewChild('ageInputRef') ageInputRef!: ElementRef<HTMLInputElement>;
 
   // ── Field-level errors ────────────────────────────────────────────────────
   nameError = '';
@@ -245,9 +247,15 @@ export class Characters implements OnInit {
       this.genderError = 'Please select a gender.';
       valid = false;
     }
-    if (!this.formAgeUnknown && this.formAge !== null && this.formAge < 0) {
-      this.ageError = 'Age must be a non-negative number.';
-      valid = false;
+    if (!this.formAgeUnknown) {
+      const nativeAge = this.ageInputRef?.nativeElement;
+      if (nativeAge?.validity?.badInput) {
+        this.ageError = 'Age must be a valid number.';
+        valid = false;
+      } else if (this.formAge !== null && this.formAge < 0) {
+        this.ageError = 'Age must be a non-negative number.';
+        valid = false;
+      }
     }
     return valid;
   }
