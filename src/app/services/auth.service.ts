@@ -61,17 +61,26 @@ export class AuthService {
   }
 
   getHomeRoute(): string {
-    return this.getUser()?.role === 'ADMIN' ? '/admin' : '/projects';
+    return this.getUser()?.role === 'ADMIN' ? '/admin' : '/app/projects';
   }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
-    this.router.navigate(['/login']);
+    window.location.href = '/login';
   }
 
   updateUser(user: User): void {
     localStorage.removeItem(this.USER_KEY);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+  }
+
+  getRoles(): string {
+    const user = localStorage.getItem(this.USER_KEY);
+    if (!user) return '';
+
+    const parsed = JSON.parse(user);
+
+    return parsed.role;
   }
 }
