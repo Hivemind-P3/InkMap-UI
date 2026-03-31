@@ -4,6 +4,14 @@ $brown: #8b7355;
 $teal: #4a7c7e;
 $terra: #c17767;
 
+i {
+  flex-shrink: 0;
+  opacity: 0.55;
+  font-size: 1.2rem;
+  width: 1.2rem;        // add this
+  text-align: center;   // add this
+}
+
 .app-sidebar {
   width: 220px;
   min-width: 220px;
@@ -85,11 +93,6 @@ $terra: #c17767;
   cursor: default;
   transition: color 0.15s, background 0.15s, padding 0.3s ease;
 
-  svg {
-    flex-shrink: 0;
-    opacity: 0.55;
-  }
-
   span {
     opacity: 1;
     width: auto;
@@ -102,7 +105,7 @@ $terra: #c17767;
     color: #fff;
     background: rgba(255, 255, 255, 0.08);
     font-weight: 600;
-    svg {
+    i {
       opacity: 1;
       color: $teal;
     }
@@ -113,7 +116,7 @@ $terra: #c17767;
     color: #fff;
     background: rgba(255, 255, 255, 0.08);
     font-weight: 600;
-    svg {
+    i {
       opacity: 1;
       color: $teal;
     }
