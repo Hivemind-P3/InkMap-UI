@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ProjectsService } from '../../services/projects.service';
 import { ToastService } from '../../services/toast.service';
@@ -17,6 +17,7 @@ export class Projects implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly projectsService = inject(ProjectsService);
   private readonly toastService = inject(ToastService);
+  private readonly router = inject(Router);
 
   private readonly PAGE_SIZE = 9;
 
@@ -276,6 +277,10 @@ export class Projects implements OnInit {
         this.toastService.show('error', 'Could not delete the project. Please try again.');
       },
     });
+  }
+
+  openProject(projectId: number): void {
+    this.router.navigate(['/projects', projectId, 'characters']);
   }
 
   logout(): void {

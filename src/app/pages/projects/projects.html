@@ -102,7 +102,7 @@
                         <button class="btn-edit-project" type="button" (click)="openEditModal(project)" title="Edit project">
                           Edit
                         </button>
-                        <button class="btn-open-project" type="button" title="Coming soon" [routerLink]="['/app/project/', project.id]">
+                        <button class="btn-open-project" type="button" (click)="openProject(project.id)" title="Open project">
                           Open
                         </button>
                       </div>
