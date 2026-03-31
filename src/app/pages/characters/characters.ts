@@ -47,10 +47,13 @@ export class Characters implements OnInit {
     });
   }
 
-  // ── Create modal state ────────────────────────────────────────────────────
+  // ── Create / Edit modal state ─────────────────────────────────────────────
   readonly showModal = signal(false);
   readonly isSubmitting = signal(false);
+  readonly isDeleting = signal(false);
   readonly submitError = signal('');
+  modalMode: 'create' | 'edit' = 'create';
+  editingCharacter: StoryCharacter | null = null;
 
   // ── Detail modal state ────────────────────────────────────────────────────
   readonly showDetailModal = signal(false);
@@ -142,12 +145,37 @@ export class Characters implements OnInit {
   // ── Create modal ──────────────────────────────────────────────────────────
 
   openModal(): void {
+    this.modalMode = 'create';
+    this.editingCharacter = null;
     this.resetForm();
+    this.showModal.set(true);
+  }
+
+  openEditModal(character: StoryCharacter): void {
+    this.modalMode = 'edit';
+    this.editingCharacter = character;
+    this.formName = character.name;
+    this.formRole = character.role ?? '';
+    this.formDescription = character.description ?? '';
+    this.formGender = character.gender ?? '';
+    this.formRace = character.race ?? '';
+    if (character.age === null) {
+      this.formAge = null;
+      this.formAgeUnknown = true;
+    } else {
+      this.formAge = character.age ?? null;
+      this.formAgeUnknown = false;
+    }
+    this.nameError = '';
+    this.genderError = '';
+    this.ageError = '';
+    this.submitError.set('');
     this.showModal.set(true);
   }
 
   closeModal(): void {
     this.showModal.set(false);
+    this.editingCharacter = null;
   }
 
   cancelModal(): void {
@@ -163,6 +191,30 @@ export class Characters implements OnInit {
       return;
     }
     this.closeModal();
+  }
+
+  confirmDelete(): void {
+    if (!this.editingCharacter) return;
+    if (!confirm('¿Quieres borrar este personaje?')) return;
+
+    this.isDeleting.set(true);
+    this.charactersService
+      .deleteCharacter(Number(this.projectId()), this.editingCharacter.id)
+      .subscribe({
+        next: () => {
+          this.isDeleting.set(false);
+          this.closeModal();
+          if (this.characters().length === 1 && this.currentPage() > 0) {
+            this.currentPage.update((p) => p - 1);
+          }
+          this.loadCharacters();
+          this.toastService.show('success', 'Character deleted successfully.');
+        },
+        error: () => {
+          this.isDeleting.set(false);
+          this.toastService.show('error', 'Could not delete the character. Please try again.');
+        },
+      });
   }
 
   private resetForm(): void {
@@ -221,23 +273,44 @@ export class Characters implements OnInit {
       ...(this.formRace.trim() && { race: this.formRace.trim() }),
     };
 
-    this.charactersService.createCharacter(Number(this.projectId()), payload).subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.closeModal();
-        this.currentPage.set(0);
-        this.loadCharacters();
-        this.toastService.show('success', 'Character created successfully.');
-      },
-      error: (err) => {
-        this.isSubmitting.set(false);
-        if (err.status === 409) {
-          this.submitError.set('A character with this name already exists in this project.');
-        } else {
-          this.submitError.set('Something went wrong. Please try again.');
-        }
-      },
-    });
+    const projectId = Number(this.projectId());
+
+    if (this.modalMode === 'edit' && this.editingCharacter) {
+      this.charactersService.updateCharacter(projectId, this.editingCharacter.id, payload).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.closeModal();
+          this.loadCharacters();
+          this.toastService.show('success', 'Character updated successfully.');
+        },
+        error: (err) => {
+          this.isSubmitting.set(false);
+          if (err.status === 409) {
+            this.submitError.set('A character with this name already exists in this project.');
+          } else {
+            this.submitError.set('Something went wrong. Please try again.');
+          }
+        },
+      });
+    } else {
+      this.charactersService.createCharacter(projectId, payload).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.closeModal();
+          this.currentPage.set(0);
+          this.loadCharacters();
+          this.toastService.show('success', 'Character created successfully.');
+        },
+        error: (err) => {
+          this.isSubmitting.set(false);
+          if (err.status === 409) {
+            this.submitError.set('A character with this name already exists in this project.');
+          } else {
+            this.submitError.set('Something went wrong. Please try again.');
+          }
+        },
+      });
+    }
   }
 
   logout(): void {

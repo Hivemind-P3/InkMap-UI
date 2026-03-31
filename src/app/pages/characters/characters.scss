@@ -511,6 +511,36 @@ $terra: #c17767;
   }
 }
 
+// ─── Card actions ─────────────────────────────────────────────────────────────
+
+.card-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+// ─── Edit button ──────────────────────────────────────────────────────────────
+
+.btn-edit {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $brown;
+  background: none;
+  border: 1.5px solid rgba(139, 115, 85, 0.3);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(139, 115, 85, 0.08);
+    border-color: $brown;
+    color: $dark-blue;
+  }
+}
+
 // ─── Detail button ────────────────────────────────────────────────────────────
 
 .btn-detail {
@@ -743,6 +773,10 @@ $terra: #c17767;
   justify-content: flex-end;
   gap: 0.75rem;
   padding-top: 0.25rem;
+
+  .btn-delete {
+    margin-right: auto;
+  }
 }
 
 .btn-cancel {
@@ -774,6 +808,28 @@ $terra: #c17767;
 
   &:disabled {
     opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-delete {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $terra;
+  background: none;
+  border: 1.5px solid rgba(193, 119, 103, 0.4);
+  border-radius: 8px;
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: rgba(193, 119, 103, 0.08);
+    border-color: $terra;
+  }
+
+  &:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
   }
 }

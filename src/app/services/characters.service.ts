@@ -40,4 +40,23 @@ export class CharactersService {
       { headers: this.getHeaders() },
     );
   }
+
+  updateCharacter(
+    projectId: number,
+    characterId: number,
+    data: CreateCharacterRequest,
+  ): Observable<StoryCharacter> {
+    return this.http.put<StoryCharacter>(
+      `${this.baseUrl}/projects/${projectId}/characters/${characterId}`,
+      data,
+      { headers: this.getHeaders() },
+    );
+  }
+
+  deleteCharacter(projectId: number, characterId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/projects/${projectId}/characters/${characterId}`,
+      { headers: this.getHeaders() },
+    );
+  }
 }
