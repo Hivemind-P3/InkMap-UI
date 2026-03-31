@@ -19,6 +19,8 @@
     "@angular/router": "^21.2.0",
     "bootstrap": "^5.3.8",
     "ngx-color-picker": "^20.1.1",
+    "ngx-quill": "^30.0.1",
+    "quill": "^2.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

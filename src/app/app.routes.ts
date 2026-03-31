@@ -11,6 +11,7 @@ import { ForgotPassword } from './pages/forgot-password/forgot-password';
 import { ResetPassword } from './pages/reset-password/reset-password';
 import { Profile } from './pages/profile/profile';
 import { EditProfile } from './pages/edit-profile/edit-profile';
+import { EditorComponent } from './pages/editor/editor';
 
 export const routes: Routes = [
   { path: '', component: LandingProducto },
@@ -25,4 +26,5 @@ export const routes: Routes = [
   { path: 'admin', component: AdminPanel },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
+  { path: 'editor/:projectId', component: EditorComponent },
 ];
