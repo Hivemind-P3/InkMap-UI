@@ -8,7 +8,7 @@ import { Header } from "../../components/header/header";
 
 @Component({
   selector: 'app-profile',
-  imports: [DatePipe, NgStyle, Footer, Header, RouterLink],
+  imports: [DatePipe, NgStyle, RouterLink],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
