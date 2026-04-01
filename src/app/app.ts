@@ -18,12 +18,14 @@ export class App implements OnInit{
   protected readonly title = signal('InkMap-UI');
   protected authService = inject(AuthService)
   protected isTeamLanding = false;
+  protected isMapEditor = false;
 
   constructor(private router: Router) {
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe((e: NavigationEnd) => {
       this.isTeamLanding = e.url === '/hivemind';
+      this.isMapEditor = e.url.startsWith('/app/map-editor/');
     });
   }
 
