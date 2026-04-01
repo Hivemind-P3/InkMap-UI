@@ -28,6 +28,15 @@
                     [route]="'/app/projects/' + projectId + '/characters'"
                 ></app-project-section-card>
             </div>
+            <div class="col">
+                <app-project-section-card
+                    [title]="'Editor'"
+                    [description]="'Write and edit your manuscript with powerful writing tools and AI assistance'"
+                    [icon]="'fa-solid fa-pen-nib'"
+                    [image]="'document.png'"
+                    [route]="'/app/editor/' + projectId"
+                ></app-project-section-card>
+            </div>
         </div>
     }
 </div>

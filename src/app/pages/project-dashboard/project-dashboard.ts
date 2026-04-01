@@ -16,7 +16,6 @@ export class ProjectDashboard implements OnInit{
   private projectService = inject(ProjectsService);
   private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
-
   protected projectId: string = '';
   protected project!: Project;
   protected isLoading = true;
@@ -25,7 +24,6 @@ export class ProjectDashboard implements OnInit{
 
   ngOnInit(): void {
     this.projectId = this.route.snapshot.paramMap.get('id') ?? '';
-
     this.projectService.getProjectById(parseInt(this.projectId)).subscribe({
       next: (res) => {
         this.project = res;
