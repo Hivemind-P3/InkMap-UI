@@ -16,9 +16,7 @@ export class Sidebar {
   protected sidebar = inject(SidebarService);
 
   user = this.authService.getUser();
-  constructor() {
-    console.log(this.user?.role);
-  }
+  constructor() {}
 
   logout(): void {
     this.authService.logout();
