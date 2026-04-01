@@ -1,6 +1,13 @@
 <div class="card-wrapper w-100 card" [routerLink]="route">
     <div class="img w-100">
-        <img class="card-image" [src]="image">
+        @if (!imageLoaded) {
+            <div class="d-flex justify-content-center align-items-center h-100">
+                <div class="spinner-border text-secondary" role="status"></div>
+            </div>
+        }
+        <img class="card-image" [ngSrc]="image" loading="lazy" fill
+             (load)="onImageLoad()"
+             [class.invisible]="!imageLoaded">
     </div>
     <div class="card-bottom p-4 d-flex flex-column justify-content-between gap-2">
         <div class="d-flex flex-row justify-content-start gap-3">
