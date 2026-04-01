@@ -4,12 +4,12 @@ import { GeographicMapService } from '../../services/geographic-map.service';
 import { BaseService } from '../../services/base.service';
 import { Project } from '../../models/project.model';
 import { ProjectsService } from '../../services/projects.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-geographic-maps',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './geographic-maps.html',
   styleUrl: './geographic-maps.scss',
 })
@@ -30,11 +30,15 @@ export class GeographicMaps implements OnInit {
   constructor(private route: ActivatedRoute) {}
   
   ngOnInit(): void {
+    this.projectId = this.route.snapshot.paramMap.get('id') ?? '';
     this.loadMaps();
   }
   
+  goBack(): void {
+    window.location.href = '/app/project/' + this.projectId;
+  }
+
   loadMaps(): void {
-    this.projectId = this.route.snapshot.paramMap.get('id') ?? '';
     this.geographicMapService.getAllMapsByProjectId(parseInt(this.projectId), this.currentPage, this.pageSize)
       .subscribe(response => {
         this.maps = response.content;
@@ -56,5 +60,9 @@ export class GeographicMaps implements OnInit {
       this.currentPage--;
       this.loadMaps();
     }
+  }
+
+  redirect(): void {
+    window.location.href = '/app/map-editor/' + this.projectId;
   }
 }
