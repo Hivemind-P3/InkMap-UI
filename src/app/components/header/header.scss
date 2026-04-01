@@ -1,0 +1,113 @@
+$dark:  #2C3E50;
+$dark-blue: #2c3e50;
+$beige: #E8DCC4;
+$brown: #8B7355;
+$teal:  #4A7C7E;
+$terra: #C17767;
+
+.projects-header {
+  background: #fff;
+  border-bottom: 1px solid #e0d9ce;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  z-index: 9999;
+  height: 73px;
+}
+
+.projects-brand {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: $dark-blue;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+
+  .brand-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $teal;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  color: $brown;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.btn-logout {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $brown;
+  background: none;
+  border: 1.5px solid #e0d9ce;
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+
+  &:hover {
+    color: $terra;
+    border-color: $terra;
+  }
+}
+
+.profile-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50px;
+  background-color: var(--accent2);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--accent2), black 25%);
+    color: color-mix(in srgb, white, black 25%);
+  }
+}
+
+.fa-user {
+  color: white;
+}
+
+.nav-link {
+  color: rgba($dark, 0.6);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.4rem 0.6rem;
+  transition: color 0.2s;
+
+  &:hover, &:focus { color: $dark; }
+}
+
+.btn-inkmap {
+  background-color: $teal;
+  border-color: $teal;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 4px 18px rgba($teal, 0.28);
+  transition: background-color 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+
+  &:hover, &:focus {
+    background-color: darken($teal, 7%);
+    border-color: darken($teal, 7%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba($teal, 0.32);
+  }
+}

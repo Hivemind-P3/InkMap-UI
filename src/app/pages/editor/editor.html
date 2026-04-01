@@ -1,0 +1,25 @@
+<div class="container">
+
+  <app-narrative-list
+    [projectId]="projectId"
+    (selected)="onSelected($event)"
+  ></app-narrative-list>
+
+  <div class="editor">
+
+    <input
+      [(ngModel)]="title"
+      class="title"
+      placeholder="Title"
+    />
+
+    <quill-editor
+      [(ngModel)]="content"
+      class="quill"
+    ></quill-editor>
+
+    <button (click)="save()">Save</button>
+
+  </div>
+
+</div>

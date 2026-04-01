@@ -1,0 +1,40 @@
+.page-wrapper {
+    background-color: var(--secondary-color);
+}
+
+.form-wrapper {
+    background-color: white;
+    border-radius: 15px;
+}
+
+.btn-save {
+    background-color: var(--accent2);
+    color: white;
+}
+
+.btn-eye {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border: 1px solid rgba(0, 0, 0, 0.226);
+}
+
+.fa-eye {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.required-asterisk {
+    color: #dc3545;
+}
+
+.color-circle {
+    width: 2rem;
+    height: 2rem;
+    border: solid 1px rgba(0, 0, 0, 0.226);
+    caret-color: transparent;
+    cursor: pointer;
+}
+
+.btn-back {
+    background-color: var(--accent2);
+    color: white;
+}

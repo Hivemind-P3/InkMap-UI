@@ -1,7 +1,15 @@
+import { Preferences } from "./preferences.model";
+
 export interface AuthUser {
   id: number;
   name: string;
   email: string;
+  role: string;
+  startDt: Date;
+  preferences: Preferences;
+  projects: Number;
+  characters: Number;
+  collaborators: Number;
   provider: 'LOCAL' | 'GOOGLE';
 }
 

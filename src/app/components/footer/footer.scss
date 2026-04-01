@@ -1,0 +1,58 @@
+$dark:  #2C3E50;
+$dark-blue: #2c3e50;
+$beige: #E8DCC4;
+$brown: #8B7355;
+$teal:  #4A7C7E;
+$terra: #C17767;
+
+.inkmap-footer {
+  background: lighten($dark, 5%);
+  color: rgba(#fff, 0.55);
+
+  .footer-brand {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-tagline {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    max-width: 280px;
+  }
+
+  .footer-col-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(#fff, 0.35);
+  }
+
+  .footer-nav-list {
+    li { margin-bottom: 9px; }
+
+    a {
+      color: rgba(#fff, 0.55);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+
+      &:hover { color: #fff; }
+    }
+  }
+
+  .footer-divider { border-color: rgba(#fff, 0.08); }
+
+  .footer-copy { font-size: 0.8rem; }
+
+  .footer-social {
+    color: rgba(#fff, 0.4);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: color 0.2s;
+
+    &:hover { color: #fff; }
+  }
+}

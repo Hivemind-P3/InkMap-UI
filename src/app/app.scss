@@ -1,0 +1,14 @@
+.app-shell {
+  display: flex;
+  height: 100%;
+}
+
+.app-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.router-wrapper {
+    padding-top: 73px;
+}

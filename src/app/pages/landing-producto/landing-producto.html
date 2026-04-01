@@ -1,34 +1,3 @@
-<!-- ─── Navbar ─────────────────────────────────────────────────────────────── -->
-<nav class="navbar navbar-expand-lg inkmap-nav">
-  <div class="container">
-    <a class="navbar-brand inkmap-brand" routerLink="/">
-      <span class="brand-dot"></span>InkMap
-    </a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#inkMapNav"
-      aria-controls="inkMapNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="inkMapNav">
-      <ul class="navbar-nav mx-auto gap-lg-2">
-        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-        <li class="nav-item"><a class="nav-link" href="#how-it-works">How it works</a></li>
-        <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
-      </ul>
-      <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
-        <a routerLink="/login" class="nav-link">Sign in</a>
-        <a routerLink="/register" class="btn btn-inkmap btn-sm">Get started</a>
-      </div>
-    </div>
-  </div>
-</nav>
-
 <!-- ─── Hero ──────────────────────────────────────────────────────────────── -->
 <section class="inkmap-hero">
   <div class="hero-bg-glow"></div>
@@ -241,51 +210,6 @@
     <p class="hivemind-desc mx-auto mb-4">
       We design intelligent digital products at the intersection of technology and human creativity.
     </p>
-    <a routerLink="/hivemind" class="btn btn-hivemind-cta">Meet Hivemind →</a>
+    <a href="/hivemind" class="btn btn-hivemind-cta">Meet Hivemind →</a>
   </div>
 </section>
-
-<!-- ─── Footer ────────────────────────────────────────────────────────────── -->
-<footer class="inkmap-footer py-5">
-  <div class="container">
-    <div class="row g-4 align-items-start">
-      <div class="col-md-4">
-        <span class="footer-brand d-block">InkMap</span>
-        <p class="footer-tagline mt-2 mb-0">A creative workspace for storytellers who think visually.</p>
-      </div>
-      <div class="col-md-2 offset-md-2">
-        <h6 class="footer-col-title">Product</h6>
-        <ul class="list-unstyled footer-nav-list mt-2">
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How it works</a></li>
-          <li><a href="#">Pricing</a></li>
-        </ul>
-      </div>
-      <div class="col-md-2">
-        <h6 class="footer-col-title">Company</h6>
-        <ul class="list-unstyled footer-nav-list mt-2">
-          <li><a routerLink="/hivemind">Hivemind</a></li>
-          <li><a href="#">Blog</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </div>
-      <div class="col-md-2">
-        <h6 class="footer-col-title">Legal</h6>
-        <ul class="list-unstyled footer-nav-list mt-2">
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Terms</a></li>
-          <li><a href="#">Cookies</a></li>
-        </ul>
-      </div>
-    </div>
-    <hr class="footer-divider mt-4 mb-3">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-      <span class="footer-copy">© 2025 InkMap · A Hivemind product</span>
-      <div class="d-flex gap-3">
-        <a href="#" class="footer-social">Twitter</a>
-        <a href="#" class="footer-social">LinkedIn</a>
-        <a href="#" class="footer-social">Instagram</a>
-      </div>
-    </div>
-  </div>
-</footer>
