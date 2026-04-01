@@ -280,7 +280,7 @@ export class Projects implements OnInit {
   }
 
   openProject(projectId: number): void {
-    this.router.navigate(['/projects', projectId, 'characters']);
+    this.router.navigate(['/app/projects', projectId, 'characters']);
   }
 
   logout(): void {

@@ -1,7 +1,5 @@
-<app-header></app-header>
-
 <div class="p-5 page-wrapper d-flex justify-content-center">
-    <div class="w-75 h-100 p-5 form-wrapper">
+    <div class="w-75 h-100 p-5 form-wrapper d-flex flex-column">
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <div class="d-flex flex-md-row flex-column justify-content-between-gap-5 mb-5">
                 <div class="w-100 d-flex flex-column justify-content-between gap-4">
@@ -155,9 +153,11 @@
                     
                 </div>
             </div>
+            <button class="btn btn-back me-3" type="button" routerLink="/app/profile">
+                <i class="fa-solid fa-arrow-left"></i>
+                 Back
+            </button>
             <button type="submit" [disabled]="form.invalid" class="btn btn-save align-self px-4">Save</button>
         </form>
     </div>
 </div>
-
-<app-footer></app-footer>

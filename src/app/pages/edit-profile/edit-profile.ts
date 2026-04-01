@@ -7,12 +7,12 @@ import { AuthUser } from '../../models/auth.models';
 import { ColorPickerDirective } from 'ngx-color-picker';
 import { UserService } from '../../services/user.service';
 import { ToastService } from '../../services/toast.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [Header, Footer, FormsModule, ReactiveFormsModule, ColorPickerDirective],
+  imports: [FormsModule, ReactiveFormsModule, ColorPickerDirective, RouterLink],
   templateUrl: './edit-profile.html',
   styleUrl: './edit-profile.scss',
 })
@@ -51,7 +51,6 @@ export class EditProfile implements OnInit {
       next: () => {
         this.toastService.show('success', 'Profile updated successfully');
         setTimeout(() => {
-          this.router.navigate(['/profile']);
           this.authService.logout();
         }, 1500);
       },

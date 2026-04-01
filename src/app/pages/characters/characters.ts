@@ -90,6 +90,10 @@ export class Characters implements OnInit {
     this.loadCharacters();
   }
 
+  goBack(): void {
+    window.location.href = '/app/project/' + this.projectId();
+  }
+
   // ── List ──────────────────────────────────────────────────────────────────
 
   loadCharacters(): void {

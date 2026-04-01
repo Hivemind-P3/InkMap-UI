@@ -1,3 +1,17 @@
-<router-outlet></router-outlet>
+<div class="app-shell">
+    @if (user && !isTeamLanding) {
+        <app-sidebar></app-sidebar>
+    }
+    <div class="app-main">
+        @if (!isTeamLanding && !isMapEditor) {
+            <app-header></app-header>
+        }
+        <div [ngClass]="{'router-wrapper': !isTeamLanding && !isMapEditor}">
+            <router-outlet></router-outlet>
+        </div>
+        @if (!isTeamLanding && !isMapEditor) {
+            <app-footer></app-footer>
+        }
+    </div>
+</div>
 <app-toast />
-

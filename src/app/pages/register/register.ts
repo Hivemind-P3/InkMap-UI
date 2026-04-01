@@ -59,7 +59,7 @@ export class Register {
       next: () => {
         this.loading.set(false);
         this.toast.show('success', 'Account created successfully! Welcome to InkMap.');
-        this.router.navigate(['/projects']);
+        window.location.href = '/app/projects';
       },
       error: (err) => {
         this.loading.set(false);

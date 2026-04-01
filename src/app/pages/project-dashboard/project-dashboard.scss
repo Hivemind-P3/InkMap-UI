@@ -1,0 +1,21 @@
+.page-wrapper {
+    background-color: var(--secondary-color);
+    min-height: 75vh;
+}
+
+.project-title {
+    font-size: var(--title);
+    color: var(--primary-color);
+}
+
+.project-subtitle {
+    font-size: 0.9rem;
+    color: var(--accent1);
+}
+
+.section-divider {
+    border: none;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
+}
