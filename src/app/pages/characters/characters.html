@@ -1,131 +1,19 @@
 <div class="characters-page">
 
-  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
-  <aside class="app-sidebar">
-    <div class="sidebar-brand">
-      <span class="brand-dot"></span>InkMap
-    </div>
-
-    <nav class="sidebar-nav">
-      <span class="nav-section-label">Workspace</span>
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-        Dashboard
-      </div>
-      <a routerLink="/projects" class="nav-item nav-item--link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="7" width="20" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="2" y="12" width="20" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="2" y="17" width="20" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="2" y="2" width="20" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-        Projects
-      </a>
-
-      <span class="nav-section-label">Story</span>
-      <a [routerLink]="['/projects', projectId(), 'characters']" class="nav-item nav-item--active nav-item--link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        Characters
-      </a>
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-        Worldbuilding
-      </div>
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M3 6l4-3 4 3 4-3 4 3v13l-4-3-4 3-4-3-4 3V6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg>
-        Maps
-      </div>
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="6" cy="18" r="2" stroke="currentColor" stroke-width="1.5"/>
-          <circle cx="12" cy="6" r="2" stroke="currentColor" stroke-width="1.5"/>
-          <circle cx="18" cy="14" r="2" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M12 8v6M14 8l4 4M10 8l-4 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        Narrative Maps
-      </div>
-
-      <span class="nav-section-label">Tools</span>
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg>
-        Editor
-      </div>
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75L19 14z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg>
-        AI Tools
-      </div>
-
-      <span class="nav-section-label">Team</span>
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M3 20c0-3.3 2.7-6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="17" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M15 14c3.3 0 6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        Collaboration
-      </div>
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Notifications
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="nav-item nav-item--disabled">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        Settings
-      </div>
-      <div class="sidebar-user">
-        @if (userName) {
-          <a routerLink="/profile" class="sidebar-user-name">{{ userName }}</a>
-        }
-        <button class="sidebar-logout" type="button" (click)="logout()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Sign out
-        </button>
-      </div>
-    </div>
-  </aside>
-
   <!-- ── Main body ───────────────────────────────────────────────────────── -->
   <div class="app-body">
     <main class="characters-main">
 
       @if (isLoading()) {
-        <div class="state-center">
-          <div class="loading-spinner"></div>
-          <p class="state-label">Loading characters...</p>
+        <div class="mt-5 d-flex justify-content-center align-items-center h-100">
+          <div class="spinner-border text-secondary" role="status"></div>
         </div>
 
       } @else {
         <div class="characters-container">
-
+          <div class="mb-4">
+            <button class="btn-accent2" (click)="goBack()"><i class="fa-solid fa-angle-left"></i> Go back</button>
+          </div>
           <div class="list-header">
             <div class="list-header-left">
               <h1 class="section-title">Characters</h1>
@@ -178,8 +66,8 @@
                   </svg>
                 </div>
               </div>
-              <p class="empty-content-title">No hay personajes registrados</p>
-              <p class="empty-content-subtitle">Este proyecto aún no tiene personajes.</p>
+              <p class="empty-content-title">No characters registered</p>
+              <p class="empty-content-subtitle">This project does not have characters</p>
             </div>
 
           } @else if (characters().length === 0) {

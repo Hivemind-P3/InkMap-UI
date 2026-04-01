@@ -27,6 +27,10 @@ export class ProjectsService {
     });
   }
 
+  getProjectById(projectId: number): Observable<Project> {
+    return this.http.get<Project>(`${this.baseUrl}/projects/${projectId}`);
+  }
+
   createProject(data: CreateProjectRequest): Observable<Project> {
     return this.http.post<Project>(`${this.baseUrl}/projects`, data, { headers: this.getHeaders() });
   }

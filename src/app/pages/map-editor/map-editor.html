@@ -1,0 +1,28 @@
+<div class="page-wrapper d-flex flex-column">
+    <nav class="w-100 d-flex flex-row justify-content-between">
+        <div class="go-back">
+            <button class="btn" (click)="goBack()"><i class="fa-solid fa-angle-left"></i> My maps</button>
+        </div>
+    </nav>
+    <div class="middle-content d-flex flex-row w-100">
+        <div class="w-100" #canvasContainer></div>
+        <div class="canvas-hint mb-3">
+            Hold <kbd>Space</kbd> + <kbd>Left click</kbd> to pan &nbsp;·&nbsp; Scroll to zoom
+        </div>
+        <div class="map-editor-sidebar d-flex flex-column align-items-center">
+            <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-center align-items-center">Layers</div>
+        </div>
+    </div>
+    <footer class="w-100 px-4 d-flex flex-row gap-3 justify-content-end align-items-center">
+        <div>
+            <input type="checkbox"> <span> Show grid</span>
+        </div>
+        <div class="go-back">
+            <button class="btn">
+                <span>
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Export
+                </span>
+            </button>
+        </div>
+    </footer>
+</div>
