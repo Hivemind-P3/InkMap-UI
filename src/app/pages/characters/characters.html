@@ -5,14 +5,15 @@
     <main class="characters-main">
 
       @if (isLoading()) {
-        <div class="state-center">
-          <div class="loading-spinner"></div>
-          <p class="state-label">Loading characters...</p>
+        <div class="mt-5 d-flex justify-content-center align-items-center h-100">
+          <div class="spinner-border text-secondary" role="status"></div>
         </div>
 
       } @else {
         <div class="characters-container">
-
+          <div class="mb-4">
+            <button class="btn-accent2" (click)="goBack()"><i class="fa-solid fa-angle-left"></i> Go back</button>
+          </div>
           <div class="list-header">
             <div class="list-header-left">
               <h1 class="section-title">Characters</h1>
@@ -65,8 +66,8 @@
                   </svg>
                 </div>
               </div>
-              <p class="empty-content-title">No hay personajes registrados</p>
-              <p class="empty-content-subtitle">Este proyecto aún no tiene personajes.</p>
+              <p class="empty-content-title">No characters registered</p>
+              <p class="empty-content-subtitle">This project does not have characters</p>
             </div>
 
           } @else if (characters().length === 0) {
