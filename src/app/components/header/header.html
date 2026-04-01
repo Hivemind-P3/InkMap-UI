@@ -3,9 +3,14 @@
       <span class="brand-dot"></span>InkMap
     </div>
     <div class="d-flex flex-row gap-3">
-      <a class="nav-link" href="/#features">Features</a>
-      <a class="nav-link" href="/#how-it-works">How it works</a>
-      <a class="nav-link" href="/#pricing">Pricing</a>
+      @if (user) {
+        <a class="nav-link" routerLink="/">Home</a>
+        <a class="nav-link" routerLink="/app/projects">Projects</a>
+      } @else {
+        <a class="nav-link" href="/#features">Features</a>
+        <a class="nav-link" href="/#how-it-works">How it works</a>
+        <a class="nav-link" href="/#pricing">Pricing</a>
+      }
     </div>
     <div class="header-actions">
       @if (user) {
