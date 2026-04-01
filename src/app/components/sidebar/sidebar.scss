@@ -24,6 +24,7 @@ i {
   height: 100vh;
   overflow: hidden;
   transition: width 0.3s ease, min-width 0.3s ease;
+  border-right: 1px solid #4a7c7e83;
 
   &--collapsed {
     width: 56px;

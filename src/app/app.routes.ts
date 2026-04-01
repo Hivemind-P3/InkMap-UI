@@ -16,6 +16,7 @@ import { NotFound } from './pages/not-found/not-found';
 import { ProjectDashboard } from './pages/project-dashboard/project-dashboard';
 import { GeographicMaps } from './pages/geographic-maps/geographic-maps';
 import { EditorComponent } from './pages/editor/editor';
+import { MapEditor } from './pages/map-editor/map-editor';
 
 export const routes: Routes = [
   { 
@@ -77,6 +78,10 @@ export const routes: Routes = [
       {
         path: 'editor/:projectId',
         component: EditorComponent
+      },
+      {
+        path: 'map-editor/:projectId',
+        component: MapEditor
       }
     ]
   },
