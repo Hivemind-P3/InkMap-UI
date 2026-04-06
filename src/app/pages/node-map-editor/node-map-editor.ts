@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
 import Konva from 'konva';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -30,11 +30,17 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   protected newColor = '#4a9ead';
   protected savingNode = false;
 
+  protected contextMenuVisible = false;
+  protected contextMenuX = 0;
+  protected contextMenuY = 0;
+  private pendingPos: { x: number; y: number } | null = null;
+
   protected readonly nodeTypes = NODE_TYPES;
 
   constructor(
     private route: ActivatedRoute,
     private nodeService: NodeService,
+    private zone: NgZone,
   ) {}
 
   ngOnInit(): void {
@@ -225,6 +231,40 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     };
   }
 
+  protected onCanvasContextMenu(e: MouseEvent): void {
+    e.preventDefault();
+    const container = this.canvasContainer.nativeElement;
+    const rect = container.getBoundingClientRect();
+    const scale = this.stage.scaleX();
+    const stagePos = this.stage.position();
+    this.pendingPos = {
+      x: Math.round((e.clientX - rect.left - stagePos.x) / scale - NODE_WIDTH / 2),
+      y: Math.round((e.clientY - rect.top - stagePos.y) / scale - NODE_HEIGHT / 2),
+    };
+    this.contextMenuX = e.clientX;
+    this.contextMenuY = e.clientY;
+    this.contextMenuVisible = true;
+    setTimeout(() => {
+      const close = () => {
+        this.zone.run(() => {
+          this.contextMenuVisible = false;
+        });
+        document.removeEventListener('click', close);
+      };
+      document.addEventListener('click', close);
+    }, 0);
+  }
+
+  protected openFormFromContextMenu(): void {
+    this.contextMenuVisible = false;
+    this.showAddForm = true;
+    this.formSubmitted = false;
+    this.newLabel = '';
+    this.newDescription = '';
+    this.newType = '';
+    this.newColor = '#4a9ead';
+  }
+
   protected toggleAddForm(): void {
     this.showAddForm = !this.showAddForm;
     if (!this.showAddForm) {
@@ -233,6 +273,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
       this.newType = '';
       this.newColor = '#4a9ead';
       this.formSubmitted = false;
+      this.pendingPos = null;
     }
   }
 
@@ -240,15 +281,15 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.formSubmitted = true;
     if (!this.newLabel.trim() || !this.newType) return;
     this.savingNode = true;
-    const center = this.getCanvasCenter();
+    const pos = this.pendingPos ?? this.getCanvasCenter();
     this.nodeService
       .create(Number(this.projectId), Number(this.mapId), {
         label: this.newLabel.trim(),
         description: this.newDescription.trim(),
         type: this.newType,
         color: this.newColor,
-        posX: center.x,
-        posY: center.y,
+        posX: pos.x,
+        posY: pos.y,
       })
       .subscribe({
         next: (node) => {
@@ -260,6 +301,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
           this.newType = '';
           this.newColor = '#4a9ead';
           this.formSubmitted = false;
+          this.pendingPos = null;
           this.savingNode = false;
         },
         error: () => {

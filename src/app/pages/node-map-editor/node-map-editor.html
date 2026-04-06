@@ -5,7 +5,23 @@
         </div>
     </nav>
     <div class="middle-content d-flex flex-row w-100">
-        <div class="canvas-area" #canvasContainer></div>
+        <div class="canvas-area" #canvasContainer
+            (contextmenu)="onCanvasContextMenu($event)"
+            (click)="contextMenuVisible = false"
+        ></div>
+
+        @if (contextMenuVisible) {
+            <div
+                class="canvas-context-menu"
+                [style.left.px]="contextMenuX"
+                [style.top.px]="contextMenuY"
+                (click)="$event.stopPropagation()"
+            >
+                <button class="context-menu-item" (click)="openFormFromContextMenu()">
+                    <i class="fa-solid fa-plus"></i> Create node here
+                </button>
+            </div>
+        }
         <div class="canvas-hint mb-3">
             Hold <kbd>Space</kbd> + <kbd>Left click</kbd> to pan &nbsp;·&nbsp; Scroll to zoom
         </div>
