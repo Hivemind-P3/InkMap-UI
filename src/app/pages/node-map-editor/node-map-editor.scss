@@ -59,6 +59,7 @@ footer {
     flex: 1;
     min-height: 0;
     min-width: 0;
+    background-color: #2a3347;
 }
 
 .btn {
@@ -70,6 +71,44 @@ footer {
         background: rgba(255, 255, 255, 0.08);
         color: #60a3a5;
         opacity: 1;
+    }
+}
+
+.btn-add-node {
+    background: rgba(74, 158, 173, 0.15);
+    color: #60a3a5;
+    border: 1px solid rgba(74, 158, 173, 0.3);
+    font-size: 0.82rem;
+    padding: 0.25rem 0.5rem;
+
+    &:hover:not(:disabled) {
+        background: rgba(74, 158, 173, 0.28);
+        color: #7fc8ca;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+.add-node-form {
+    .form-control {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.82rem;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        &:focus {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(74, 158, 173, 0.5);
+            box-shadow: none;
+            color: rgba(255, 255, 255, 0.85);
+        }
     }
 }
 

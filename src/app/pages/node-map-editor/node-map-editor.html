@@ -11,6 +11,35 @@
         </div>
         <div class="node-map-editor-sidebar d-flex flex-column align-items-center">
             <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-center align-items-center">Nodes</div>
+            <div class="p-2 w-100">
+                <button class="btn btn-add-node w-100" (click)="toggleAddForm()">
+                    <i class="fa-solid fa-plus"></i> Add node
+                </button>
+            </div>
+            @if (showAddForm) {
+                <div class="add-node-form w-100 px-2 pb-2">
+                    <input
+                        class="form-control form-control-sm mb-2"
+                        placeholder="Label"
+                        [(ngModel)]="newLabel"
+                        (keyup.enter)="submitNewNode()"
+                        maxlength="80"
+                    />
+                    <input
+                        class="form-control form-control-sm mb-2"
+                        placeholder="Description (optional)"
+                        [(ngModel)]="newDescription"
+                        maxlength="200"
+                    />
+                    <button
+                        class="btn btn-add-node w-100"
+                        (click)="submitNewNode()"
+                        [disabled]="!newLabel.trim() || savingNode"
+                    >
+                        {{ savingNode ? 'Creating...' : 'Create' }}
+                    </button>
+                </div>
+            }
         </div>
     </div>
     <footer class="w-100 px-4 d-flex flex-row gap-3 justify-content-end align-items-center">
