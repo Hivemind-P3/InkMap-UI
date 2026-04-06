@@ -3,7 +3,7 @@ import Konva from 'konva';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NodeService } from '../../services/node.service';
-import { Node } from '../../models/node.model';
+import { Node, NodeType, NODE_TYPES } from '../../models/node.model';
 
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 88;
@@ -23,9 +23,14 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   protected mapId: string = '';
 
   protected showAddForm = false;
+  protected formSubmitted = false;
   protected newLabel = '';
   protected newDescription = '';
+  protected newType: NodeType | '' = '';
+  protected newColor = '#4a9ead';
   protected savingNode = false;
+
+  protected readonly nodeTypes = NODE_TYPES;
 
   constructor(
     private route: ActivatedRoute,
@@ -104,7 +109,6 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
-
     this.layer.draw();
 
     if (this.projectId && this.mapId) {
@@ -155,6 +159,13 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     });
   }
 
+  private hexToRgba(hex: string, alpha: number): string {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
   private drawNode(node: Node): void {
     const group = new Konva.Group({
       x: node.posX,
@@ -166,8 +177,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     const rect = new Konva.Rect({
       width: NODE_WIDTH,
       height: NODE_HEIGHT,
-      fill: '#1e3a5f',
-      stroke: '#4a9ead',
+      fill: this.hexToRgba(node.color, 0.18),
+      stroke: node.color,
       strokeWidth: 1.5,
       cornerRadius: 6,
     });
@@ -192,6 +203,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
         .update(Number(this.projectId), Number(this.mapId), node.id, {
           label: node.label,
           description: node.description,
+          type: node.type,
+          color: node.color,
           posX: Math.round(pos.x),
           posY: Math.round(pos.y),
         })
@@ -217,17 +230,23 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     if (!this.showAddForm) {
       this.newLabel = '';
       this.newDescription = '';
+      this.newType = '';
+      this.newColor = '#4a9ead';
+      this.formSubmitted = false;
     }
   }
 
   protected submitNewNode(): void {
-    if (!this.newLabel.trim()) return;
+    this.formSubmitted = true;
+    if (!this.newLabel.trim() || !this.newType) return;
     this.savingNode = true;
     const center = this.getCanvasCenter();
     this.nodeService
       .create(Number(this.projectId), Number(this.mapId), {
         label: this.newLabel.trim(),
         description: this.newDescription.trim(),
+        type: this.newType,
+        color: this.newColor,
         posX: center.x,
         posY: center.y,
       })
@@ -238,6 +257,9 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
           this.showAddForm = false;
           this.newLabel = '';
           this.newDescription = '';
+          this.newType = '';
+          this.newColor = '#4a9ead';
+          this.formSubmitted = false;
           this.savingNode = false;
         },
         error: () => {

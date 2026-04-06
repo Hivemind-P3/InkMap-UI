@@ -19,22 +19,50 @@
             @if (showAddForm) {
                 <div class="add-node-form w-100 px-2 pb-2">
                     <input
-                        class="form-control form-control-sm mb-2"
-                        placeholder="Label"
+                        class="form-control form-control-sm mb-1"
+                        [class.is-invalid]="formSubmitted && !newLabel.trim()"
+                        placeholder="Label *"
                         [(ngModel)]="newLabel"
-                        (keyup.enter)="submitNewNode()"
                         maxlength="80"
                     />
+                    @if (formSubmitted && !newLabel.trim()) {
+                        <div class="field-error mb-1">Label is required</div>
+                    }
+
                     <input
-                        class="form-control form-control-sm mb-2"
+                        class="form-control form-control-sm mb-1"
                         placeholder="Description (optional)"
                         [(ngModel)]="newDescription"
                         maxlength="200"
                     />
+
+                    <select
+                        class="form-select form-select-sm mb-1"
+                        [class.is-invalid]="formSubmitted && !newType"
+                        [(ngModel)]="newType"
+                    >
+                        <option value="">Type *</option>
+                        @for (t of nodeTypes; track t) {
+                            <option [value]="t">{{ t }}</option>
+                        }
+                    </select>
+                    @if (formSubmitted && !newType) {
+                        <div class="field-error mb-1">Type is required</div>
+                    }
+
+                    <div class="color-row mb-2">
+                        <label class="color-label">Color *</label>
+                        <input
+                            type="color"
+                            class="color-input"
+                            [(ngModel)]="newColor"
+                        />
+                    </div>
+
                     <button
                         class="btn btn-add-node w-100"
                         (click)="submitNewNode()"
-                        [disabled]="!newLabel.trim() || savingNode"
+                        [disabled]="savingNode"
                     >
                         {{ savingNode ? 'Creating...' : 'Create' }}
                     </button>
