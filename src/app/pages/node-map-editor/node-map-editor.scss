@@ -219,6 +219,20 @@ footer {
     flex-shrink: 0;
 }
 
+.btn-cancel-edit {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    color: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 5px;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) { color: rgba(255, 255, 255, 0.75); }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
 .btn-node-action {
     font-size: 0.75rem;
     padding: 0.25rem 0.6rem;

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
 import Konva from 'konva';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -37,6 +37,13 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   private pendingPos: { x: number; y: number } | null = null;
 
   protected selectedNode: Node | null = null;
+  protected isEditing = false;
+  protected editSubmitted = false;
+  protected editLabel = '';
+  protected editDescription = '';
+  protected editType: NodeType | '' = '';
+  protected editColor = '';
+  protected savingEdit = false;
 
   protected readonly nodeTypes = NODE_TYPES;
 
@@ -44,6 +51,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private nodeService: NodeService,
     private zone: NgZone,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -219,14 +227,16 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
     group.on('dragend', () => {
       const pos = group.position();
+      node.posX = Math.round(pos.x);
+      node.posY = Math.round(pos.y);
       this.nodeService
         .update(Number(this.projectId), Number(this.mapId), node.id, {
           label: node.label,
           description: node.description,
           type: node.type,
           color: node.color,
-          posX: Math.round(pos.x),
-          posY: Math.round(pos.y),
+          posX: node.posX,
+          posY: node.posY,
         })
         .subscribe();
       setTimeout(() => { wasDragged = false; }, 0);
@@ -243,6 +253,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
   protected selectNode(node: Node): void {
     if (this.selectedNode?.id === node.id) return;
+    this.isEditing = false;
+    this.editSubmitted = false;
     this.applySelectionStyle(this.selectedNode, false);
     this.selectedNode = node;
     this.applySelectionStyle(node, true);
@@ -252,6 +264,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
   protected clearSelection(): void {
     if (!this.selectedNode) return;
+    this.isEditing = false;
+    this.editSubmitted = false;
     this.applySelectionStyle(this.selectedNode, false);
     this.selectedNode = null;
     this.layer.draw();
@@ -264,6 +278,67 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     const rect = group.findOne('Rect') as Konva.Rect;
     rect.stroke(selected ? '#ffffff' : group.getAttr('origColor'));
     rect.strokeWidth(selected ? 2.5 : 1.5);
+  }
+
+  private updateNodeVisuals(node: Node): void {
+    const group = this.nodeGroups.get(node.id);
+    if (!group) return;
+    group.setAttr('origColor', node.color);
+    (group.findOne('Rect') as Konva.Rect).fill(this.hexToRgba(node.color, 0.18));
+    // node remains selected → keep white stroke
+    (group.findOne('Text') as Konva.Text).text(node.label);
+    this.layer.draw();
+  }
+
+  protected openEditMode(): void {
+    if (!this.selectedNode) return;
+    this.editLabel = this.selectedNode.label;
+    this.editDescription = this.selectedNode.description ?? '';
+    this.editType = this.selectedNode.type;
+    this.editColor = this.selectedNode.color;
+    this.editSubmitted = false;
+    this.isEditing = true;
+  }
+
+  protected cancelEdit(): void {
+    this.isEditing = false;
+    this.editSubmitted = false;
+  }
+
+  protected submitEdit(): void {
+    this.editSubmitted = true;
+    if (!this.editLabel.trim() || !this.editType) return;
+
+    const node = this.selectedNode!;
+    this.savingEdit = true;
+    this.nodeService
+      .update(Number(this.projectId), Number(this.mapId), node.id, {
+        label: this.editLabel.trim(),
+        description: this.editDescription.trim(),
+        type: this.editType as NodeType,
+        color: this.editColor,
+        posX: node.posX,
+        posY: node.posY,
+      })
+      .subscribe({
+        next: (updated) => {
+          this.zone.run(() => {
+            node.label = updated.label;
+            node.description = updated.description;
+            node.type = updated.type;
+            node.color = updated.color;
+            this.isEditing = false;
+            this.editSubmitted = false;
+            this.savingEdit = false;
+            this.updateNodeVisuals(node);
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {
+          this.savingEdit = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   private getCanvasCenter(): { x: number; y: number } {
@@ -315,6 +390,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.showAddForm = !this.showAddForm;
     if (this.showAddForm) {
       this.selectedNode = null;
+      this.isEditing = false;
+      this.editSubmitted = false;
     } else {
       this.newLabel = '';
       this.newDescription = '';

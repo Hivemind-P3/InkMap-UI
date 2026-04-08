@@ -29,38 +29,87 @@
 
             @if (selectedNode) {
                 <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-between align-items-center px-3">
-                    <span>Node Info</span>
+                    <span>{{ isEditing ? 'Edit Node' : 'Node Info' }}</span>
                     <button class="btn-icon-close" (click)="clearSelection()" title="Close"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div class="node-detail-panel w-100">
-                    <div class="node-detail-label-row px-3 py-2" [style.border-left-color]="selectedNode.color">
-                        <span class="node-detail-label">{{ selectedNode.label }}</span>
-                        <span class="node-detail-badge">{{ selectedNode.type }}</span>
-                    </div>
 
-                    @if (selectedNode.description) {
-                        <div class="node-detail-field px-3 pb-2">
-                            <span class="node-detail-field-label">Description</span>
-                            <p class="node-detail-field-value">{{ selectedNode.description }}</p>
+                @if (isEditing) {
+                    <div class="add-node-form w-100 px-2 pb-2 pt-2">
+                        <input
+                            class="form-control form-control-sm mb-1"
+                            [class.is-invalid]="editSubmitted && !editLabel.trim()"
+                            placeholder="Label *"
+                            [(ngModel)]="editLabel"
+                            maxlength="80"
+                        />
+                        @if (editSubmitted && !editLabel.trim()) {
+                            <div class="field-error mb-1">Label is required</div>
+                        }
+
+                        <input
+                            class="form-control form-control-sm mb-1"
+                            placeholder="Description (optional)"
+                            [(ngModel)]="editDescription"
+                            maxlength="200"
+                        />
+
+                        <select
+                            class="form-select form-select-sm mb-1"
+                            [class.is-invalid]="editSubmitted && !editType"
+                            [(ngModel)]="editType"
+                        >
+                            <option value="">Type *</option>
+                            @for (t of nodeTypes; track t) {
+                                <option [value]="t">{{ t }}</option>
+                            }
+                        </select>
+                        @if (editSubmitted && !editType) {
+                            <div class="field-error mb-1">Type is required</div>
+                        }
+
+                        <div class="color-row mb-2">
+                            <label class="color-label">Color *</label>
+                            <input type="color" class="color-input" [(ngModel)]="editColor" />
                         </div>
-                    }
 
-                    <div class="node-detail-field px-3 pb-2 d-flex align-items-center gap-2">
-                        <span class="node-detail-field-label">Color</span>
-                        <span class="node-color-chip" [style.background]="selectedNode.color"></span>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-add-node flex-grow-1" (click)="submitEdit()" [disabled]="savingEdit">
+                                {{ savingEdit ? 'Saving...' : 'Save' }}
+                            </button>
+                            <button class="btn-cancel-edit" (click)="cancelEdit()" [disabled]="savingEdit">Cancel</button>
+                        </div>
                     </div>
+                } @else {
+                    <div class="node-detail-panel w-100">
+                        <div class="node-detail-label-row px-3 py-2" [style.border-left-color]="selectedNode.color">
+                            <span class="node-detail-label">{{ selectedNode.label }}</span>
+                            <span class="node-detail-badge">{{ selectedNode.type }}</span>
+                        </div>
 
-                    <div class="d-flex gap-2 px-3 pb-3">
-                        <button class="btn btn-node-action" disabled><i class="fa-solid fa-pen"></i> Edit</button>
-                        <button class="btn btn-node-action btn-node-delete" disabled><i class="fa-solid fa-trash"></i> Delete</button>
-                    </div>
+                        @if (selectedNode.description) {
+                            <div class="node-detail-field px-3 pb-2">
+                                <span class="node-detail-field-label">Description</span>
+                                <p class="node-detail-field-value">{{ selectedNode.description }}</p>
+                            </div>
+                        }
 
-                    <div class="node-detail-section-header px-3 py-2">Wikis</div>
-                    <div class="node-detail-empty px-3 pb-3">
-                        <i class="fa-regular fa-file-lines"></i>
-                        <span>No wikis associated yet</span>
+                        <div class="node-detail-field px-3 pb-2 d-flex align-items-center gap-2">
+                            <span class="node-detail-field-label">Color</span>
+                            <span class="node-color-chip" [style.background]="selectedNode.color"></span>
+                        </div>
+
+                        <div class="d-flex gap-2 px-3 pb-3">
+                            <button class="btn btn-node-action" (click)="openEditMode()"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button class="btn btn-node-action btn-node-delete" disabled><i class="fa-solid fa-trash"></i> Delete</button>
+                        </div>
+
+                        <div class="node-detail-section-header px-3 py-2">Wikis</div>
+                        <div class="node-detail-empty px-3 pb-3">
+                            <i class="fa-regular fa-file-lines"></i>
+                            <span>No wikis associated yet</span>
+                        </div>
                     </div>
-                </div>
+                }
             } @else {
                 <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-center align-items-center">Nodes</div>
                 <div class="p-2 w-100">
