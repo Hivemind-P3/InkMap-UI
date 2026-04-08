@@ -1,15 +1,13 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { GeographicMap } from '../../models/geographic-map.model';
 import { GeographicMapService } from '../../services/geographic-map.service';
-import { BaseService } from '../../services/base.service';
 import { Project } from '../../models/project.model';
-import { ProjectsService } from '../../services/projects.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-geographic-maps',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './geographic-maps.html',
   styleUrl: './geographic-maps.scss',
 })

@@ -1,5 +1,4 @@
 import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +9,7 @@ import { StoryCharacter } from '../../models/story-character.model';
 
 @Component({
   selector: 'app-characters',
-  imports: [RouterLink, DatePipe, TitleCasePipe, FormsModule],
+  imports: [ DatePipe, TitleCasePipe, FormsModule],
   templateUrl: './characters.html',
   styleUrl: './characters.scss',
 })

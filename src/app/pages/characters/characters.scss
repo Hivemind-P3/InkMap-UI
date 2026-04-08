@@ -1,3 +1,5 @@
+@use "sass:color";
+
 $dark-blue: #2c3e50;
 $beige: #e8dcc4;
 $brown: #8b7355;
@@ -458,7 +460,7 @@ $terra: #c17767;
   transition: background 0.2s;
   white-space: nowrap;
 
-  &:hover { background: darken($teal, 8%); }
+  &:hover { background: color.adjust($teal, $lightness: -8%) }
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
@@ -654,7 +656,7 @@ $terra: #c17767;
   cursor: pointer;
   transition: background 0.2s;
 
-  &:hover:not(:disabled) { background: darken($teal, 8%); }
+  &:hover:not(:disabled) { background: color.adjust($teal, $lightness: -8%); }
 
   &:disabled {
     opacity: 0.6;

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ProjectsService } from '../../services/projects.service';
 import { ToastService } from '../../services/toast.service';
@@ -9,7 +9,7 @@ import { Project } from '../../models/project.model';
 
 @Component({
   selector: 'app-projects',
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [ DatePipe, FormsModule],
   templateUrl: './projects.html',
   styleUrl: './projects.scss',
 })
