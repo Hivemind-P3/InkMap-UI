@@ -252,6 +252,37 @@ footer {
     border-color: rgba(224, 112, 112, 0.2);
 }
 
+.delete-confirm-box {
+    background: rgba(224, 112, 112, 0.07);
+    border: 1px solid rgba(224, 112, 112, 0.25);
+    border-radius: 6px;
+    padding: 0.65rem 0.75rem;
+}
+
+.delete-confirm-msg {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0 0 0.55rem 0;
+    line-height: 1.4;
+}
+
+.btn-delete-confirm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    color: rgba(224, 112, 112, 0.9);
+    border: 1px solid rgba(224, 112, 112, 0.4);
+    border-radius: 5px;
+    background: rgba(224, 112, 112, 0.1);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: rgba(224, 112, 112, 0.2);
+        color: #e07070;
+    }
+
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
 .node-detail-section-header {
     font-size: 0.68rem;
     font-weight: 600;

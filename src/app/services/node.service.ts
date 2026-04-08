@@ -29,4 +29,10 @@ export class NodeService extends BaseService {
       data,
     );
   }
+
+  delete(projectId: number, nodeMapId: number, nodeId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/projects/${projectId}/node-maps/${nodeMapId}/nodes/${nodeId}`,
+    );
+  }
 }

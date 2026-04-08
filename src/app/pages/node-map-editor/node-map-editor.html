@@ -99,9 +99,21 @@
                         </div>
 
                         <div class="d-flex gap-2 px-3 pb-3">
-                            <button class="btn btn-node-action" (click)="openEditMode()"><i class="fa-solid fa-pen"></i> Edit</button>
-                            <button class="btn btn-node-action btn-node-delete" disabled><i class="fa-solid fa-trash"></i> Delete</button>
+                            <button class="btn btn-node-action" (click)="openEditMode()" [disabled]="showDeleteConfirm"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button class="btn btn-node-action btn-node-delete" (click)="requestDelete()" [disabled]="showDeleteConfirm || deletingNode"><i class="fa-solid fa-trash"></i> Delete</button>
                         </div>
+
+                        @if (showDeleteConfirm) {
+                            <div class="delete-confirm-box mx-3 mb-3">
+                                <p class="delete-confirm-msg">¿Quieres borrar este nodo y todas sus relaciones?</p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn-delete-confirm flex-grow-1" (click)="confirmDelete()" [disabled]="deletingNode">
+                                        {{ deletingNode ? 'Deleting...' : 'Confirm' }}
+                                    </button>
+                                    <button class="btn-cancel-edit" (click)="cancelDelete()" [disabled]="deletingNode">Cancel</button>
+                                </div>
+                            </div>
+                        }
 
                         <div class="node-detail-section-header px-3 py-2">Wikis</div>
                         <div class="node-detail-empty px-3 pb-3">

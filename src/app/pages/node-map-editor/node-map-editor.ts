@@ -44,6 +44,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   protected editType: NodeType | '' = '';
   protected editColor = '';
   protected savingEdit = false;
+  protected showDeleteConfirm = false;
+  protected deletingNode = false;
 
   protected readonly nodeTypes = NODE_TYPES;
 
@@ -255,6 +257,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     if (this.selectedNode?.id === node.id) return;
     this.isEditing = false;
     this.editSubmitted = false;
+    this.showDeleteConfirm = false;
     this.applySelectionStyle(this.selectedNode, false);
     this.selectedNode = node;
     this.applySelectionStyle(node, true);
@@ -266,6 +269,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     if (!this.selectedNode) return;
     this.isEditing = false;
     this.editSubmitted = false;
+    this.showDeleteConfirm = false;
     this.applySelectionStyle(this.selectedNode, false);
     this.selectedNode = null;
     this.layer.draw();
@@ -297,12 +301,50 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.editType = this.selectedNode.type;
     this.editColor = this.selectedNode.color;
     this.editSubmitted = false;
+    this.showDeleteConfirm = false;
     this.isEditing = true;
   }
 
   protected cancelEdit(): void {
     this.isEditing = false;
     this.editSubmitted = false;
+  }
+
+  protected requestDelete(): void {
+    this.showDeleteConfirm = true;
+  }
+
+  protected cancelDelete(): void {
+    this.showDeleteConfirm = false;
+  }
+
+  protected confirmDelete(): void {
+    if (!this.selectedNode) return;
+    const node = this.selectedNode;
+    this.deletingNode = true;
+    this.nodeService
+      .delete(Number(this.projectId), Number(this.mapId), node.id)
+      .subscribe({
+        next: () => {
+          this.zone.run(() => {
+            const group = this.nodeGroups.get(node.id);
+            group?.destroy();
+            this.nodeGroups.delete(node.id);
+            this.layer.draw();
+            this.deletingNode = false;
+            this.showDeleteConfirm = false;
+            this.selectedNode = null;
+            this.isEditing = false;
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {
+          this.zone.run(() => {
+            this.deletingNode = false;
+            this.cdr.detectChanges();
+          });
+        },
+      });
   }
 
   protected submitEdit(): void {
