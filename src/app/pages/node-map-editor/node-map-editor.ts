@@ -18,6 +18,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   @ViewChild('canvasContainer') canvasContainer!: ElementRef;
   private stage!: Konva.Stage;
   private layer!: Konva.Layer;
+  private nodeGroups = new Map<number, Konva.Group>();
 
   protected projectId: string = '';
   protected mapId: string = '';
@@ -34,6 +35,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   protected contextMenuX = 0;
   protected contextMenuY = 0;
   private pendingPos: { x: number; y: number } | null = null;
+
+  protected selectedNode: Node | null = null;
 
   protected readonly nodeTypes = NODE_TYPES;
 
@@ -113,6 +116,12 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
       this.stage.position(newPos);
     });
 
+    this.stage.on('click', (e) => {
+      if (e.target === this.stage) {
+        this.zone.run(() => this.clearSelection());
+      }
+    });
+
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
     this.layer.draw();
@@ -180,6 +189,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
       id: `node-${node.id}`,
     });
 
+    group.setAttr('origColor', node.color);
+
     const rect = new Konva.Rect({
       width: NODE_WIDTH,
       height: NODE_HEIGHT,
@@ -203,6 +214,9 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     group.add(rect);
     group.add(label);
 
+    let wasDragged = false;
+    group.on('dragstart', () => { wasDragged = true; });
+
     group.on('dragend', () => {
       const pos = group.position();
       this.nodeService
@@ -215,9 +229,41 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
           posY: Math.round(pos.y),
         })
         .subscribe();
+      setTimeout(() => { wasDragged = false; }, 0);
     });
 
+    group.on('click', () => {
+      if (wasDragged) return;
+      this.zone.run(() => this.selectNode(node));
+    });
+
+    this.nodeGroups.set(node.id, group);
     this.layer.add(group);
+  }
+
+  protected selectNode(node: Node): void {
+    if (this.selectedNode?.id === node.id) return;
+    this.applySelectionStyle(this.selectedNode, false);
+    this.selectedNode = node;
+    this.applySelectionStyle(node, true);
+    this.showAddForm = false;
+    this.layer.draw();
+  }
+
+  protected clearSelection(): void {
+    if (!this.selectedNode) return;
+    this.applySelectionStyle(this.selectedNode, false);
+    this.selectedNode = null;
+    this.layer.draw();
+  }
+
+  private applySelectionStyle(node: Node | null, selected: boolean): void {
+    if (!node) return;
+    const group = this.nodeGroups.get(node.id);
+    if (!group) return;
+    const rect = group.findOne('Rect') as Konva.Rect;
+    rect.stroke(selected ? '#ffffff' : group.getAttr('origColor'));
+    rect.strokeWidth(selected ? 2.5 : 1.5);
   }
 
   private getCanvasCenter(): { x: number; y: number } {
@@ -267,7 +313,9 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
   protected toggleAddForm(): void {
     this.showAddForm = !this.showAddForm;
-    if (!this.showAddForm) {
+    if (this.showAddForm) {
+      this.selectedNode = null;
+    } else {
       this.newLabel = '';
       this.newDescription = '';
       this.newType = '';

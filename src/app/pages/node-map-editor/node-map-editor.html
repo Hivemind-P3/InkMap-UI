@@ -26,63 +26,100 @@
             Hold <kbd>Space</kbd> + <kbd>Left click</kbd> to pan &nbsp;·&nbsp; Scroll to zoom
         </div>
         <div class="node-map-editor-sidebar d-flex flex-column align-items-center">
-            <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-center align-items-center">Nodes</div>
-            <div class="p-2 w-100">
-                <button class="btn btn-add-node w-100" (click)="toggleAddForm()">
-                    <i class="fa-solid fa-plus"></i> Add node
-                </button>
-            </div>
-            @if (showAddForm) {
-                <div class="add-node-form w-100 px-2 pb-2">
-                    <input
-                        class="form-control form-control-sm mb-1"
-                        [class.is-invalid]="formSubmitted && !newLabel.trim()"
-                        placeholder="Label *"
-                        [(ngModel)]="newLabel"
-                        maxlength="80"
-                    />
-                    @if (formSubmitted && !newLabel.trim()) {
-                        <div class="field-error mb-1">Label is required</div>
-                    }
 
-                    <input
-                        class="form-control form-control-sm mb-1"
-                        placeholder="Description (optional)"
-                        [(ngModel)]="newDescription"
-                        maxlength="200"
-                    />
-
-                    <select
-                        class="form-select form-select-sm mb-1"
-                        [class.is-invalid]="formSubmitted && !newType"
-                        [(ngModel)]="newType"
-                    >
-                        <option value="">Type *</option>
-                        @for (t of nodeTypes; track t) {
-                            <option [value]="t">{{ t }}</option>
-                        }
-                    </select>
-                    @if (formSubmitted && !newType) {
-                        <div class="field-error mb-1">Type is required</div>
-                    }
-
-                    <div class="color-row mb-2">
-                        <label class="color-label">Color *</label>
-                        <input
-                            type="color"
-                            class="color-input"
-                            [(ngModel)]="newColor"
-                        />
+            @if (selectedNode) {
+                <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-between align-items-center px-3">
+                    <span>Node Info</span>
+                    <button class="btn-icon-close" (click)="clearSelection()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="node-detail-panel w-100">
+                    <div class="node-detail-label-row px-3 py-2" [style.border-left-color]="selectedNode.color">
+                        <span class="node-detail-label">{{ selectedNode.label }}</span>
+                        <span class="node-detail-badge">{{ selectedNode.type }}</span>
                     </div>
 
-                    <button
-                        class="btn btn-add-node w-100"
-                        (click)="submitNewNode()"
-                        [disabled]="savingNode"
-                    >
-                        {{ savingNode ? 'Creating...' : 'Create' }}
+                    @if (selectedNode.description) {
+                        <div class="node-detail-field px-3 pb-2">
+                            <span class="node-detail-field-label">Description</span>
+                            <p class="node-detail-field-value">{{ selectedNode.description }}</p>
+                        </div>
+                    }
+
+                    <div class="node-detail-field px-3 pb-2 d-flex align-items-center gap-2">
+                        <span class="node-detail-field-label">Color</span>
+                        <span class="node-color-chip" [style.background]="selectedNode.color"></span>
+                    </div>
+
+                    <div class="d-flex gap-2 px-3 pb-3">
+                        <button class="btn btn-node-action" disabled><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button class="btn btn-node-action btn-node-delete" disabled><i class="fa-solid fa-trash"></i> Delete</button>
+                    </div>
+
+                    <div class="node-detail-section-header px-3 py-2">Wikis</div>
+                    <div class="node-detail-empty px-3 pb-3">
+                        <i class="fa-regular fa-file-lines"></i>
+                        <span>No wikis associated yet</span>
+                    </div>
+                </div>
+            } @else {
+                <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-center align-items-center">Nodes</div>
+                <div class="p-2 w-100">
+                    <button class="btn btn-add-node w-100" (click)="toggleAddForm()">
+                        <i class="fa-solid fa-plus"></i> Add node
                     </button>
                 </div>
+                @if (showAddForm) {
+                    <div class="add-node-form w-100 px-2 pb-2">
+                        <input
+                            class="form-control form-control-sm mb-1"
+                            [class.is-invalid]="formSubmitted && !newLabel.trim()"
+                            placeholder="Label *"
+                            [(ngModel)]="newLabel"
+                            maxlength="80"
+                        />
+                        @if (formSubmitted && !newLabel.trim()) {
+                            <div class="field-error mb-1">Label is required</div>
+                        }
+
+                        <input
+                            class="form-control form-control-sm mb-1"
+                            placeholder="Description (optional)"
+                            [(ngModel)]="newDescription"
+                            maxlength="200"
+                        />
+
+                        <select
+                            class="form-select form-select-sm mb-1"
+                            [class.is-invalid]="formSubmitted && !newType"
+                            [(ngModel)]="newType"
+                        >
+                            <option value="">Type *</option>
+                            @for (t of nodeTypes; track t) {
+                                <option [value]="t">{{ t }}</option>
+                            }
+                        </select>
+                        @if (formSubmitted && !newType) {
+                            <div class="field-error mb-1">Type is required</div>
+                        }
+
+                        <div class="color-row mb-2">
+                            <label class="color-label">Color *</label>
+                            <input
+                                type="color"
+                                class="color-input"
+                                [(ngModel)]="newColor"
+                            />
+                        </div>
+
+                        <button
+                            class="btn btn-add-node w-100"
+                            (click)="submitNewNode()"
+                            [disabled]="savingNode"
+                        >
+                            {{ savingNode ? 'Creating...' : 'Create' }}
+                        </button>
+                    </div>
+                }
             }
         </div>
     </div>
