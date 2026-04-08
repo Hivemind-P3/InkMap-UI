@@ -26,6 +26,7 @@ export class NodeMaps implements OnInit {
   protected showCreateForm = false;
   protected newMapName = '';
   protected isCreating = false;
+  protected showNameError = false;
 
   constructor(private route: ActivatedRoute) {}
 
@@ -53,17 +54,28 @@ export class NodeMaps implements OnInit {
 
   openCreateForm(): void {
     this.newMapName = '';
+    this.showNameError = false;
     this.showCreateForm = true;
   }
 
   cancelCreate(): void {
     this.showCreateForm = false;
     this.newMapName = '';
+    this.showNameError = false;
+  }
+
+  onNameInput(): void {
+    if (this.showNameError && this.newMapName.trim()) {
+      this.showNameError = false;
+    }
   }
 
   createMap(): void {
     const name = this.newMapName.trim();
-    if (!name) return;
+    if (!name) {
+      this.showNameError = true;
+      return;
+    }
 
     this.isCreating = true;
     this.nodeMapService.create(parseInt(this.projectId), { name }).subscribe({

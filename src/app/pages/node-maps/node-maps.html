@@ -17,22 +17,29 @@
                 </div>
 
                 @if (showCreateForm) {
-                    <div class="create-form d-flex flex-row gap-2 align-items-center">
-                        <input
-                            class="search-input"
-                            type="text"
-                            placeholder="Map name..."
-                            autocomplete="off"
-                            [(ngModel)]="newMapName"
-                            (keydown.enter)="createMap()"
-                            (keydown.escape)="cancelCreate()"
-                            autofocus
-                        />
-                        <button class="btn-accent2" (click)="createMap()" [disabled]="isCreating || !newMapName.trim()">
-                            @if (isCreating) { <span class="spinner-border spinner-border-sm" role="status"></span> }
-                            @else { Create }
-                        </button>
-                        <button class="btn-cancel" (click)="cancelCreate()">Cancel</button>
+                    <div class="create-form d-flex flex-column gap-2">
+                        <div class="d-flex flex-row gap-2 align-items-center">
+                            <input
+                                class="search-input"
+                                [class.input-error]="showNameError"
+                                type="text"
+                                placeholder="Map name..."
+                                autocomplete="off"
+                                [(ngModel)]="newMapName"
+                                (ngModelChange)="onNameInput()"
+                                (keydown.enter)="createMap()"
+                                (keydown.escape)="cancelCreate()"
+                                autofocus
+                            />
+                            <button class="btn-accent2" (click)="createMap()" [disabled]="isCreating">
+                                @if (isCreating) { <span class="spinner-border spinner-border-sm" role="status"></span> }
+                                @else { Create }
+                            </button>
+                            <button class="btn-cancel" (click)="cancelCreate()">Cancel</button>
+                        </div>
+                        @if (showNameError) {
+                            <span class="name-error">Map name is required.</span>
+                        }
                     </div>
                 }
 

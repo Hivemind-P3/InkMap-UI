@@ -93,6 +93,13 @@ $terra: #c17767;
 
   &:focus { border-color: $teal; }
   &::placeholder { color: #c8bfb4; }
+  &.input-error { border-color: $terra; }
+}
+
+.name-error {
+  font-size: 0.8rem;
+  color: $terra;
+  padding-left: 0.25rem;
 }
 
 .btn-search {
