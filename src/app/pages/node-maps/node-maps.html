@@ -23,13 +23,22 @@
                                 class="search-input"
                                 [class.input-error]="showNameError"
                                 type="text"
-                                placeholder="Map name..."
+                                placeholder="Map name *"
                                 autocomplete="off"
                                 [(ngModel)]="newMapName"
                                 (ngModelChange)="onNameInput()"
                                 (keydown.enter)="createMap()"
                                 (keydown.escape)="cancelCreate()"
                                 autofocus
+                            />
+                            <input
+                                class="search-input"
+                                type="text"
+                                placeholder="Description (optional)"
+                                autocomplete="off"
+                                [(ngModel)]="newMapDescription"
+                                (keydown.enter)="createMap()"
+                                (keydown.escape)="cancelCreate()"
                             />
                             <button class="btn-accent2" (click)="createMap()" [disabled]="isCreating">
                                 @if (isCreating) { <span class="spinner-border spinner-border-sm" role="status"></span> }

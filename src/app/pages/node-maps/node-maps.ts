@@ -25,6 +25,7 @@ export class NodeMaps implements OnInit {
 
   protected showCreateForm = false;
   protected newMapName = '';
+  protected newMapDescription = '';
   protected isCreating = false;
   protected showNameError = false;
 
@@ -61,6 +62,7 @@ export class NodeMaps implements OnInit {
   cancelCreate(): void {
     this.showCreateForm = false;
     this.newMapName = '';
+    this.newMapDescription = '';
     this.showNameError = false;
   }
 
@@ -78,7 +80,8 @@ export class NodeMaps implements OnInit {
     }
 
     this.isCreating = true;
-    this.nodeMapService.create(parseInt(this.projectId), { name }).subscribe({
+    const description = this.newMapDescription.trim() || undefined;
+    this.nodeMapService.create(parseInt(this.projectId), { name, description }).subscribe({
       next: (created) => {
         window.location.href = `/app/node-map-editor/${this.projectId}/${created.id}`;
       },

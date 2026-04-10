@@ -20,4 +20,5 @@ export interface NodeMapPage {
 
 export interface CreateNodeMapRequest {
   name: string;
+  description?: string;
 }
