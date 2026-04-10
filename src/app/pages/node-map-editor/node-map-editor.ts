@@ -3,7 +3,9 @@ import Konva from 'konva';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NodeService } from '../../services/node.service';
+import { RelationService } from '../../services/relation.service';
 import { Node, NodeType, NODE_TYPES } from '../../models/node.model';
+import { NodeRelation } from '../../models/relation.model';
 
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 88;
@@ -37,6 +39,16 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   private stage!: Konva.Stage;
   private layer!: Konva.Layer;
   private nodeGroups = new Map<number, Konva.Group>();
+  private relationsLayer!: Konva.Layer;
+
+  // Relaciones: viven en memoria mientras el editor esté abierto
+  private relations: NodeRelation[] = [];
+  private relationLines = new Map<number, Konva.Line>(); // relationId → line
+  private relationSet = new Set<string>(); // "minId-maxId" para dedup visual
+
+  // Estado de la línea de conexión en curso
+  private tempLine: Konva.Line | null = null;
+  private connectingFromNodeId: number | null = null;
 
   protected projectId: string = '';
   protected mapId: string = '';
@@ -82,6 +94,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private nodeService: NodeService,
+    private relationService: RelationService,
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -158,10 +171,37 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
     this.stage.on('click', (e) => {
       if (e.target === this.stage) {
+        if (this.connectingFromNodeId !== null) return;
         this.zone.run(() => this.clearSelection());
       }
     });
 
+    this.stage.on('mousemove', () => {
+      if (this.connectingFromNodeId === null || !this.tempLine) return;
+      const pos = this.stage.getPointerPosition();
+      if (!pos) return;
+      const scale = this.stage.scaleX();
+      const sp = this.stage.position();
+      const worldX = (pos.x - sp.x) / scale;
+      const worldY = (pos.y - sp.y) / scale;
+      const from = this.getNodeCenter(this.connectingFromNodeId);
+      this.tempLine.points([from.x, from.y, worldX, worldY]);
+      this.relationsLayer.batchDraw();
+    });
+
+    this.stage.on('mouseup', () => {
+      if (this.connectingFromNodeId === null) return;
+      const toNodeId = this.getNodeIdAtPointer();
+      if (toNodeId !== null && toNodeId !== this.connectingFromNodeId) {
+        this.finishConnect(toNodeId);
+      } else {
+        this.cancelConnect();
+      }
+    });
+
+    // relationsLayer va primero → se renderiza detrás de los nodos
+    this.relationsLayer = new Konva.Layer();
+    this.stage.add(this.relationsLayer);
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
     this.layer.draw();
@@ -178,7 +218,128 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
         page.content.forEach((node) => this.drawNode(node));
         this.fitToNodes(page.content);
         this.layer.draw();
+        this.loadRelations();
       });
+  }
+
+  private loadRelations(): void {
+    this.relationService
+      .getAll(Number(this.projectId), Number(this.mapId))
+      .subscribe({
+        next: (rels) => {
+          rels.forEach((rel) => {
+            const key = this.relationKey(rel.sourceNodeId, rel.targetNodeId);
+            if (this.relationSet.has(key)) return;
+            this.relations.push(rel);
+            this.relationSet.add(key);
+            this.drawRelationLine(rel);
+          });
+          this.relationsLayer.batchDraw();
+        },
+        error: () => {}, // no romper el editor si falla la carga
+      });
+  }
+
+  private relationKey(a: number, b: number): string {
+    return `${Math.min(a, b)}-${Math.max(a, b)}`;
+  }
+
+  private drawRelationLine(rel: NodeRelation): void {
+    if (!this.nodeGroups.has(rel.sourceNodeId) || !this.nodeGroups.has(rel.targetNodeId)) return;
+    const a = this.getNodeCenter(rel.sourceNodeId);
+    const b = this.getNodeCenter(rel.targetNodeId);
+    const line = new Konva.Line({
+      points: [a.x, a.y, b.x, b.y],
+      stroke: 'rgba(74, 158, 173, 0.4)',
+      strokeWidth: 1.5,
+      listening: false,
+    });
+    this.relationLines.set(rel.id, line);
+    this.relationsLayer.add(line);
+  }
+
+  private getNodeCenter(nodeId: number): { x: number; y: number } {
+    const group = this.nodeGroups.get(nodeId);
+    if (!group) return { x: 0, y: 0 };
+    return { x: group.x() + NODE_WIDTH / 2, y: group.y() + NODE_HEIGHT / 2 };
+  }
+
+  private updateLinesForNode(nodeId: number): void {
+    const center = this.getNodeCenter(nodeId);
+    for (const rel of this.relations) {
+      if (rel.sourceNodeId !== nodeId && rel.targetNodeId !== nodeId) continue;
+      const line = this.relationLines.get(rel.id);
+      if (!line) continue;
+      const otherId = rel.sourceNodeId === nodeId ? rel.targetNodeId : rel.sourceNodeId;
+      const other = this.getNodeCenter(otherId);
+      line.points([center.x, center.y, other.x, other.y]);
+    }
+    this.relationsLayer.batchDraw();
+  }
+
+  private getNodeIdAtPointer(): number | null {
+    const pos = this.stage.getPointerPosition();
+    if (!pos) return null;
+    const shape = this.stage.getIntersection(pos);
+    if (!shape) return null;
+    let current: Konva.Node = shape;
+    while (current && !(current instanceof Konva.Stage)) {
+      if (current instanceof Konva.Group) {
+        const gid = current.id();
+        if (gid.startsWith('node-')) return parseInt(gid.slice(5), 10);
+      }
+      if (!current.parent) break;
+      current = current.parent as Konva.Node;
+    }
+    return null;
+  }
+
+  private startConnect(fromNodeId: number): void {
+    this.connectingFromNodeId = fromNodeId;
+    const center = this.getNodeCenter(fromNodeId);
+    this.tempLine = new Konva.Line({
+      points: [center.x, center.y, center.x, center.y],
+      stroke: '#60a3a5',
+      strokeWidth: 1.5,
+      dash: [6, 4],
+      listening: false,
+    });
+    this.relationsLayer.add(this.tempLine);
+    this.relationsLayer.batchDraw();
+    this.canvasContainer.nativeElement.style.cursor = 'crosshair';
+  }
+
+  private finishConnect(toNodeId: number): void {
+    const fromNodeId = this.connectingFromNodeId!;
+    this.cancelConnect();
+    const key = this.relationKey(fromNodeId, toNodeId);
+    if (this.relationSet.has(key)) return; // ya existe visualmente
+    this.relationService
+      .create(Number(this.projectId), Number(this.mapId), {
+        sourceNodeId: fromNodeId,
+        targetNodeId: toNodeId,
+      })
+      .subscribe({
+        next: (rel) => {
+          this.zone.run(() => {
+            const rkey = this.relationKey(rel.sourceNodeId, rel.targetNodeId);
+            if (this.relationSet.has(rkey)) return;
+            this.relations.push(rel);
+            this.relationSet.add(rkey);
+            this.drawRelationLine(rel);
+            this.relationsLayer.batchDraw();
+          });
+        },
+        error: () => {}, // backend rechaza duplicado u otros errores → ignorar silenciosamente
+      });
+  }
+
+  private cancelConnect(): void {
+    this.tempLine?.destroy();
+    this.tempLine = null;
+    this.connectingFromNodeId = null;
+    this.relationsLayer.batchDraw();
+    this.canvasContainer.nativeElement.style.cursor = 'default';
   }
 
   private fitToNodes(nodes: Node[]): void {
@@ -231,6 +392,21 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
     group.setAttr('origColor', node.color);
 
+    // Anillo de hover: enmarca el nodo con trazo punteado al pasar el cursor
+    const ring = new Konva.Rect({
+      x: -3,
+      y: -3,
+      width: NODE_WIDTH + 6,
+      height: NODE_HEIGHT + 6,
+      fill: 'transparent',
+      stroke: 'rgba(74, 158, 173, 0.7)',
+      strokeWidth: 1.5,
+      cornerRadius: 8,
+      dash: [5, 3],
+      visible: false,
+      listening: false,
+    });
+
     const rect = new Konva.Rect({
       width: NODE_WIDTH,
       height: NODE_HEIGHT,
@@ -251,11 +427,49 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
       padding: 8,
     });
 
+    // Handle de conexión: punto en el borde derecho del nodo
+    const handle = new Konva.Circle({
+      x: NODE_WIDTH,
+      y: NODE_HEIGHT / 2,
+      radius: 7,
+      fill: 'rgba(74, 158, 173, 0.85)',
+      stroke: '#1e2530',
+      strokeWidth: 1.5,
+      visible: false,
+    });
+
+    group.add(ring);
     group.add(rect);
     group.add(label);
+    group.add(handle);
+
+    group.on('mouseenter', () => {
+      if (this.connectingFromNodeId !== null) return;
+      ring.visible(true);
+      handle.visible(true);
+      this.layer.batchDraw();
+    });
+
+    group.on('mouseleave', () => {
+      ring.visible(false);
+      handle.visible(false);
+      this.layer.batchDraw();
+    });
+
+    handle.on('mousedown', (e) => {
+      e.cancelBubble = true; // evita que el grupo inicie drag
+      ring.visible(false);
+      handle.visible(false);
+      this.layer.batchDraw();
+      this.startConnect(node.id);
+    });
 
     let wasDragged = false;
     group.on('dragstart', () => { wasDragged = true; });
+
+    group.on('dragmove', () => {
+      this.updateLinesForNode(node.id);
+    });
 
     group.on('dragend', () => {
       const pos = group.position();
@@ -276,6 +490,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
     group.on('click', () => {
       if (wasDragged) return;
+      if (this.connectingFromNodeId !== null) return;
       this.zone.run(() => this.selectNode(node));
     });
 
@@ -359,6 +574,20 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
       .subscribe({
         next: () => {
           this.zone.run(() => {
+            // Eliminar líneas de relación conectadas a este nodo
+            const connectedRels = this.relations.filter(
+              (r) => r.sourceNodeId === node.id || r.targetNodeId === node.id,
+            );
+            for (const rel of connectedRels) {
+              this.relationLines.get(rel.id)?.destroy();
+              this.relationLines.delete(rel.id);
+              this.relationSet.delete(this.relationKey(rel.sourceNodeId, rel.targetNodeId));
+            }
+            this.relations = this.relations.filter(
+              (r) => r.sourceNodeId !== node.id && r.targetNodeId !== node.id,
+            );
+            this.relationsLayer.batchDraw();
+
             const group = this.nodeGroups.get(node.id);
             group?.destroy();
             this.nodeGroups.delete(node.id);

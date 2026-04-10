@@ -79,12 +79,8 @@ export class NodeMaps implements OnInit {
 
     this.isCreating = true;
     this.nodeMapService.create(parseInt(this.projectId), { name }).subscribe({
-      next: () => {
-        this.isCreating = false;
-        this.showCreateForm = false;
-        this.newMapName = '';
-        this.currentPage = 0;
-        this.loadMaps();
+      next: (created) => {
+        window.location.href = `/app/node-map-editor/${this.projectId}/${created.id}`;
       },
       error: (err) => {
         this.isCreating = false;
