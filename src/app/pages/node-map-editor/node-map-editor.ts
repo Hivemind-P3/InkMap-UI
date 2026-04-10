@@ -85,6 +85,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   protected showWikiPicker = false;
   protected wikiSearch = '';
   protected wikiSearchResults: MockWiki[] = [];
+  protected previewWiki: MockWiki | null = null;
 
   protected get currentNodeWikis(): MockWiki[] {
     if (!this.selectedNode) return [];
@@ -716,6 +717,15 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.showWikiPicker = false;
     this.wikiSearch = '';
     this.wikiSearchResults = [];
+    this.previewWiki = null;
+  }
+
+  protected openWikiPreview(wiki: MockWiki): void {
+    this.previewWiki = wiki;
+  }
+
+  protected closeWikiPreview(): void {
+    this.previewWiki = null;
   }
 
   protected onWikiSearchInput(): void {

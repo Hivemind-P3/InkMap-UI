@@ -368,6 +368,81 @@ footer {
     &:hover { color: rgba(224, 112, 112, 0.8); }
 }
 
+.wiki-chip-link {
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(74, 158, 173, 0.4);
+
+    &:hover {
+        color: #7fc8ca;
+        text-decoration-color: rgba(74, 158, 173, 0.9);
+    }
+}
+
+.wiki-preview {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(74, 158, 173, 0.04);
+    display: flex;
+    flex-direction: column;
+}
+
+.wiki-preview-back {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 0.45rem 0.75rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.72rem;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover { color: rgba(255, 255, 255, 0.8); }
+}
+
+.wiki-preview-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding-top: 0.75rem !important;
+}
+
+.wiki-preview-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+    word-break: break-word;
+
+    i { color: rgba(74, 158, 173, 0.7); font-size: 0.8rem; flex-shrink: 0; }
+}
+
+.wiki-preview-slug {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: monospace;
+    padding-left: 1.3rem;
+}
+
+.wiki-preview-placeholder {
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.35);
+    line-height: 1.5;
+
+    i { margin-right: 0.3rem; }
+}
+
 .wiki-picker {
     border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
