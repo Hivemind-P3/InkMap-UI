@@ -8,6 +8,24 @@ import { Node, NodeType, NODE_TYPES } from '../../models/node.model';
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 88;
 
+// --- Mock wiki data (temporal, sin backend) ---
+interface MockWiki {
+  id: number;
+  title: string;
+  slug: string;
+}
+
+const MOCK_WIKIS: MockWiki[] = [
+  { id: 1, title: 'Kingdom of Avelor', slug: 'kingdom-of-avelor' },
+  { id: 2, title: 'House Varyn', slug: 'house-varyn' },
+  { id: 3, title: 'The Northern Frontier', slug: 'the-northern-frontier' },
+  { id: 4, title: 'Order of the Ashen Flame', slug: 'order-of-the-ashen-flame' },
+  { id: 5, title: 'The Solar Gate', slug: 'the-solar-gate' },
+  { id: 6, title: 'Lunaris Language', slug: 'lunaris-language' },
+  { id: 7, title: 'The Great Schism', slug: 'the-great-schism' },
+  { id: 8, title: 'Emperor Caelis IV', slug: 'emperor-caelis-iv' },
+];
+
 @Component({
   selector: 'app-node-map-editor',
   imports: [FormsModule],
@@ -48,6 +66,18 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
   protected deletingNode = false;
 
   protected readonly nodeTypes = NODE_TYPES;
+
+  // --- Wiki state (temporal/mock, sin backend) ---
+  // Las wikis asociadas viven solo en memoria local; se pierden al recargar.
+  private nodeWikis = new Map<number, MockWiki[]>();
+  protected showWikiPicker = false;
+  protected wikiSearch = '';
+  protected wikiSearchResults: MockWiki[] = [];
+
+  protected get currentNodeWikis(): MockWiki[] {
+    if (!this.selectedNode) return [];
+    return this.nodeWikis.get(this.selectedNode.id) ?? [];
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -258,6 +288,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.isEditing = false;
     this.editSubmitted = false;
     this.showDeleteConfirm = false;
+    this.closeWikiPicker();
     this.applySelectionStyle(this.selectedNode, false);
     this.selectedNode = node;
     this.applySelectionStyle(node, true);
@@ -270,6 +301,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.isEditing = false;
     this.editSubmitted = false;
     this.showDeleteConfirm = false;
+    this.closeWikiPicker();
     this.applySelectionStyle(this.selectedNode, false);
     this.selectedNode = null;
     this.layer.draw();
@@ -442,6 +474,49 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
       this.formSubmitted = false;
       this.pendingPos = null;
     }
+  }
+
+  // --- Wiki methods (temporal/mock) ---
+  protected openWikiPicker(): void {
+    this.wikiSearch = '';
+    this.wikiSearchResults = this.availableWikis();
+    this.showWikiPicker = true;
+  }
+
+  protected closeWikiPicker(): void {
+    this.showWikiPicker = false;
+    this.wikiSearch = '';
+    this.wikiSearchResults = [];
+  }
+
+  protected onWikiSearchInput(): void {
+    this.wikiSearchResults = this.availableWikis();
+  }
+
+  private availableWikis(): MockWiki[] {
+    const associated = this.currentNodeWikis.map((w) => w.id);
+    const q = this.wikiSearch.trim().toLowerCase();
+    return MOCK_WIKIS.filter(
+      (w) => !associated.includes(w.id) && (!q || w.title.toLowerCase().includes(q)),
+    );
+  }
+
+  protected associateWiki(wiki: MockWiki): void {
+    if (!this.selectedNode) return;
+    const id = this.selectedNode.id;
+    const current = this.nodeWikis.get(id) ?? [];
+    if (!current.find((w) => w.id === wiki.id)) {
+      this.nodeWikis.set(id, [...current, wiki]);
+    }
+    this.wikiSearchResults = this.availableWikis();
+    if (this.availableWikis().length === 0) this.closeWikiPicker();
+  }
+
+  protected removeWiki(wiki: MockWiki): void {
+    if (!this.selectedNode) return;
+    const id = this.selectedNode.id;
+    const current = this.nodeWikis.get(id) ?? [];
+    this.nodeWikis.set(id, current.filter((w) => w.id !== wiki.id));
   }
 
   protected submitNewNode(): void {

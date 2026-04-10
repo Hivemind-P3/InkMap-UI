@@ -305,6 +305,143 @@ footer {
     text-align: center;
 }
 
+// --- Wiki section ---
+.btn-wiki-associate {
+    font-size: 0.68rem;
+    padding: 0.1rem 0.45rem;
+    color: rgba(74, 158, 173, 0.85);
+    border: 1px solid rgba(74, 158, 173, 0.3);
+    border-radius: 4px;
+    background: rgba(74, 158, 173, 0.08);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover { background: rgba(74, 158, 173, 0.2); color: #7fc8ca; }
+}
+
+.wiki-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.wiki-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(74, 158, 173, 0.08);
+    border: 1px solid rgba(74, 158, 173, 0.22);
+    border-radius: 5px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.78rem;
+    color: rgba(74, 158, 173, 0.9);
+    cursor: default;
+    transition: background 0.12s;
+
+    &:hover { background: rgba(74, 158, 173, 0.14); }
+}
+
+.wiki-chip-icon {
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    color: rgba(74, 158, 173, 0.6);
+}
+
+.wiki-chip-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wiki-chip-remove {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.68rem;
+    padding: 0 0.1rem;
+    cursor: pointer;
+    line-height: 1;
+    flex-shrink: 0;
+
+    &:hover { color: rgba(224, 112, 112, 0.8); }
+}
+
+.wiki-picker {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wiki-picker-search-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.4rem;
+}
+
+.wiki-search-input {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 0.78rem !important;
+
+    &::placeholder { color: rgba(255, 255, 255, 0.3) !important; }
+    &:focus {
+        background: rgba(255, 255, 255, 0.09) !important;
+        border-color: rgba(74, 158, 173, 0.5) !important;
+        box-shadow: none !important;
+    }
+}
+
+.btn-wiki-picker-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.75rem;
+    padding: 0 0.15rem;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &:hover { color: rgba(255, 255, 255, 0.7); }
+}
+
+.wiki-picker-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.wiki-result-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    width: 100%;
+    padding: 0.3rem 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.78rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+
+    &:hover {
+        background: rgba(74, 158, 173, 0.14);
+        border-color: rgba(74, 158, 173, 0.22);
+        color: #7fc8ca;
+    }
+}
+
+.wiki-picker-empty {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
 .canvas-context-menu {
     position: fixed;
     z-index: 100;
