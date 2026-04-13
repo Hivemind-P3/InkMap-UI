@@ -1,0 +1,269 @@
+<div class="page-wrapper d-flex flex-column">
+    <nav class="w-100 d-flex flex-row justify-content-between">
+        <div class="go-back">
+            <button class="btn" (click)="goBack()"><i class="fa-solid fa-angle-left"></i> My node maps</button>
+        </div>
+    </nav>
+    <div class="middle-content d-flex flex-row w-100">
+        <div class="canvas-area" #canvasContainer
+            (contextmenu)="onCanvasContextMenu($event)"
+            (click)="contextMenuVisible = false"
+        ></div>
+
+        @if (contextMenuVisible) {
+            <div
+                class="canvas-context-menu"
+                [style.left.px]="contextMenuX"
+                [style.top.px]="contextMenuY"
+                (click)="$event.stopPropagation()"
+            >
+                <button class="context-menu-item" (click)="openFormFromContextMenu()">
+                    <i class="fa-solid fa-plus"></i> Create node here
+                </button>
+            </div>
+        }
+        <div class="canvas-hint mb-3">
+            Hold <kbd>Space</kbd> + <kbd>Left click</kbd> to pan &nbsp;·&nbsp; Scroll to zoom
+        </div>
+        <div class="node-map-editor-sidebar d-flex flex-column align-items-center">
+
+            @if (selectedNode) {
+                <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-between align-items-center px-3">
+                    <span>{{ isEditing ? 'Edit Node' : 'Node Info' }}</span>
+                    <button class="btn-icon-close" (click)="clearSelection()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                @if (isEditing) {
+                    <div class="add-node-form w-100 px-2 pb-2 pt-2">
+                        <input
+                            class="form-control form-control-sm mb-1"
+                            [class.is-invalid]="editSubmitted && !editLabel.trim()"
+                            placeholder="Label *"
+                            [(ngModel)]="editLabel"
+                            maxlength="80"
+                        />
+                        @if (editSubmitted && !editLabel.trim()) {
+                            <div class="field-error mb-1">Label is required</div>
+                        }
+
+                        <input
+                            class="form-control form-control-sm mb-1"
+                            placeholder="Description (optional)"
+                            [(ngModel)]="editDescription"
+                            maxlength="200"
+                        />
+
+                        <select
+                            class="form-select form-select-sm mb-1"
+                            [class.is-invalid]="editSubmitted && !editType"
+                            [(ngModel)]="editType"
+                        >
+                            <option value="">Type *</option>
+                            @for (t of nodeTypes; track t) {
+                                <option [value]="t">{{ t }}</option>
+                            }
+                        </select>
+                        @if (editSubmitted && !editType) {
+                            <div class="field-error mb-1">Type is required</div>
+                        }
+
+                        <div class="color-row mb-2">
+                            <label class="color-label">Color *</label>
+                            <input type="color" class="color-input" [(ngModel)]="editColor" />
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-add-node flex-grow-1" (click)="submitEdit()" [disabled]="savingEdit">
+                                {{ savingEdit ? 'Saving...' : 'Save' }}
+                            </button>
+                            <button class="btn-cancel-edit" (click)="cancelEdit()" [disabled]="savingEdit">Cancel</button>
+                        </div>
+                    </div>
+                } @else {
+                    <div class="node-detail-panel w-100">
+                        <div class="node-detail-label-row px-3 py-2" [style.border-left-color]="selectedNode.color">
+                            <span class="node-detail-label">{{ selectedNode.label }}</span>
+                            <span class="node-detail-badge">{{ selectedNode.type }}</span>
+                        </div>
+
+                        @if (selectedNode.description) {
+                            <div class="node-detail-field px-3 pb-2">
+                                <span class="node-detail-field-label">Description</span>
+                                <p class="node-detail-field-value">{{ selectedNode.description }}</p>
+                            </div>
+                        }
+
+                        <div class="node-detail-field px-3 pb-2 d-flex align-items-center gap-2">
+                            <span class="node-detail-field-label">Color</span>
+                            <span class="node-color-chip" [style.background]="selectedNode.color"></span>
+                        </div>
+
+                        <div class="d-flex gap-2 px-3 pb-3">
+                            <button class="btn btn-node-action" (click)="openEditMode()" [disabled]="showDeleteConfirm"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button class="btn btn-node-action btn-node-delete" (click)="requestDelete()" [disabled]="showDeleteConfirm || deletingNode"><i class="fa-solid fa-trash"></i> Delete</button>
+                        </div>
+
+                        @if (showDeleteConfirm) {
+                            <div class="delete-confirm-box mx-3 mb-3">
+                                <p class="delete-confirm-msg">¿Quieres borrar este nodo y todas sus relaciones?</p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn-delete-confirm flex-grow-1" (click)="confirmDelete()" [disabled]="deletingNode">
+                                        {{ deletingNode ? 'Deleting...' : 'Confirm' }}
+                                    </button>
+                                    <button class="btn-cancel-edit" (click)="cancelDelete()" [disabled]="deletingNode">Cancel</button>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="node-detail-section-header px-3 py-2 d-flex justify-content-between align-items-center">
+                            <span>Wikis</span>
+                            @if (!showWikiPicker) {
+                                <button class="btn-wiki-associate" (click)="openWikiPicker()" title="Associate wiki">
+                                    <i class="fa-solid fa-plus"></i> Associate
+                                </button>
+                            }
+                        </div>
+
+                        @if (currentNodeWikis.length === 0 && !showWikiPicker) {
+                            <div class="node-detail-empty px-3 pb-3">
+                                <i class="fa-regular fa-file-lines"></i>
+                                <span>No wikis associated yet</span>
+                            </div>
+                        }
+
+                        @if (currentNodeWikis.length > 0) {
+                            <div class="wiki-list px-3 pt-2 pb-1">
+                                @for (wiki of currentNodeWikis; track wiki.id) {
+                                    <div class="wiki-chip">
+                                        <i class="fa-regular fa-file-lines wiki-chip-icon"></i>
+                                        <span class="wiki-chip-title wiki-chip-link" (click)="openWikiPreview(wiki)" title="Open wiki">{{ wiki.title }}</span>
+                                        <button class="wiki-chip-remove" (click)="removeWiki(wiki)" title="Remove">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (previewWiki) {
+                            <div class="wiki-preview">
+                                <button class="wiki-preview-back" (click)="closeWikiPreview()">
+                                    <i class="fa-solid fa-angle-left"></i> Back to node
+                                </button>
+                                <div class="wiki-preview-body px-3 pb-3">
+                                    <div class="wiki-preview-title">
+                                        <i class="fa-regular fa-file-lines"></i>
+                                        {{ previewWiki.title }}
+                                    </div>
+                                    <div class="wiki-preview-slug">{{ previewWiki.slug }}</div>
+                                    <div class="wiki-preview-placeholder">
+                                        <i class="fa-regular fa-clock"></i>
+                                        Wiki content not yet available.<br>
+                                        Full wiki pages will be implemented in a future release.
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (showWikiPicker) {
+                            <div class="wiki-picker px-3 pt-2 pb-3">
+                                <div class="wiki-picker-search-row">
+                                    <input
+                                        class="form-control form-control-sm wiki-search-input"
+                                        placeholder="Search wikis..."
+                                        [(ngModel)]="wikiSearch"
+                                        (input)="onWikiSearchInput()"
+                                        autofocus
+                                    />
+                                    <button class="btn-wiki-picker-close" (click)="closeWikiPicker()" title="Close">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                                @if (wikiSearchResults.length > 0) {
+                                    <div class="wiki-picker-results">
+                                        @for (wiki of wikiSearchResults; track wiki.id) {
+                                            <button class="wiki-result-item" (click)="associateWiki(wiki)">
+                                                <i class="fa-regular fa-file-lines"></i>
+                                                {{ wiki.title }}
+                                            </button>
+                                        }
+                                    </div>
+                                } @else {
+                                    <div class="wiki-picker-empty">No results</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            } @else {
+                <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-center align-items-center">Nodes</div>
+                <div class="p-2 w-100">
+                    <button class="btn btn-add-node w-100" (click)="toggleAddForm()">
+                        <i class="fa-solid fa-plus"></i> Add node
+                    </button>
+                </div>
+                @if (showAddForm) {
+                    <div class="add-node-form w-100 px-2 pb-2">
+                        <input
+                            class="form-control form-control-sm mb-1"
+                            [class.is-invalid]="formSubmitted && !newLabel.trim()"
+                            placeholder="Label *"
+                            [(ngModel)]="newLabel"
+                            maxlength="80"
+                        />
+                        @if (formSubmitted && !newLabel.trim()) {
+                            <div class="field-error mb-1">Label is required</div>
+                        }
+
+                        <input
+                            class="form-control form-control-sm mb-1"
+                            placeholder="Description (optional)"
+                            [(ngModel)]="newDescription"
+                            maxlength="200"
+                        />
+
+                        <select
+                            class="form-select form-select-sm mb-1"
+                            [class.is-invalid]="formSubmitted && !newType"
+                            [(ngModel)]="newType"
+                        >
+                            <option value="">Type *</option>
+                            @for (t of nodeTypes; track t) {
+                                <option [value]="t">{{ t }}</option>
+                            }
+                        </select>
+                        @if (formSubmitted && !newType) {
+                            <div class="field-error mb-1">Type is required</div>
+                        }
+
+                        <div class="color-row mb-2">
+                            <label class="color-label">Color *</label>
+                            <input
+                                type="color"
+                                class="color-input"
+                                [(ngModel)]="newColor"
+                            />
+                        </div>
+
+                        <button
+                            class="btn btn-add-node w-100"
+                            (click)="submitNewNode()"
+                            [disabled]="savingNode"
+                        >
+                            {{ savingNode ? 'Creating...' : 'Create' }}
+                        </button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    <footer class="w-100 px-4 d-flex flex-row gap-3 justify-content-end align-items-center">
+        <div class="go-back">
+            <button class="btn">
+                <span>
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Export
+                </span>
+            </button>
+        </div>
+    </footer>
+</div>
