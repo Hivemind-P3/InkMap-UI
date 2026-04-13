@@ -1,7 +1,9 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import 'quill/dist/quill.snow.css';
 
-body {
+html, body {
+    height: 100%;
+    overflow: hidden;
     margin: 0;
 }
 
