@@ -10,9 +10,6 @@
     flex-direction: column;
     flex: 1;
     min-width: 0;
-    overflow: hidden;
-}
-
-.router-wrapper {
-    padding-top: 73px;
+    overflow-y: auto;
+    height: 100vh;
 }

@@ -3,8 +3,8 @@
 
 html, body {
     height: 100%;
-    overflow: hidden;
     margin: 0;
+    overflow: hidden;
 }
 
 /* You can add global styles to this file, and also import other style files */
@@ -65,4 +65,10 @@ html, body {
     &:hover {
         background-color: rgb(58.904, 98.704, 100.296);
     }
+}
+
+app-header {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
 }
