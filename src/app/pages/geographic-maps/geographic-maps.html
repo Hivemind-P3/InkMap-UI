@@ -33,6 +33,38 @@
                         <p class="empty-content-title">No maps registered</p>
                         <p class="empty-content-subtitle">This project does not have maps</p>
                     </div>
+                } @else {
+                    <div class="grid-area">
+                        <div class="maps-grid">
+                            @for (map of maps; track map.id) {
+                                <div class="map-card" (click)="openMap(map.id)">
+                                    @if (map.thumbnail) {
+                                        <img [src]="map.thumbnail" class="map-thumbnail" alt="Map preview">
+                                    } @else {
+                                        <div class="map-thumbnail-placeholder">
+                                            <i class="fa-regular fa-map"></i>
+                                        </div>
+                                    }
+                                    <div class="card-top">
+                                        <h2 class="card-title">{{ map.name }}</h2>
+                                        <span class="card-role">Map</span>
+                                    </div>
+                                    <div class="card-footer">
+                                        @if (map.createdAt) {
+                                            <span class="card-date">{{ map.createdAt | date: 'mediumDate' }}</span>
+                                        } @else {
+                                            <span></span>
+                                        }
+                                        <div class="card-actions">
+                                            <button class="btn-detail" type="button" (click)="openMap(map.id); $event.stopPropagation()">
+                                                Open
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
             </div>
             }

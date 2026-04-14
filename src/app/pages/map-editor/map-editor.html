@@ -1,24 +1,183 @@
 <div class="page-wrapper d-flex flex-column">
-    <nav class="w-100 d-flex flex-row justify-content-between">
+    <nav class="w-100 d-flex flex-row justify-content-start align-items-center gap-3">
         <div class="go-back">
             <button class="btn" (click)="goBack()"><i class="fa-solid fa-angle-left"></i> My maps</button>
         </div>
+
+        <input
+            class="map-title-input"
+            [(ngModel)]="mapName"
+            placeholder="Untitled Map"
+            (blur)="save()"
+        />
     </nav>
-    <div class="middle-content d-flex flex-row w-100">
-        <div class="w-100" #canvasContainer></div>
-        <div class="canvas-hint mb-3">
-            Hold <kbd>Space</kbd> + <kbd>Left click</kbd> to pan &nbsp;·&nbsp; Scroll to zoom
+    <div class="middle-content d-flex flex-row">
+        <div class="canvas-area">
+            <div class="canvas-host" #canvasContainer></div>
+            
+            <div class="canvas-toolbar-wrapper">
+                <div class="canvas-toolbar d-flex flex-column align-items-center gap-2">
+                    <button class="tool-btn" [class.active]="activeTool === 'select'" (click)="setTool('select')" title="Select">
+                        <i class="fa-solid fa-arrow-pointer"></i>
+                    </button>
+                    <button class="tool-btn" [class.active]="activeTool === 'brush'" (click)="setTool('brush')" title="Brush">
+                        <i class="fa-solid fa-paintbrush"></i>
+                    </button>
+                    <button class="tool-btn" [class.active]="activeTool === 'paint'" (click)="setTool('paint')" title="Paint">
+                        <i class="fa-solid fa-fill-drip"></i>
+                    </button>
+                    <button class="tool-btn" [class.active]="activeTool === 'stamp'" (click)="setTool('stamp')" title="Stamps">
+                        <i class="fa-solid fa-stamp"></i>
+                    </button>
+                    <button class="tool-btn" [class.active]="activeTool === 'text'" (click)="setTool('text')" title="Text">
+                        <i class="fa-solid fa-t"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                    <button class="tool-btn" title="Save" (click)="save()">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                </div>
+
+                @if (activeTool === 'brush') {
+                    <div class="brush-options d-flex flex-column gap-2">
+                        <span class="brush-options-title">Brush size</span>
+                        <div class="d-flex flex-column gap-1">
+                            @for (size of brushSizes; track size.value) {
+                                <button 
+                                    class="brush-size-btn" 
+                                    [class.active]="brushRadius === size.value"
+                                    (click)="setBrushSize(size.value)"
+                                    title="{{ size.label }}">
+                                    <div class="brush-preview" [style.width.px]="size.preview" [style.height.px]="size.preview"></div>
+                                    <span>{{ size.label }}</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (activeTool === 'paint') {
+                    <div class="brush-options d-flex flex-column gap-2">
+                        <span class="brush-options-title">Brush size</span>
+                        <div class="d-flex flex-column gap-1">
+                            @for (size of brushSizes; track size.value) {
+                                <button
+                                    class="brush-size-btn"
+                                    [class.active]="brushRadius === size.value"
+                                    (click)="setBrushSize(size.value)">
+                                    <div class="brush-preview" [style.width.px]="size.preview" [style.height.px]="size.preview"></div>
+                                    <span>{{ size.label }}</span>
+                                </button>
+                            }
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <span class="brush-options-title">Color</span>
+                        <div
+                            class="color-preview-swatch"
+                            [style.background]="activePaintColor"
+                            [colorPicker]="activePaintColor"
+                            [cpPosition]="'right'"
+                            [cpAlphaChannel]="'disabled'"
+                            [cpOutputFormat]="'hex'"
+                            (colorPickerChange)="activePaintColor = $event">
+                        </div>
+                    </div>
+                }
+
+                @if (activeTool === 'stamp') {
+                    <div class="brush-options stamp-panel d-flex flex-column gap-2">
+                        <span class="brush-options-title">Stamps</span>
+
+                        <div class="stamp-categories d-flex flex-row gap-1">
+                            @for (cat of stampCategories; track cat) {
+                                <button
+                                    class="stamp-cat-btn"
+                                    [class.active]="activeStampCategory === cat"
+                                    (click)="activeStampCategory = cat">
+                                    {{ cat | titlecase }}
+                                </button>
+                            }
+                        </div>
+
+                        <div class="stamp-grid">
+                            @for (stamp of stamps; track stamp.id) {
+                                @if (stamp.category === activeStampCategory) {
+                                    <button
+                                        class="stamp-btn"
+                                        [class.active]="activeStamp?.id === stamp.id"
+                                        (click)="selectStampType(stamp)"
+                                        [title]="stamp.label">
+                                        <img [src]="stamp.icon" [alt]="stamp.label" class="stamp-thumb">
+                                        <span>{{ stamp.label }}</span>
+                                    </button>
+                                }
+                            }
+                        </div>
+
+                        <div class="toolbar-divider"></div>
+                        <span class="brush-options-title">Size</span>
+                        <input
+                            type="range"
+                            min="20"
+                            max="150"
+                            step="5"
+                            [value]="stampsSize"
+                            (input)="stampsSize = $any($event.target).value"
+                            class="stamp-size-slider">
+                        <span class="stamp-size-label">{{ stampsSize }}px</span>
+                    </div>
+                }
+            </div>
+
+            <div class="canvas-hint">
+                Hold <kbd>Space</kbd> + <kbd>Left click</kbd> to pan &nbsp;·&nbsp; Scroll to zoom
+            </div>
         </div>
-        <div class="map-editor-sidebar d-flex flex-column align-items-center">
-            <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-center align-items-center">Layers</div>
+
+    <div class="map-editor-sidebar d-flex flex-column">
+        <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-between align-items-center px-3">
+            <span>Layers</span>
+            <button class="tool-btn" (click)="addLayer()" title="Add layer">
+                <i class="fa-solid fa-plus"></i>
+            </button>
         </div>
+
+        <div class="layers-list d-flex flex-column">
+            @for (layer of reversedLayers; track layer.id) {
+                <div
+                    class="layer-item d-flex flex-row align-items-center gap-2 px-3 py-2"
+                    [class.active]="activeLayerId === layer.id"
+                    [class.drag-over]="dragOverLayerId === layer.id"
+                    [class.dragging]="draggedLayerId === layer.id"
+                    draggable="true"
+                    (click)="selectLayer(layer.id)"
+                    (dragstart)="onLayerDragStart(layer.id)"
+                    (dragover)="$event.preventDefault(); onLayerDragOver(layer.id)"
+                    (dragend)="onLayerDragEnd()">
+
+                    <i class="fa-solid fa-grip-vertical drag-handle"></i>
+
+                    <button class="layer-icon-btn" (click)="toggleLayerVisibility(layer.id); $event.stopPropagation()">
+                        <i class="fa-solid" [class.fa-eye]="layer.visible" [class.fa-eye-slash]="!layer.visible"></i>
+                    </button>
+
+                    <span class="layer-name flex-grow-1">{{ layer.name }}</span>
+
+                    <button class="layer-icon-btn danger" (click)="removeLayer(layer.id); $event.stopPropagation()" [disabled]="mapLayers.length === 1">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
     </div>
     <footer class="w-100 px-4 d-flex flex-row gap-3 justify-content-end align-items-center">
         <div>
-            <input type="checkbox"> <span> Show grid</span>
+            <input type="checkbox" [checked]="showGrid" (change)="toggleGrid($any($event.target).checked)">
+            <span> Show grid</span>
         </div>
         <div class="go-back">
-            <button class="btn">
+            <button class="btn" (click)="exportAsImage()">
                 <span>
                     <i class="fa-solid fa-arrow-up-from-bracket"></i> Export
                 </span>

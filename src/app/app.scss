@@ -1,14 +1,15 @@
 .app-shell {
   display: flex;
-  height: 100%;
+  flex-direction: row;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .app-main {
     display: flex;
     flex-direction: column;
     flex: 1;
-}
-
-.router-wrapper {
-    padding-top: 73px;
+    min-width: 0;
+    overflow-y: auto;
+    height: 100vh;
 }

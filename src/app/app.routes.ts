@@ -70,7 +70,7 @@ export const routes: Routes = [
         component: ProjectDashboard
       },
       {
-        path: 'geographic-maps/:id',
+        path: 'geographic-maps/:projectId',
         component: GeographicMaps
       },
       {
@@ -83,6 +83,10 @@ export const routes: Routes = [
       },
       {
         path: 'map-editor/:projectId',
+        component: MapEditor
+      },
+      {
+        path: 'map-editor/:projectId/edit/:mapId',
         component: MapEditor
       },
       {

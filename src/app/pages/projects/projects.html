@@ -75,7 +75,7 @@
               <!-- Project grid -->
               <div class="projects-grid">
                 @for (project of projects(); track project.id) {
-                  <div class="project-card" [routerLink]="['/app/project/', project.id]">
+                  <div class="project-card">
                     <div class="card-top">
                       <h2 class="card-title">{{ project.title }}</h2>
                       @if (project.medium) {

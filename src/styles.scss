@@ -1,8 +1,10 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import 'quill/dist/quill.snow.css';
 
-body {
+html, body {
+    height: 100%;
     margin: 0;
+    overflow: hidden;
 }
 
 /* You can add global styles to this file, and also import other style files */
@@ -63,4 +65,10 @@ body {
     &:hover {
         background-color: rgb(58.904, 98.704, 100.296);
     }
+}
+
+app-header {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
 }

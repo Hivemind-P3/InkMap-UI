@@ -5,12 +5,10 @@
   </div>
 
   <div class="list">
-    <div
-      class="item"
-      *ngFor="let c of narratives"
-      (click)="select(c)"
-    >
-      {{ c.titulo }}
-    </div>
+    @for (c of narratives; track c) {
+      <div class="item" (click)="select(c)">
+        {{ c.title }}
+      </div>
+    }
   </div>
 </div>
