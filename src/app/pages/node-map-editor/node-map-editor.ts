@@ -733,12 +733,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.previewWiki = null;
   }
 
-  protected openWikiPreview(wiki: Wiki): void {
-    this.previewWiki = wiki;
-  }
-
-  protected closeWikiPreview(): void {
-    this.previewWiki = null;
+  protected navigateToWiki(wiki: Wiki): void {
+    window.open(`/app/projects/${this.projectId}/wikis/${wiki.id}`, '_blank');
   }
 
   protected onWikiSearchInput(): void {
