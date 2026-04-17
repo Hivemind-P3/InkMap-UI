@@ -388,6 +388,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     });
 
     const rect = new Konva.Rect({
+      name: 'node-rect',
       width: NODE_WIDTH,
       height: NODE_HEIGHT,
       fill: this.hexToRgba(node.color, 0.18),
@@ -509,7 +510,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     if (!node) return;
     const group = this.nodeGroups.get(node.id);
     if (!group) return;
-    const rect = group.findOne('Rect') as Konva.Rect;
+    const rect = group.findOne('.node-rect') as Konva.Rect;
     rect.stroke(selected ? '#ffffff' : group.getAttr('origColor'));
     rect.strokeWidth(selected ? 2.5 : 1.5);
   }
@@ -518,7 +519,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     const group = this.nodeGroups.get(node.id);
     if (!group) return;
     group.setAttr('origColor', node.color);
-    (group.findOne('Rect') as Konva.Rect).fill(this.hexToRgba(node.color, 0.18));
+    (group.findOne('.node-rect') as Konva.Rect).fill(this.hexToRgba(node.color, 0.18));
     // node remains selected → keep white stroke
     (group.findOne('Text') as Konva.Text).text(node.label);
     this.layer.draw();
