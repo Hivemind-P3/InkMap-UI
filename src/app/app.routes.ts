@@ -19,6 +19,8 @@ import { EditorComponent } from './pages/editor/editor';
 import { MapEditor } from './pages/map-editor/map-editor';
 import { NodeMaps } from './pages/node-maps/node-maps';
 import { NodeMapEditor } from './pages/node-map-editor/node-map-editor';
+import { Wikis } from './pages/wikis/wikis';
+import { WikiDetail } from './pages/wiki-detail/wiki-detail';
 
 export const routes: Routes = [
   { 
@@ -96,6 +98,14 @@ export const routes: Routes = [
       {
         path: 'node-map-editor/:projectId/:mapId',
         component: NodeMapEditor
+      },
+      {
+        path: 'projects/:projectId/wikis',
+        component: Wikis
+      },
+      {
+        path: 'projects/:projectId/wikis/:wikiId',
+        component: WikiDetail
       }
     ]
   },

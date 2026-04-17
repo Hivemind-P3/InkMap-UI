@@ -2,6 +2,7 @@ export interface Wiki {
   id: number;
   title: string;
   slug: string;
+  content?: string;
 }
 
 export interface WikiPage {
@@ -10,4 +11,9 @@ export interface WikiPage {
   pageSize: number;
   totalElements: number;
   totalPages: number;
+}
+
+export interface CreateWikiRequest {
+  title: string;
+  content?: string;
 }
