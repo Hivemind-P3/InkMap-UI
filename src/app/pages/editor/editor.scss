@@ -1,3 +1,6 @@
+@use "sass:color";
+$teal: #4a7c7e;
+
 .container {
   display: flex;
   height: 100vh;
@@ -6,8 +9,8 @@
 .editor {
   flex: 1;
   padding: 20px;
-  background: #121212;
-  color: white;
+  background: white;
+  color: black;
 
   .title {
     width: 100%;
@@ -15,7 +18,7 @@
     margin-bottom: 10px;
     background: transparent;
     border: none;
-    color: white;
+    color: black;
   }
 
   .quill {
@@ -25,7 +28,23 @@
   }
 
   button {
-    margin-top: 10px;
-    padding: 10px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: $teal;
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) {
+      background: color.adjust($teal, $lightness: -8%)
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   }
 }
