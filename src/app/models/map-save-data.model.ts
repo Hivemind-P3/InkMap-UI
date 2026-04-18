@@ -4,6 +4,16 @@ export interface LayerSaveData {
     visible: boolean;
     grid: boolean[][];
     overlayGrid: { color: string | null }[][];
+    texts: TextSaveData[];
+}
+
+export interface TextSaveData {
+    x: number;
+    y: number;
+    text: string;
+    fontSize: number;
+    fontFamily: string;
+    fill: string;
 }
 
 export interface StampSaveData {
