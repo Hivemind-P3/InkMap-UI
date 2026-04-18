@@ -5,7 +5,7 @@
   </div>
 
   <div class="list">
-    @for (c of narratives; track c) {
+    @for (c of narratives; track c.id) {
       <div class="item" (click)="select(c)">
         {{ c.title }}
       </div>
