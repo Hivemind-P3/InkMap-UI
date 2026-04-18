@@ -887,6 +887,7 @@ export class MapEditor implements AfterViewInit {
     this.activeLayerId = id;
 
     if(this.cursorLayer) {
+      this.poiLayer.moveToTop();
       this.selectionLayer.moveToTop();
       this.cursorLayer.moveToTop();
     }
