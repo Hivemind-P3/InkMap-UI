@@ -205,6 +205,77 @@
         </div>
 
     <div class="map-editor-sidebar d-flex flex-column">
+
+        @if (selectedPoiId !== null) {
+            <div class="poi-panel d-flex flex-column">
+                <div class="poi-panel-header px-3 py-2 d-flex justify-content-between align-items-center">
+                    <span><i class="fa-solid fa-location-dot me-2"></i>Point of Interest</span>
+                    <button class="layer-icon-btn" (click)="clearPoiSelection()" title="Close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="node-detail-section-header px-3 py-2 d-flex justify-content-between align-items-center">
+                    <span>Wikis</span>
+                    @if (!showWikiPicker) {
+                        <button class="btn-wiki-associate" (click)="openWikiPicker()" title="Associate wiki">
+                            <i class="fa-solid fa-plus"></i> Associate
+                        </button>
+                    }
+                </div>
+
+                @if (currentPoiWikis.length === 0 && !showWikiPicker) {
+                    <div class="node-detail-empty px-3 pb-3">
+                        <i class="fa-regular fa-file-lines"></i>
+                        <span>No wikis associated yet</span>
+                    </div>
+                }
+
+                @if (currentPoiWikis.length > 0) {
+                    <div class="wiki-list px-3 pt-2 pb-1">
+                        @for (wiki of currentPoiWikis; track wiki.id) {
+                            <div class="wiki-chip">
+                                <i class="fa-regular fa-file-lines wiki-chip-icon"></i>
+                                <span class="wiki-chip-title wiki-chip-link" (click)="navigateToWiki(wiki)" title="Open wiki">{{ wiki.title }}</span>
+                                <button class="wiki-chip-remove" (click)="removeWiki(wiki)" title="Remove">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (showWikiPicker) {
+                    <div class="wiki-picker px-3 pt-2 pb-3">
+                        <div class="wiki-picker-search-row">
+                            <input
+                                class="form-control form-control-sm wiki-search-input"
+                                placeholder="Search wikis..."
+                                [(ngModel)]="wikiSearch"
+                                (input)="onWikiSearchInput()"
+                                autofocus
+                            />
+                            <button class="btn-wiki-picker-close" (click)="closeWikiPicker()" title="Close">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        @if (wikiSearchResults.length > 0) {
+                            <div class="wiki-picker-results">
+                                @for (wiki of wikiSearchResults; track wiki.id) {
+                                    <button class="wiki-result-item" (click)="associateWiki(wiki)">
+                                        <i class="fa-regular fa-file-lines"></i>
+                                        {{ wiki.title }}
+                                    </button>
+                                }
+                            </div>
+                        } @else {
+                            <div class="wiki-picker-empty">No results</div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
         <div class="py-2 editor-sidebar-item w-100 d-flex justify-content-between align-items-center px-3">
             <span>Layers</span>
             <button class="tool-btn" (click)="addLayer()" title="Add layer">

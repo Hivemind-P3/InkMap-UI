@@ -34,4 +34,16 @@ export class GeographicMapService extends BaseService {
     deletePOI(projectId: number, mapId: number, poiId: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/projects/${projectId}/geographic-maps/${mapId}/points-of-interest/${poiId}`);
     }
+
+    getPoiWikis(projectId: number, mapId: number, poiId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/projects/${projectId}/geographic-maps/${mapId}/points-of-interest/${poiId}/wikis`);
+    }
+
+    associatePoiWiki(projectId: number, mapId: number, poiId: number, wikiId: number): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/projects/${projectId}/geographic-maps/${mapId}/points-of-interest/${poiId}/wikis/${wikiId}`, {});
+    }
+
+    removePoiWiki(projectId: number, mapId: number, poiId: number, wikiId: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/projects/${projectId}/geographic-maps/${mapId}/points-of-interest/${poiId}/wikis/${wikiId}`);
+    }
 }
