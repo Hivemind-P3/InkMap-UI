@@ -48,11 +48,29 @@ export class MapEditor implements AfterViewInit {
   private gridLayer!: Konva.Layer;
   private stampPreview!: Konva.Image;
   private stampsLayer!: Konva.Layer;
+  private selectedText: Konva.Text | null = null;
+  private isEditingText = false;
+  private selectionRect!: Konva.Rect;
+  private selectionLayer!: Konva.Layer;
+  private selectionStart: { x: number, y: number } | null = null;
+  private selectedNodes: Konva.Node[] = [];
+  private lastOverlayRedraw = 0;
   protected mapLayers: MapLayer[] = [];
   protected activeLayerId: string | null = null;
   protected draggedLayerId: string | null = null;
   protected dragOverLayerId: string | null = null;
   protected showGrid = false;
+
+  protected textFontSize: number = 24;
+  protected textColor: string = '#2c1810';
+  protected textFontFamily: string = 'MedievalSharp, Georgia, serif';
+
+  protected textFontFamilies = [
+    { label: 'Serif', value: 'Georgia, serif' },
+    { label: 'Medieval', value: 'MedievalSharp, Georgia, serif' },
+    { label: 'Cursive', value: 'Palatino Linotype, cursive' },
+    { label: 'Sans', value: 'Arial, sans-serif' }
+  ];
 
   protected activeStamp: MapStamp | null = null;
   protected stampsSize: number = 60;
@@ -98,8 +116,21 @@ export class MapEditor implements AfterViewInit {
 
     // Key events
     window.addEventListener('keydown', (e) => {
-      if(e.code === 'Delete' && this.selectedStamp) {
-        this.deleteSelectedStamp();
+      if(document.activeElement?.tagName === 'TEXTAREA') return;
+
+      if (e.code === 'Delete') {
+        if (this.selectedNodes.length > 0) {
+          this.selectedNodes.forEach(node => node.destroy());
+          this.selectedNodes = [];
+          this.mapLayers.forEach(l => l.konvaLayer.batchDraw());
+        } else {
+          if (this.selectedStamp) this.deleteSelectedStamp();
+          if (this.selectedText) {
+            this.selectedText.destroy();
+            this.selectedText = null;
+            this.activeLayer?.konvaLayer.batchDraw();
+          }
+        }
       }
       
       if (e.code === 'Space') {
@@ -161,7 +192,6 @@ export class MapEditor implements AfterViewInit {
       container.style.cursor = this.isSpaceDown ? 'grab' : 'default';
     });
 
-    // Set initial position
     this.stage.scale({ x: this.initialScale, y: this.initialScale });
 
     this.stage.position({
@@ -172,7 +202,6 @@ export class MapEditor implements AfterViewInit {
     this.backgroundLayer = new Konva.Layer();
     this.stage.add(this.backgroundLayer);
 
-    // Background load
     image.onload = () => {
       const rect = new Konva.Rect({
         x: 0,
@@ -194,7 +223,6 @@ export class MapEditor implements AfterViewInit {
       this.backgroundLayer.draw();
     }
 
-    // Grid and Brush
     this.initGrid(this.rectWidth, this.rectHeight);
     this.addLayer();
     this.cdr.detectChanges();
@@ -202,6 +230,22 @@ export class MapEditor implements AfterViewInit {
 
     this.stampsLayer = new Konva.Layer();
     this.stage.add(this.stampsLayer);
+
+    this.selectionLayer = new Konva.Layer();
+    this.stage.add(this.selectionLayer);
+
+    this.selectionRect = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      stroke: '#60a3a5',
+      dash: [4, 4],
+      fill: 'rgba(96, 163, 165, 0.1)',
+      visible: false,
+      listening: false
+    });
+    this.selectionLayer.add(this.selectionRect);
 
     this.setupStampEvents();
 
@@ -281,7 +325,7 @@ export class MapEditor implements AfterViewInit {
   }
 
   private setupBrushEvents(container: HTMLElement): void {
-    this.stage.on('mousedown', () => {
+    this.stage.on('mousedown', (e) => {
       if (this.isSpaceDown) return;
       if (this.activeTool === 'brush') {
         this.isDrawing = true;
@@ -289,6 +333,24 @@ export class MapEditor implements AfterViewInit {
       } else if (this.activeTool === 'paint') {
         this.isDrawing = true;
         this.paintOverlayAtPointer();
+      } else if (this.activeTool === 'eraser') {
+        this.isDrawing = true;
+        this.eraseAtPointer();
+      } else if (this.activeTool === 'select') {
+        const clickedNode = e.target as unknown as Konva.Node;
+
+        if (this.selectedNodes.includes(clickedNode)) return;
+
+        const clickedOnNode = (e.target as any).getAttr('type') === 'text' 
+          || (e.target as any).getAttr('stampId');
+        if (clickedOnNode) return;
+
+        this.clearSelection();
+        const pos = this.stage.getRelativePointerPosition();
+        if (!pos) return;
+        this.selectionStart = pos;
+        this.selectionRect.setAttrs({ x: pos.x, y: pos.y, width: 0, height: 0, visible: true });
+        this.selectionLayer.batchDraw();
       }
     });
 
@@ -296,7 +358,21 @@ export class MapEditor implements AfterViewInit {
       if (!this.isSpaceDown && !this.stage.isDragging() && this.isDrawing) {
         if (this.activeTool === 'brush') this.paintAtPointer();
         else if (this.activeTool === 'paint') this.paintOverlayAtPointer();
+        else if (this.activeTool === 'eraser') this.eraseAtPointer()
       }
+
+      if (this.activeTool === 'select' && this.selectionStart) {
+        const pos = this.stage.getRelativePointerPosition();
+        if (!pos) return;
+        this.selectionRect.setAttrs({
+          x: Math.min(pos.x, this.selectionStart.x),
+          y: Math.min(pos.y, this.selectionStart.y),
+          width: Math.abs(pos.x - this.selectionStart.x),
+          height: Math.abs(pos.y - this.selectionStart.y)
+        });
+        this.selectionLayer.batchDraw();
+      }
+
       this.updateCursorPreview();
     });
 
@@ -305,14 +381,207 @@ export class MapEditor implements AfterViewInit {
       this.cursorLayer.batchDraw();
     });
 
-    this.stage.on('mouseup mouseleave', () => {
+    this.stage.on('mouseup', () => {
       this.isDrawing = false;
+
+      if (this.activeTool === 'select' && this.selectionStart) {
+        const box = this.selectionRect.getClientRect({ relativeTo: this.stage });
+
+        if (box.width > 5 && box.height > 5) {
+          this.clearSelection();
+
+          this.mapLayers.forEach(layer => {
+            layer.konvaLayer.getChildren().forEach((child: Konva.Node) => {
+              if (!child.getAttr('type') && !child.getAttr('stampId')) return;
+
+              const nodeBox = child.getClientRect({ relativeTo: this.stage });
+              const intersects =
+                box.x < nodeBox.x + nodeBox.width &&
+                box.x + box.width > nodeBox.x &&
+                box.y < nodeBox.y + nodeBox.height &&
+                box.y + box.height > nodeBox.y;
+
+              if (intersects) {
+                (child as Konva.Shape).stroke('#60a3a5');
+                (child as Konva.Shape).strokeWidth(child.getAttr('type') === 'text' ? 1 : 2);
+                this.selectedNodes.push(child);
+              }
+            });
+          });
+
+          this.selectedNodes.forEach(node => {
+            node.off('dragstart dragmove');
+
+            let lastPos = { x: 0, y: 0 };
+
+            node.on('dragstart', () => {
+              lastPos = { x: node.x(), y: node.y() };
+            });
+
+            node.on('dragmove', () => {
+              const dx = node.x() - lastPos.x;
+              const dy = node.y() - lastPos.y;
+              lastPos = { x: node.x(), y: node.y() };
+
+              this.selectedNodes.forEach(other => {
+                if (other === node) return;
+
+                const isText = other.getAttr('type') === 'text';
+                const w = isText ? 0 : (other as Konva.Shape).width();
+                const h = isText ? 0 : (other as Konva.Shape).height();
+
+                other.x(Math.max(0, Math.min(other.x() + dx, this.rectWidth - w)));
+                other.y(Math.max(0, Math.min(other.y() + dy, this.rectHeight - h)));
+              });
+
+              const isText = node.getAttr('type') === 'text';
+              const w = isText ? 0 : (node as Konva.Shape).width();
+              const h = isText ? 0 : (node as Konva.Shape).height();
+              node.x(Math.max(0, Math.min(node.x(), this.rectWidth - w)));
+              node.y(Math.max(0, Math.min(node.y(), this.rectHeight - h)));
+
+              this.mapLayers.forEach(l => l.konvaLayer.batchDraw());
+            });
+          });
+        }
+
+        this.selectionStart = null;
+        this.selectionRect.visible(false);
+        this.selectionLayer.batchDraw();
+      }
     });
 
     this.stage.on('mouseover', () => {
       if (this.activeTool === 'brush' || this.activeTool === 'paint') {
         container.style.cursor = 'none';
       }
+    });
+
+    this.stage.on('click', (e) => {
+      if (this.isSpaceDown) return;
+      if (this.activeTool !== 'text') return;
+      if (this.isEditingText) return;
+      if ((e.target as any).getAttr('type') === 'text') return;
+      if ((e.target as any).getAttr('stampId')) return;
+
+      const pos = this.stage.getRelativePointerPosition();
+      if (!pos) return;
+
+      if (pos.x < 0 || pos.y < 0 || pos.x > this.rectWidth || pos.y > this.rectHeight) return;
+
+      this.addTextAtPosition(pos);
+    });
+  }
+
+  private addTextAtPosition(pos: { x: number, y: number }): void {
+    const layer = this.activeLayer;
+    if(!layer) return;
+
+    const text = new Konva.Text({
+      x: pos.x,
+      y: pos.y,
+      text: 'Double click to edit',
+      fontSize: this.textFontSize,
+      fontFamily: this.textFontFamily,
+      fill: this.textColor,
+      draggable: true,
+    });
+
+    text.setAttr('type', 'text');
+    layer.konvaLayer.add(text);
+    layer.konvaLayer.batchDraw();
+
+    text.on('click', (e) => {
+      e.cancelBubble = true;
+      this.selectText(text);
+    });
+
+    text.on('dblclick', () => {
+      this.editTextInLine(text, layer);
+    });
+
+    text.on('dragmove', () => {
+      text.x(Math.max(0, Math.min(text.x(), this.rectWidth - text.width())));
+      text.y(Math.max(0, Math.min(text.y(), this.rectHeight - text.height())));
+    });
+
+    this.selectText(text);
+  }
+
+  private selectText(text: Konva.Text): void {
+    if(this.selectedText) {
+      this.selectedText.stroke('');
+      this.selectedText.strokeWidth(0);
+    }
+
+    this.selectedText = text;
+    text.stroke('#60a3a5');
+    text.strokeWidth(1);
+
+    this.activeLayer?.konvaLayer.batchDraw();
+  }
+
+  private editTextInLine(text: Konva.Text, layer: MapLayer): void {
+    const scale = this.stage.scaleX();
+    const stagePos = this.stage.position();
+    const stageBox = this.stage.container().getBoundingClientRect();
+
+    const textArea = document.createElement('textarea');
+    this.isEditingText = true;
+    text.visible(false);
+    layer.konvaLayer.batchDraw();
+
+    textArea.value = text.text();
+    textArea.style.position = 'absolute';
+    textArea.style.fontSize = (text.fontSize() * scale) + 'px';
+    textArea.style.fontFamily = text.fontFamily();
+    textArea.style.color = text.fill() as string;
+    textArea.style.border = '1px solid #60a3a5';
+    textArea.style.borderRadius = '4px';
+    textArea.style.background = 'rgba(0,0,0,0.4)';
+    textArea.style.outline = 'none';
+    textArea.style.resize = 'none';
+    textArea.style.overflow = 'hidden';
+    textArea.style.padding = '2px 4px';
+    textArea.style.minWidth = '100px';
+    textArea.style.zIndex = '9999';
+
+    document.body.appendChild(textArea);
+
+    const x = stageBox.left + text.x() * scale + stagePos.x;
+    const y = stageBox.top + text.y() * scale + stagePos.y - textArea.offsetHeight - 4;
+    textArea.style.left = x + 'px';
+    textArea.style.top = y + 'px';
+
+    textArea.focus();
+    textArea.select();
+
+    const finish = () => {
+      if (!document.body.contains(textArea)) return;
+      text.text(textArea.value || 'Text');
+      text.visible(true);
+      layer.konvaLayer.batchDraw();
+      document.body.removeChild(textArea);
+      document.removeEventListener('mousedown', onMouseDown, true);
+      setTimeout(() => this.isEditingText = false, 50);
+    };
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.target !== textArea) {
+        e.stopPropagation();
+        e.preventDefault();
+        finish();
+      }
+    };
+
+    document.addEventListener('mousedown', onMouseDown, true);
+
+    textArea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        finish();
+      }
+      if (e.key === 'Escape') finish();
     });
   }
 
@@ -399,13 +668,16 @@ export class MapEditor implements AfterViewInit {
         }
       }
     }
-    ctx.fill();
+
     ctx.shadowColor = 'rgba(100, 70, 20, 0.3)';
     ctx.shadowBlur = 12;
     ctx.shadowOffsetX = 3;
     ctx.shadowOffsetY = 3;
     ctx.fill();
     ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 
     ctx.strokeStyle = '#8B6914';
     ctx.lineWidth = 1.5;
@@ -444,7 +716,7 @@ export class MapEditor implements AfterViewInit {
     }
     ctx.stroke();
 
-    if (!layer.landShape) {
+    if (!layer.landShape || !layer.landShape.getParent()) {
       layer.landShape = new Konva.Image({
         x: 0,
         y: 0,
@@ -453,6 +725,18 @@ export class MapEditor implements AfterViewInit {
         height: this.rectHeight
       } as any);
       layer.konvaLayer.add(layer.landShape);
+      layer.landShape.moveToBottom();
+
+      const originalDestroy = layer.landShape.destroy.bind(layer.landShape);
+      (layer.landShape as any).destroy = () => {
+        console.trace('landShape destroyed here');
+        originalDestroy();
+      };
+
+    } else {
+      layer.landShape.clearCache();
+      layer.landShape.image(layer.offscreen);
+      layer.landShape.moveToBottom();
     }
 
     layer.konvaLayer.batchDraw();
@@ -524,7 +808,7 @@ export class MapEditor implements AfterViewInit {
   maskCtx.fill();
   layer.maskCanvas = maskCanvas;
   return maskCanvas;
-}
+  }
 
   private buildField(grid: boolean[][]): number[][] {
     const get = (x: number, y: number): number => 
@@ -582,6 +866,7 @@ export class MapEditor implements AfterViewInit {
     this.activeLayerId = id;
 
     if(this.cursorLayer) {
+      this.selectionLayer.moveToTop();
       this.cursorLayer.moveToTop();
     }
   }
@@ -605,7 +890,6 @@ export class MapEditor implements AfterViewInit {
             if (layer.grid[ny][nx]) {
               layer.overlayGrid[ny][nx].color = this.activePaintColor;
 
-              // Paint directly onto cached color canvas
               const px = nx * s + s / 2;
               const py = ny * s + s / 2;
               const radius = s * 1.2;
@@ -621,7 +905,88 @@ export class MapEditor implements AfterViewInit {
         }
       }
     }
-    this.redrawOverlay(layer);
+
+    const now = Date.now();
+    if (now - this.lastOverlayRedraw > 32) {
+      this.lastOverlayRedraw = now;
+      this.redrawOverlay(layer);
+    }
+  }
+
+  private eraseAtPointer(): void {
+    const pos = this.stage.getRelativePointerPosition();
+    if (!pos) return;
+
+    const cx = Math.floor(pos.x / this.gridSize);
+    const cy = Math.floor(pos.y / this.gridSize);
+
+    const layer = this.activeLayer;
+    if (!layer) return;
+
+    let landChanged = false;
+
+    for (let dy = -this.brushRadius; dy <= this.brushRadius; dy++) {
+      for (let dx = -this.brushRadius; dx <= this.brushRadius; dx++) {
+        if (dx * dx + dy * dy <= this.brushRadius * this.brushRadius) {
+          const nx = cx + dx;
+          const ny = cy + dy;
+
+          if (nx >= 0 && nx < this.gridCols && ny >= 0 && ny < this.gridRows) {
+            if (layer.grid[ny][nx]) {
+              layer.grid[ny][nx] = false;
+              landChanged = true;
+            }
+            if (layer.overlayGrid[ny][nx].color) {
+              layer.overlayGrid[ny][nx].color = null;
+              landChanged = true;
+            }
+          }
+        }
+      }
+    }
+
+    if (landChanged) {
+      const filledCells = layer.grid.flat().filter(Boolean).length;
+      console.log('Filled cells after erase:', filledCells);
+
+      layer.maskCanvas = undefined;
+      layer.colorCtx!.clearRect(0, 0, layer.colorCanvas!.width, layer.colorCanvas!.height);
+      this.redrawLand(layer);
+      this.rebuildColorCanvas(layer);
+      this.redrawOverlay(layer);
+    }
+
+    const eraserRadiusPx = this.brushRadius * this.gridSize * this.stage.scaleX();
+    const children = [...layer.konvaLayer.getChildren()];
+
+    children.forEach((child: Konva.Node) => {
+      // ✅ Never erase the land or overlay shapes
+      if (child === layer.landShape) return;
+      if (child === layer.overlayShape) return;
+
+      if (!child.getAttr('type') && !child.getAttr('stampId')) return;
+
+      const nodeBox = child.getClientRect({ relativeTo: this.stage });
+      const stagePosX = pos.x * this.stage.scaleX() + this.stage.x();
+      const stagePosY = pos.y * this.stage.scaleY() + this.stage.y();
+
+      const nodeCenterX = nodeBox.x + nodeBox.width / 2;
+      const nodeCenterY = nodeBox.y + nodeBox.height / 2;
+
+      const dist = Math.sqrt(
+        Math.pow(stagePosX - nodeCenterX, 2) +
+        Math.pow(stagePosY - nodeCenterY, 2)
+      );
+
+      if (dist < eraserRadiusPx) {
+        if (child === this.selectedStamp) this.selectedStamp = null;
+        if (child === this.selectedText) this.selectedText = null;
+        this.selectedNodes = this.selectedNodes.filter(n => n !== child);
+        child.destroy();
+      }
+    });
+
+    layer.konvaLayer.batchDraw();
   }
 
   private redrawOverlay(layer: MapLayer): void {
@@ -631,28 +996,30 @@ export class MapEditor implements AfterViewInit {
 
     ctx.clearRect(0, 0, w, h);
 
-    // Blur the cached color canvas
     ctx.filter = 'blur(12px)';
     ctx.drawImage(layer.colorCanvas!, 0, 0);
     ctx.filter = 'none';
 
-    // Clip to land mask
     ctx.globalCompositeOperation = 'destination-in';
     ctx.drawImage(this.buildMask(layer), 0, 0);
     ctx.globalCompositeOperation = 'source-over';
 
-    // Apply opacity
-    const result = document.createElement('canvas');
-    result.width = w;
-    result.height = h;
-    const rCtx = result.getContext('2d')!;
-    rCtx.globalAlpha = 0.6;
-    rCtx.drawImage(layer.overlayOffscreen, 0, 0);
+    if (!layer.resultCanvas) {
+      layer.resultCanvas = document.createElement('canvas');
+      layer.resultCanvas.width = w;
+      layer.resultCanvas.height = h;
+      layer.resultCtx = layer.resultCanvas.getContext('2d')!;
+    }
+
+    layer.resultCtx!.clearRect(0, 0, w, h);
+    layer.resultCtx!.globalAlpha = 0.6;
+    layer.resultCtx!.drawImage(layer.overlayOffscreen, 0, 0);
+    layer.resultCtx!.globalAlpha = 1;
 
     ctx.clearRect(0, 0, w, h);
-    ctx.drawImage(result, 0, 0);
+    ctx.drawImage(layer.resultCanvas, 0, 0);
 
-    if (!layer.overlayShape) {
+    if (!layer.overlayShape || !layer.overlayShape.getParent()) {
       layer.overlayShape = new Konva.Image({
         x: 0, y: 0,
         image: layer.overlayOffscreen,
@@ -660,7 +1027,10 @@ export class MapEditor implements AfterViewInit {
         height: this.rectHeight
       } as any);
       layer.konvaLayer.add(layer.overlayShape);
-      layer.overlayShape.zIndex(2);
+      layer.overlayShape.moveToTop();
+    } else {
+      layer.overlayShape.clearCache();
+      layer.overlayShape.image(layer.overlayOffscreen);
     }
 
     layer.konvaLayer.batchDraw();
@@ -730,7 +1100,10 @@ export class MapEditor implements AfterViewInit {
       layer.konvaLayer.zIndex(i + 1);
     });
 
-    if(this.cursorLayer) this.cursorLayer.moveToTop();
+    if(this.cursorLayer) {
+      this.selectionLayer.moveToTop();
+      this.cursorLayer.moveToTop();
+    } 
 
     this.draggedLayerId = null;
     this.dragOverLayerId = null;
@@ -750,7 +1123,7 @@ export class MapEditor implements AfterViewInit {
       this.cursorLayer.batchDraw();
     }
 
-    if (tool === 'brush' || tool === 'paint') {
+    if (tool === 'brush' || tool === 'paint' || tool === 'eraser') {
       container.style.cursor = 'none';
     } else if (tool === 'stamp') {
       container.style.cursor = 'none';
@@ -769,7 +1142,10 @@ export class MapEditor implements AfterViewInit {
   toggleGrid(show: boolean): void {
     this.showGrid = show;
     this.gridLayer.visible(show);
-    if(show) this.cursorLayer.moveToTop();
+    if(show) {
+      this.selectionLayer.moveToTop();
+      this.cursorLayer.moveToTop();
+    }
     this.gridLayer.batchDraw();
   }
 
@@ -798,7 +1174,7 @@ export class MapEditor implements AfterViewInit {
       return;
     }
 
-    if ((this.activeTool !== 'brush' && this.activeTool !== 'paint') || this.isSpaceDown) {
+    if ((this.activeTool !== 'brush' && this.activeTool !== 'paint' && this.activeTool !== 'eraser') || this.isSpaceDown) {
       this.cursorCircle.visible(false);
       this.cursorLayer.batchDraw();
       return;
@@ -842,12 +1218,17 @@ export class MapEditor implements AfterViewInit {
 
         const layer = this.activeLayer;
         if (!layer) return;
-        layer.konvaLayer.add(stamp); // ← map layer instead of stampsLayer
+        layer.konvaLayer.add(stamp);
         layer.konvaLayer.batchDraw();
 
         stamp.on('click', (e) => {
           e.cancelBubble = true;
           this.selectStamp(stamp);
+        });
+
+        stamp.on('dragmove', () => {
+          stamp.x(Math.max(0, Math.min(stamp.x(), this.rectWidth - stamp.width())));
+          stamp.y(Math.max(0, Math.min(stamp.y(), this.rectHeight - stamp.height())));
         });
       };
     });
@@ -883,6 +1264,18 @@ export class MapEditor implements AfterViewInit {
     };
   }
 
+  private clearSelection(): void {
+    this.selectedNodes.forEach(node => {
+      (node as Konva.Shape).stroke('');
+      (node as Konva.Shape).strokeWidth(0);
+      node.off('dragstart dragmove');
+    })
+
+    this.selectedNodes = [];
+    this.selectedStamp = null;
+    this.selectedText = null;
+  }
+
   save(): void {
     const oldScale = this.stage.scaleX();
     const oldPos = this.stage.position();
@@ -908,7 +1301,17 @@ export class MapEditor implements AfterViewInit {
         name: l.name,
         visible: l.visible,
         grid: l.grid,
-        overlayGrid: l.overlayGrid
+        overlayGrid: l.overlayGrid,
+        texts: l.konvaLayer.getChildren()
+          .filter((node: any) => node.getAttr('type') === 'text')
+          .map((node: any) => ({
+            x: node.x(),
+            y: node.y(),
+            text: node.text(),
+            fontSize: node.fontSize(),
+            fontFamily: node.fontFamily(),
+            fill: node.fill()
+          }))
       })),
       stamps: this.mapLayers.flatMap(l =>
         l.konvaLayer.getChildren()
@@ -979,20 +1382,47 @@ export class MapEditor implements AfterViewInit {
       this.redrawLand(layer);
       this.rebuildColorCanvas(layer);
       this.redrawOverlay(layer);
+
+      savedLayer.texts?.forEach(t => {
+        const text = new Konva.Text({
+          x: t.x,
+          y: t.y,
+          text: t.text,
+          fontSize: t.fontSize,
+          fontFamily: t.fontFamily,
+          fill: t.fill,
+          draggable: true
+        });
+
+        text.setAttr('type', 'text');
+        layer.konvaLayer.add(text);
+
+        text.on('click', (e) => {
+          e.cancelBubble = true;
+          this.selectText(text);
+        });
+
+        text.on('dragmove', () => {
+          text.x(Math.max(0, Math.min(text.x(), this.rectWidth - text.width())));
+          text.y(Math.max(0, Math.min(text.y(), this.rectHeight - text.height())));
+        });
+
+        text.on('dblclick', () => {
+          this.editTextInLine(text, layer);
+        });
+
+        layer.konvaLayer.batchDraw();
+      });
     });
 
     const topLayer = this.mapLayers[this.mapLayers.length - 1];
-    if(topLayer) this.activeLayerId = topLayer.id;
+    if (topLayer) this.activeLayerId = topLayer.id;
 
     data.stamps?.forEach(s => {
-      console.log('Restoring stamp:', s);
       const targetLayer = this.mapLayers.find(l => l.id === s.layerId);
-      console.log('Target layer found:', targetLayer);
-
       const img = new Image();
       img.src = s.icon;
       img.onload = () => {
-        console.log('Image loaded for stamp:', s.stampId);
         const stamp = new Konva.Image({
           x: s.x,
           y: s.y,
@@ -1003,21 +1433,25 @@ export class MapEditor implements AfterViewInit {
         });
         stamp.setAttr('stampId', s.stampId);
         stamp.setAttr('src', s.icon);
-
         if (!targetLayer) {
           console.warn('No target layer found for layerId:', s.layerId);
           return;
         }
-
         targetLayer.konvaLayer.add(stamp);
         stamp.on('click', (e) => {
           e.cancelBubble = true;
           this.selectStamp(stamp);
         });
+
+        stamp.on('dragmove', () => {
+          stamp.x(Math.max(0, Math.min(stamp.x(), this.rectWidth - stamp.width())));
+          stamp.y(Math.max(0, Math.min(stamp.y(), this.rectHeight - stamp.height())));
+        });
+
         targetLayer.konvaLayer.batchDraw();
       };
-      img.onerror = (e) => {
-        console.error('Image failed to load:', s.icon, e);
+      img.onerror = () => {
+        console.error('Image failed to load:', s.icon);
       };
     });
 
