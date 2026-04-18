@@ -96,6 +96,7 @@ export class MapEditor implements AfterViewInit {
     { id: 'mountain', label: 'Mountain', icon: '/Cartography/Mountain.png', category: 'nature' },
   ]
   
+  private poiLayer!: Konva.Layer;
   private cursorLayer!: Konva.Layer;
   private cursorCircle!: Konva.Circle;
 
@@ -231,6 +232,9 @@ export class MapEditor implements AfterViewInit {
     this.stampsLayer = new Konva.Layer();
     this.stage.add(this.stampsLayer);
 
+    this.poiLayer = new Konva.Layer();
+    this.stage.add(this.poiLayer);
+
     this.selectionLayer = new Konva.Layer();
     this.stage.add(this.selectionLayer);
 
@@ -248,6 +252,7 @@ export class MapEditor implements AfterViewInit {
     this.selectionLayer.add(this.selectionRect);
 
     this.setupStampEvents();
+    this.setupPOIEvents();
 
     this.cursorLayer = new Konva.Layer();
     this.stage.add(this.cursorLayer);
@@ -294,6 +299,7 @@ export class MapEditor implements AfterViewInit {
 
     if(this.mapId) {
       this.loadMap();
+      this.loadPOIs();
     }
   }
 
@@ -1232,6 +1238,46 @@ export class MapEditor implements AfterViewInit {
         });
       };
     });
+  }
+
+  private setupPOIEvents(): void {
+    this.stage.on('click', (e) => {
+      if (this.activeTool !== 'poi' || this.isSpaceDown) return;
+      if (!this.mapId || !this.projectId) return;
+
+      const pos = this.stage.getRelativePointerPosition();
+      if (!pos) return;
+      if (pos.x < 0 || pos.y < 0 || pos.x > this.rectWidth || pos.y > this.rectHeight) return;
+
+      this.geographicMapService.createPOI(this.projectId!, this.mapId!, pos.x, pos.y)
+        .subscribe({
+          next: (poi) => this.renderPOI(poi),
+          error: (e) => this.toast.show('error', 'Error creating POI: ' + e.message)
+        });
+    });
+  }
+
+  private renderPOI(poi: { id: number; posX: number; posY: number }): void {
+    const circle = new Konva.Circle({
+      x: poi.posX,
+      y: poi.posY,
+      radius: 8,
+      fill: '#e74c3c',
+      stroke: '#ffffff',
+      strokeWidth: 2,
+    });
+    circle.setAttr('poiId', poi.id);
+    this.poiLayer.add(circle);
+    this.poiLayer.batchDraw();
+  }
+
+  private loadPOIs(): void {
+    if (!this.mapId || !this.projectId) return;
+    this.geographicMapService.getPOIs(this.projectId, this.mapId)
+      .subscribe({
+        next: (pois) => pois.forEach(poi => this.renderPOI(poi)),
+        error: (e) => this.toast.show('error', 'Error loading POIs: ' + e.message)
+      });
   }
 
   private selectStamp(stamp: Konva.Image): void {

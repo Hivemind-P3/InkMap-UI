@@ -35,6 +35,9 @@
                     <button class="tool-btn" [class.active]="activeTool === 'eraser'" (click)="setTool('eraser')" title="Eraser">
                         <i class="fa-solid fa-eraser"></i>
                     </button>
+                    <button class="tool-btn" [class.active]="activeTool === 'poi'" (click)="setTool('poi')" title="Points of Interest">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </button>
                     <div class="toolbar-divider"></div>
                     <button class="tool-btn" title="Save" (click)="save()">
                         <i class="fa-solid fa-floppy-disk"></i>
@@ -146,6 +149,13 @@
                             (input)="stampsSize = $any($event.target).value"
                             class="stamp-size-slider">
                         <span class="stamp-size-label">{{ stampsSize }}px</span>
+                    </div>
+                }
+
+                @if (activeTool === 'poi') {
+                    <div class="brush-options d-flex flex-column gap-2">
+                        <span class="brush-options-title">Points of Interest</span>
+                        <span style="font-size: 11px; opacity: 0.7;">Click on the map to place a point of interest.</span>
                     </div>
                 }
 
