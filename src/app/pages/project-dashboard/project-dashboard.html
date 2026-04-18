@@ -46,6 +46,15 @@
                     [route]="'/app/editor/' + projectId"
                 ></app-project-section-card>
             </div>
+            <div class="col">
+                <app-project-section-card
+                    [title]="'Wikis'"
+                    [description]="'Document your world lore, characters and story elements in structured wiki pages.'"
+                    [icon]="'fa-regular fa-file-lines'"
+                    [image]="'document.png'"
+                    [route]="'/app/projects/' + projectId + '/wikis'"
+                ></app-project-section-card>
+            </div>
         </div>
     }
 </div>

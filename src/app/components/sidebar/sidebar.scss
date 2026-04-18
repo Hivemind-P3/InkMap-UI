@@ -102,6 +102,19 @@ i {
     transition: opacity 0.2s ease, width 0.3s ease;
   }
 
+  &--disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    cursor: default;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.55);
+      background: none;
+      font-weight: 500;
+      i { opacity: 0.55; color: inherit; }
+    }
+  }
+
   &--active {
     color: #fff;
     background: rgba(255, 255, 255, 0.08);

@@ -4,29 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NodeService } from '../../services/node.service';
 import { RelationService } from '../../services/relation.service';
+import { WikiService } from '../../services/wiki.service';
 import { Node, NodeType, NODE_TYPES } from '../../models/node.model';
 import { NodeRelation } from '../../models/relation.model';
+import { Wiki } from '../../models/wiki.model';
 
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 88;
-
-// --- Mock wiki data (temporal, sin backend) ---
-interface MockWiki {
-  id: number;
-  title: string;
-  slug: string;
-}
-
-const MOCK_WIKIS: MockWiki[] = [
-  { id: 1, title: 'Kingdom of Avelor', slug: 'kingdom-of-avelor' },
-  { id: 2, title: 'House Varyn', slug: 'house-varyn' },
-  { id: 3, title: 'The Northern Frontier', slug: 'the-northern-frontier' },
-  { id: 4, title: 'Order of the Ashen Flame', slug: 'order-of-the-ashen-flame' },
-  { id: 5, title: 'The Solar Gate', slug: 'the-solar-gate' },
-  { id: 6, title: 'Lunaris Language', slug: 'lunaris-language' },
-  { id: 7, title: 'The Great Schism', slug: 'the-great-schism' },
-  { id: 8, title: 'Emperor Caelis IV', slug: 'emperor-caelis-iv' },
-];
 
 @Component({
   selector: 'app-node-map-editor',
@@ -79,23 +63,18 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
   protected readonly nodeTypes = NODE_TYPES;
 
-  // --- Wiki state (temporal/mock, sin backend) ---
-  // Las wikis asociadas viven solo en memoria local; se pierden al recargar.
-  private nodeWikis = new Map<number, MockWiki[]>();
+  // --- Wiki state ---
+  protected currentNodeWikis: Wiki[] = [];
   protected showWikiPicker = false;
   protected wikiSearch = '';
-  protected wikiSearchResults: MockWiki[] = [];
-  protected previewWiki: MockWiki | null = null;
-
-  protected get currentNodeWikis(): MockWiki[] {
-    if (!this.selectedNode) return [];
-    return this.nodeWikis.get(this.selectedNode.id) ?? [];
-  }
+  protected wikiSearchResults: Wiki[] = [];
+  protected previewWiki: Wiki | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private nodeService: NodeService,
     private relationService: RelationService,
+    private wikiService: WikiService,
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -409,6 +388,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     });
 
     const rect = new Konva.Rect({
+      name: 'node-rect',
       width: NODE_WIDTH,
       height: NODE_HEIGHT,
       fill: this.hexToRgba(node.color, 0.18),
@@ -505,11 +485,13 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.editSubmitted = false;
     this.showDeleteConfirm = false;
     this.closeWikiPicker();
+    this.currentNodeWikis = [];
     this.applySelectionStyle(this.selectedNode, false);
     this.selectedNode = node;
     this.applySelectionStyle(node, true);
     this.showAddForm = false;
     this.layer.draw();
+    this.loadNodeWikis();
   }
 
   protected clearSelection(): void {
@@ -520,6 +502,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.closeWikiPicker();
     this.applySelectionStyle(this.selectedNode, false);
     this.selectedNode = null;
+    this.currentNodeWikis = [];
     this.layer.draw();
   }
 
@@ -527,7 +510,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     if (!node) return;
     const group = this.nodeGroups.get(node.id);
     if (!group) return;
-    const rect = group.findOne('Rect') as Konva.Rect;
+    const rect = group.findOne('.node-rect') as Konva.Rect;
     rect.stroke(selected ? '#ffffff' : group.getAttr('origColor'));
     rect.strokeWidth(selected ? 2.5 : 1.5);
   }
@@ -536,7 +519,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     const group = this.nodeGroups.get(node.id);
     if (!group) return;
     group.setAttr('origColor', node.color);
-    (group.findOne('Rect') as Konva.Rect).fill(this.hexToRgba(node.color, 0.18));
+    (group.findOne('.node-rect') as Konva.Rect).fill(this.hexToRgba(node.color, 0.18));
     // node remains selected → keep white stroke
     (group.findOne('Text') as Konva.Text).text(node.label);
     this.layer.draw();
@@ -706,11 +689,42 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     }
   }
 
-  // --- Wiki methods (temporal/mock) ---
+  // --- Wiki methods ---
+  private loadNodeWikis(): void {
+    if (!this.selectedNode) return;
+    this.wikiService
+      .getNodeWikis(Number(this.projectId), Number(this.mapId), this.selectedNode.id)
+      .subscribe({
+        next: (wikis) => {
+          this.zone.run(() => {
+            this.currentNodeWikis = wikis;
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {},
+      });
+  }
+
+  private searchProjectWikis(): void {
+    const q = this.wikiSearch.trim() || undefined;
+    this.wikiService.getProjectWikis(Number(this.projectId), q).subscribe({
+      next: (wikis) => {
+        const associatedIds = new Set(this.currentNodeWikis.map((w) => w.id));
+        this.wikiSearchResults = wikis.filter((w) => !associatedIds.has(w.id));
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.wikiSearchResults = [];
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
   protected openWikiPicker(): void {
     this.wikiSearch = '';
-    this.wikiSearchResults = this.availableWikis();
+    this.wikiSearchResults = [];
     this.showWikiPicker = true;
+    this.searchProjectWikis();
   }
 
   protected closeWikiPicker(): void {
@@ -720,42 +734,41 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     this.previewWiki = null;
   }
 
-  protected openWikiPreview(wiki: MockWiki): void {
-    this.previewWiki = wiki;
-  }
-
-  protected closeWikiPreview(): void {
-    this.previewWiki = null;
+  protected navigateToWiki(wiki: Wiki): void {
+    window.open(`/app/projects/${this.projectId}/wikis/${wiki.id}`, '_blank');
   }
 
   protected onWikiSearchInput(): void {
-    this.wikiSearchResults = this.availableWikis();
+    this.searchProjectWikis();
   }
 
-  private availableWikis(): MockWiki[] {
-    const associated = this.currentNodeWikis.map((w) => w.id);
-    const q = this.wikiSearch.trim().toLowerCase();
-    return MOCK_WIKIS.filter(
-      (w) => !associated.includes(w.id) && (!q || w.title.toLowerCase().includes(q)),
-    );
-  }
-
-  protected associateWiki(wiki: MockWiki): void {
+  protected associateWiki(wiki: Wiki): void {
     if (!this.selectedNode) return;
-    const id = this.selectedNode.id;
-    const current = this.nodeWikis.get(id) ?? [];
-    if (!current.find((w) => w.id === wiki.id)) {
-      this.nodeWikis.set(id, [...current, wiki]);
-    }
-    this.wikiSearchResults = this.availableWikis();
-    if (this.availableWikis().length === 0) this.closeWikiPicker();
+    this.wikiService
+      .associateWiki(Number(this.projectId), Number(this.mapId), this.selectedNode.id, wiki.id)
+      .subscribe({
+        next: () => {
+          this.zone.run(() => {
+            this.loadNodeWikis();
+            this.searchProjectWikis();
+          });
+        },
+        error: () => {},
+      });
   }
 
-  protected removeWiki(wiki: MockWiki): void {
+  protected removeWiki(wiki: Wiki): void {
     if (!this.selectedNode) return;
-    const id = this.selectedNode.id;
-    const current = this.nodeWikis.get(id) ?? [];
-    this.nodeWikis.set(id, current.filter((w) => w.id !== wiki.id));
+    this.wikiService
+      .removeWiki(Number(this.projectId), Number(this.mapId), this.selectedNode.id, wiki.id)
+      .subscribe({
+        next: () => {
+          this.zone.run(() => {
+            this.loadNodeWikis();
+          });
+        },
+        error: () => {},
+      });
   }
 
   protected submitNewNode(): void {
