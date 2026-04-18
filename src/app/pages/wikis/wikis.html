@@ -1,0 +1,106 @@
+<div class="page-wrapper">
+    <div class="d-flex justify-content-center">
+        @if (isLoading) {
+            <div class="mt-5 d-flex justify-content-center align-items-center h-100">
+                <div class="spinner-border text-secondary" role="status"></div>
+            </div>
+        } @else {
+            <div class="p-5 d-flex flex-column content-wrapper w-100 gap-3">
+                <div>
+                    <button class="btn-accent2" (click)="goBack()"><i class="fa-solid fa-angle-left"></i> Go back</button>
+                </div>
+                <div class="d-flex flex-row justify-content-between align-items-center">
+                    <span class="header1 default-header">Wikis</span>
+                    @if (!showCreateForm) {
+                        <button class="btn-accent2" (click)="openCreateForm()">Create wiki</button>
+                    }
+                </div>
+
+                <div class="search-bar">
+                    <input
+                        class="search-input"
+                        type="text"
+                        placeholder="Search wikis..."
+                        autocomplete="off"
+                        [(ngModel)]="searchQuery"
+                        (keydown.enter)="search()"
+                    />
+                    <button class="btn-search" (click)="search()">
+                        <i class="fa-solid fa-magnifying-glass"></i> Search
+                    </button>
+                </div>
+
+                @if (showCreateForm) {
+                    <div class="create-form d-flex flex-column gap-2">
+                        <input
+                            class="search-input"
+                            [class.input-error]="showTitleError"
+                            type="text"
+                            placeholder="Wiki title *"
+                            autocomplete="off"
+                            [(ngModel)]="newTitle"
+                            (ngModelChange)="onTitleInput()"
+                            (keydown.escape)="cancelCreate()"
+                            autofocus
+                        />
+                        @if (showTitleError) {
+                            <span class="name-error">Title is required.</span>
+                        }
+                        <textarea
+                            class="search-input content-input"
+                            placeholder="Content (optional)"
+                            autocomplete="off"
+                            [(ngModel)]="newContent"
+                            (keydown.escape)="cancelCreate()"
+                            rows="4"
+                        ></textarea>
+                        <div class="d-flex flex-row gap-2">
+                            <button class="btn-accent2" (click)="createWiki()" [disabled]="isCreating">
+                                @if (isCreating) { <span class="spinner-border spinner-border-sm" role="status"></span> }
+                                @else { Create }
+                            </button>
+                            <button class="btn-cancel" (click)="cancelCreate()">Cancel</button>
+                        </div>
+                    </div>
+                }
+
+                @if (wikis.length === 0) {
+                    <div class="empty-content">
+                        <div class="empty-icon" aria-hidden="true">
+                            <div class="empty-icon-circle">
+                                <i class="fa-regular fa-file-lines"></i>
+                            </div>
+                        </div>
+                        <p class="empty-content-title">No wikis registered</p>
+                        <p class="empty-content-subtitle">This project does not have wikis yet</p>
+                    </div>
+                } @else {
+                    <div class="wikis-grid">
+                        @for (wiki of wikis; track wiki.id) {
+                            <div class="wiki-card" (click)="openWiki(wiki.id)">
+                                <div class="wiki-card-icon">
+                                    <i class="fa-regular fa-file-lines"></i>
+                                </div>
+                                <div class="wiki-card-info">
+                                    <span class="wiki-card-name">{{ wiki.title }}</span>
+                                    <span class="wiki-card-slug">{{ wiki.slug }}</span>
+                                </div>
+                                <div class="wiki-card-arrow">
+                                    <i class="fa-solid fa-angle-right"></i>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    @if (totalPages > 1) {
+                        <div class="d-flex flex-row gap-2 justify-content-center mt-2">
+                            <button class="btn-accent2" (click)="previousPage()" [disabled]="currentPage === 0">Previous</button>
+                            <span class="page-indicator">{{ currentPage + 1 }} / {{ totalPages }}</span>
+                            <button class="btn-accent2" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">Next</button>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
