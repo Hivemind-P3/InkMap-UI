@@ -32,6 +32,9 @@
                     <button class="tool-btn" [class.active]="activeTool === 'text'" (click)="setTool('text')" title="Text">
                         <i class="fa-solid fa-t"></i>
                     </button>
+                    <button class="tool-btn" [class.active]="activeTool === 'eraser'" (click)="setTool('eraser')" title="Eraser">
+                        <i class="fa-solid fa-eraser"></i>
+                    </button>
                     <div class="toolbar-divider"></div>
                     <button class="tool-btn" title="Save" (click)="save()">
                         <i class="fa-solid fa-floppy-disk"></i>
@@ -41,6 +44,24 @@
                 @if (activeTool === 'brush') {
                     <div class="brush-options d-flex flex-column gap-2">
                         <span class="brush-options-title">Brush size</span>
+                        <div class="d-flex flex-column gap-1">
+                            @for (size of brushSizes; track size.value) {
+                                <button 
+                                    class="brush-size-btn" 
+                                    [class.active]="brushRadius === size.value"
+                                    (click)="setBrushSize(size.value)"
+                                    title="{{ size.label }}">
+                                    <div class="brush-preview" [style.width.px]="size.preview" [style.height.px]="size.preview"></div>
+                                    <span>{{ size.label }}</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (activeTool === 'eraser') {
+                    <div class="brush-options d-flex flex-column gap-2">
+                        <span class="brush-options-title">Eraser size</span>
                         <div class="d-flex flex-column gap-1">
                             @for (size of brushSizes; track size.value) {
                                 <button 
@@ -125,6 +146,45 @@
                             (input)="stampsSize = $any($event.target).value"
                             class="stamp-size-slider">
                         <span class="stamp-size-label">{{ stampsSize }}px</span>
+                    </div>
+                }
+
+                @if (activeTool === 'text') {
+                    <div class="brush-options d-flex flex-column gap-2">
+                        <span class="brush-options-title">Font</span>
+                        <div class="d-flex flex-column gap-1">
+                            @for (font of textFontFamilies; track font.value) {
+                                <button
+                                    class="brush-size-btn"
+                                    [class.active]="textFontFamily === font.value"
+                                    (click)="textFontFamily = font.value"
+                                    [style.font-family]="font.value">
+                                    {{ font.label }}
+                                </button>
+                            }
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <span class="brush-options-title">Size</span>
+                        <input
+                            type="range"
+                            min="10"
+                            max="80"
+                            step="2"
+                            [value]="textFontSize"
+                            (input)="textFontSize = $any($event.target).value"
+                            class="stamp-size-slider">
+                        <span class="stamp-size-label">{{ textFontSize }}px</span>
+                        <div class="toolbar-divider"></div>
+                        <span class="brush-options-title">Color</span>
+                        <div
+                            class="color-preview-swatch"
+                            [style.background]="textColor"
+                            [colorPicker]="textColor"
+                            [cpPosition]="'right'"
+                            [cpAlphaChannel]="'disabled'"
+                            [cpOutputFormat]="'hex'"
+                            (colorPickerChange)="textColor = $event">
+                        </div>
                     </div>
                 }
             </div>

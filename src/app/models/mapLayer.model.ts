@@ -16,4 +16,6 @@ export interface MapLayer {
     maskCanvas?: HTMLCanvasElement;
     colorCanvas?: HTMLCanvasElement;
     colorCtx?: CanvasRenderingContext2D;
+    resultCanvas?: HTMLCanvasElement;
+    resultCtx?: CanvasRenderingContext2D;
 }
