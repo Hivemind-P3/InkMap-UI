@@ -1,11 +1,11 @@
 <div class="sidebar">
   <div class="header">
     <h3>Chapters</h3>
-    <button (click)="create()">＋</button>
+    <button (click)="create()">New</button>
   </div>
 
   <div class="list">
-    @for (c of narratives; track c) {
+    @for (c of narratives; track c.id) {
       <div class="item" (click)="select(c)">
         {{ c.title }}
       </div>

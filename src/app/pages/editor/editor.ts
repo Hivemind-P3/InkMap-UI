@@ -39,7 +39,9 @@ export class EditorComponent {
         title: this.title,
         content: JSON.stringify(this.content),
       })
-      .subscribe(() => {
+      .subscribe((updated) => {
+        this.selected = updated;
+        this.service.list(this.projectId).subscribe();
         alert('Saved');
       });
   }
