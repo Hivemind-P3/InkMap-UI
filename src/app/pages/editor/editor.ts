@@ -31,6 +31,9 @@ export class EditorComponent implements OnInit {
   isSaving = false;
   isCreatingVersion = false;
   versions: NarrativeVersion[] = [];
+  selectedVersion?: NarrativeVersion;
+  selectedVersionNum = 0;
+  viewedContent: any = null;
 
   ngOnInit() {
     this.projectsService.getProjectById(this.projectId).subscribe({
@@ -45,12 +48,32 @@ export class EditorComponent implements OnInit {
   onSelected(c: Narrative) {
     this.selected = c;
     this.title = c.title;
+    this.selectedVersion = undefined;
+    this.viewedContent = null;
     try {
       this.content = c.content ? JSON.parse(c.content) : '';
     } catch {
       this.content = '';
     }
     this.loadVersions();
+  }
+
+  selectVersion(v: NarrativeVersion, displayIndex: number) {
+    try {
+      this.viewedContent = v.content ? JSON.parse(v.content) : '';
+    } catch {
+      this.toast.show('error', 'Could not read version content');
+      return;
+    }
+    this.selectedVersion = v;
+    this.selectedVersionNum = this.versions.length - displayIndex;
+    this.cdr.detectChanges();
+  }
+
+  closeVersionView() {
+    this.selectedVersion = undefined;
+    this.viewedContent = null;
+    this.cdr.detectChanges();
   }
 
   save() {
@@ -82,19 +105,35 @@ export class EditorComponent implements OnInit {
     if (!this.selected || this.isCreatingVersion) return;
 
     this.isCreatingVersion = true;
-    this.versionService.create(this.projectId, this.selected.id).subscribe({
-      next: () => {
-        this.isCreatingVersion = false;
-        this.toast.show('success', 'Versión creada');
-        this.loadVersions();
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isCreatingVersion = false;
-        this.toast.show('error', 'Error al crear la versión');
-        this.cdr.detectChanges();
-      },
-    });
+    this.service
+      .edit(this.selected.id, {
+        projectId: this.projectId,
+        title: this.title,
+        content: JSON.stringify(this.content),
+      })
+      .subscribe({
+        next: (updated) => {
+          this.selected = updated;
+          this.versionService.create(this.projectId, this.selected.id).subscribe({
+            next: () => {
+              this.isCreatingVersion = false;
+              this.toast.show('success', 'Versión creada');
+              this.loadVersions();
+              this.cdr.detectChanges();
+            },
+            error: () => {
+              this.isCreatingVersion = false;
+              this.toast.show('error', 'Error al crear la versión');
+              this.cdr.detectChanges();
+            },
+          });
+        },
+        error: () => {
+          this.isCreatingVersion = false;
+          this.toast.show('error', 'Error al guardar antes de crear la versión');
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   private loadVersions() {

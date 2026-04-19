@@ -25,22 +25,39 @@
         [(ngModel)]="title"
         class="title"
         placeholder="Chapter title"
+        [readOnly]="!!selectedVersion"
       />
 
-      <quill-editor
-        [(ngModel)]="content"
-        [format]="'object'"
-        class="quill"
-      ></quill-editor>
+      @if (selectedVersion) {
+        <div class="version-preview-banner">
+          <span class="preview-label">
+            Viewing <strong>Version {{ selectedVersionNum }}</strong>
+            · {{ selectedVersion.createdAt | date:'dd MMM yyyy · HH:mm' }}
+          </span>
+          <button class="btn-close-preview" (click)="closeVersionView()">← Back to editing</button>
+        </div>
+        <quill-editor
+          [ngModel]="viewedContent"
+          [format]="'object'"
+          [readOnly]="true"
+          class="quill quill-readonly"
+        ></quill-editor>
+      } @else {
+        <quill-editor
+          [(ngModel)]="content"
+          [format]="'object'"
+          class="quill"
+        ></quill-editor>
 
-      <div class="actions">
-        <button class="btn-version" (click)="createVersion()" [disabled]="isCreatingVersion">
-          {{ isCreatingVersion ? 'Saving…' : '+ Version' }}
-        </button>
-        <button (click)="save()" [disabled]="isSaving">
-          {{ isSaving ? 'Saving…' : 'Save' }}
-        </button>
-      </div>
+        <div class="actions">
+          <button class="btn-version" (click)="createVersion()" [disabled]="isCreatingVersion">
+            {{ isCreatingVersion ? 'Saving…' : '+ Version' }}
+          </button>
+          <button (click)="save()" [disabled]="isSaving">
+            {{ isSaving ? 'Saving…' : 'Save' }}
+          </button>
+        </div>
+      }
 
       <div class="versions-panel">
         <p class="versions-label">Version history</p>
@@ -49,7 +66,11 @@
         } @else {
           <div class="versions-list">
             @for (v of versions; track v.id; let i = $index) {
-              <div class="version-item">
+              <div
+                class="version-item"
+                [class.active]="v.id === selectedVersion?.id"
+                (click)="selectVersion(v, i)"
+              >
                 <span class="version-num">Version {{ versions.length - i }}</span>
                 <span class="version-date">{{ v.createdAt | date:'dd MMM yyyy · HH:mm' }}</span>
               </div>
