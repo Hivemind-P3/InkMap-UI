@@ -1,5 +1,6 @@
-@use "sass:color";
+@use 'sass:color';
 $teal: #4a7c7e;
+$bg-editor: #fafaf8;
 
 .container {
   display: flex;
@@ -8,43 +9,253 @@ $teal: #4a7c7e;
 
 .editor {
   flex: 1;
-  padding: 20px;
-  background: white;
-  color: black;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 36px;
+  background: $bg-editor;
+  overflow: hidden;
+
+  .editor-context {
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e0ddd6;
+
+    .ctx-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ctx-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: $teal;
+    }
+
+    .ctx-sep {
+      color: #ccc;
+      font-size: 0.8rem;
+    }
+
+    .ctx-project {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #444;
+    }
+
+    .ctx-chapter {
+      margin: 4px 0 0;
+      font-size: 0.82rem;
+      color: #888;
+
+      strong {
+        color: #333;
+        font-weight: 600;
+      }
+    }
+  }
 
   .title {
     width: 100%;
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 16px;
     background: transparent;
     border: none;
-    color: black;
+    border-bottom: 2px solid transparent;
+    color: #1a1a1a;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-bottom-color: $teal;
+    }
+
+    &::placeholder {
+      color: #aaa;
+      font-weight: 400;
+    }
   }
 
   .quill {
-    height: 70%;
-    background: white;
-    color: black;
+    flex: 1;
+    min-height: 0;
+    background: #fff;
+    border: 1px solid #e0ddd6;
+    border-radius: 8px;
+    overflow: hidden;
+
+    ::ng-deep .ql-container {
+      font-size: 1rem;
+      font-family: inherit;
+    }
   }
 
-  button {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #fff;
-    background: $teal;
-    border: none;
-    border-radius: 8px;
-    padding: 0.55rem 1.25rem;
-    cursor: pointer;
-    transition: background 0.2s;
+  .actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
 
-    &:hover:not(:disabled) {
-      background: color.adjust($teal, $lightness: -8%)
+    button {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      background: $teal;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+      min-width: 100px;
+
+      &:hover:not(:disabled) {
+        background: color.adjust($teal, $lightness: -8%);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
     }
 
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    .btn-version {
+      background: transparent;
+      color: $teal;
+      border: 1px solid $teal;
+      min-width: auto;
+
+      &:hover:not(:disabled) {
+        background: color.adjust($teal, $lightness: 52%);
+      }
+    }
+  }
+
+  .version-preview-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: color.adjust($teal, $lightness: 52%);
+    border: 1px solid color.adjust($teal, $lightness: 36%);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #333;
+
+    .preview-label strong {
+      color: $teal;
+    }
+
+    .btn-close-preview {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: $teal;
+      background: transparent;
+      border: 1px solid $teal;
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+
+      &:hover {
+        background: color.adjust($teal, $lightness: 44%);
+      }
+    }
+  }
+
+  .quill-readonly {
+    background: #f7f5f0;
+    cursor: default;
+
+    ::ng-deep .ql-toolbar {
+      display: none;
+    }
+
+    ::ng-deep .ql-container {
+      border-top: 1px solid #e0ddd6 !important;
+    }
+  }
+
+  .versions-panel {
+    margin-top: 12px;
+    border-top: 1px solid #e0ddd6;
+    padding-top: 10px;
+
+    .versions-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #999;
+      margin: 0 0 8px;
+    }
+
+    .versions-empty {
+      font-size: 0.85rem;
+      color: #bbb;
+      margin: 0;
+    }
+
+    .versions-list {
+      max-height: 140px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .version-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid #e8e5de;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+
+      &:hover:not(.active) {
+        background: color.adjust($teal, $lightness: 52%);
+        border-color: color.adjust($teal, $lightness: 36%);
+      }
+
+      &.active {
+        background: color.adjust($teal, $lightness: 46%);
+        border-color: $teal;
+
+        .version-num {
+          color: color.adjust($teal, $lightness: -6%);
+        }
+      }
+
+      .version-num {
+        font-weight: 700;
+        color: $teal;
+        white-space: nowrap;
+      }
+
+      .version-date {
+        color: #777;
+      }
+    }
+  }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    p {
+      color: #aaa;
+      font-size: 0.95rem;
     }
   }
 }
