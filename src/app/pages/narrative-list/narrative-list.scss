@@ -1,22 +1,118 @@
+@use 'sass:color';
+$teal: #4a7c7e;
+$sidebar-bg: #f0ebe0;
+$border: #d8d1c0;
+
 .sidebar {
   width: 260px;
-  background: #1e1e1e;
-  color: white;
+  background: $sidebar-bg;
+  color: #1a1a1a;
   height: 100%;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid $border;
 
   .header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    padding: 12px;
-    border-bottom: 1px solid #333;
+    padding: 14px 16px;
+    border-bottom: 1px solid $border;
+
+    h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #555;
+    }
 
     button {
-      background: #3a3a3a;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #fff;
+      background: $teal;
       border: none;
-      color: white;
+      border-radius: 6px;
+      padding: 0.35rem 0.85rem;
       cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover {
+        background: color.adjust($teal, $lightness: -8%);
+      }
+
+      &.active {
+        background: #888;
+
+        &:hover {
+          background: #666;
+        }
+      }
+    }
+  }
+
+  .create-form {
+    padding: 10px 12px;
+    border-bottom: 1px solid $border;
+    background: color.adjust($sidebar-bg, $lightness: -3%);
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.45rem 0.6rem;
+      font-size: 0.875rem;
+      border: 1px solid $border;
+      border-radius: 6px;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: $teal;
+      }
+    }
+
+    .create-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+
+      button {
+        flex: 1;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        padding: 0.4rem 0;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &.btn-confirm {
+          background: $teal;
+          color: #fff;
+
+          &:hover:not(:disabled) {
+            background: color.adjust($teal, $lightness: -8%);
+          }
+
+          &:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+          }
+        }
+
+        &.btn-cancel {
+          background: transparent;
+          color: #666;
+          border: 1px solid $border;
+
+          &:hover {
+            background: color.adjust($sidebar-bg, $lightness: -6%);
+          }
+        }
+      }
     }
   }
 
@@ -25,11 +121,86 @@
     overflow-y: auto;
 
     .item {
-      padding: 10px;
+      display: flex;
+      align-items: center;
+      padding: 8px 10px 8px 16px;
+      font-size: 0.9rem;
       cursor: pointer;
+      border-bottom: 1px solid transparent;
+      transition: background 0.15s;
 
-      &:hover {
-        background: #2a2a2a;
+      &:hover:not(.active) {
+        background: color.adjust($sidebar-bg, $lightness: -5%);
+
+        .item-order {
+          opacity: 1;
+        }
+      }
+
+      &.active {
+        background: $teal;
+        color: #fff;
+        font-weight: 600;
+
+        .item-order {
+          opacity: 1;
+
+          .btn-move {
+            color: rgba(255, 255, 255, 0.85);
+
+            &:hover:not(:disabled) {
+              background: rgba(255, 255, 255, 0.15);
+              color: #fff;
+            }
+
+            &:disabled {
+              color: rgba(255, 255, 255, 0.3);
+            }
+          }
+        }
+      }
+    }
+
+    .item-title {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .item-order {
+      display: flex;
+      gap: 2px;
+      opacity: 0;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+
+      .btn-move {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #666;
+        padding: 0;
+        transition: background 0.15s, color 0.15s;
+        line-height: 1;
+
+        &:hover:not(:disabled) {
+          background: rgba(0, 0, 0, 0.08);
+          color: #222;
+        }
+
+        &:disabled {
+          opacity: 0;
+          cursor: default;
+        }
       }
     }
   }

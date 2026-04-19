@@ -1,13 +1,47 @@
 <div class="sidebar">
   <div class="header">
     <h3>Chapters</h3>
-    <button (click)="create()">＋</button>
+    <button (click)="toggleForm()" [class.active]="isCreating">
+      {{ isCreating ? '✕' : '+ New' }}
+    </button>
   </div>
 
+  @if (isCreating) {
+    <div class="create-form">
+      <input
+        [(ngModel)]="newTitle"
+        placeholder="Chapter title"
+        (keyup.enter)="submitCreate()"
+        (keyup.escape)="cancelCreate()"
+        autofocus
+      />
+      <div class="create-actions">
+        <button class="btn-confirm" (click)="submitCreate()" [disabled]="!newTitle.trim()">
+          Create
+        </button>
+        <button class="btn-cancel" (click)="cancelCreate()">Cancel</button>
+      </div>
+    </div>
+  }
+
   <div class="list">
-    @for (c of narratives; track c) {
-      <div class="item" (click)="select(c)">
-        {{ c.title }}
+    @for (c of narratives; track c.id; let i = $index) {
+      <div class="item" [class.active]="c.id === selectedId" (click)="select(c)">
+        <span class="item-title">{{ c.title }}</span>
+        <div class="item-order" (click)="$event.stopPropagation()">
+          <button
+            class="btn-move"
+            (click)="move(i, -1)"
+            [disabled]="i === 0 || isReordering"
+            title="Move up"
+          >↑</button>
+          <button
+            class="btn-move"
+            (click)="move(i, 1)"
+            [disabled]="i === narratives.length - 1 || isReordering"
+            title="Move down"
+          >↓</button>
+        </div>
       </div>
     }
   </div>
