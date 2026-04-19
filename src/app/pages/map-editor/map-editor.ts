@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, inject, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, inject, NgZone, ViewChild } from '@angular/core';
 import Konva from 'konva';
 import { ActivatedRoute } from "@angular/router";
 import { MapLayer } from '../../models/mapLayer.model';
@@ -7,6 +7,8 @@ import { MapStamp } from '../../models/mapStamp.model';
 import { TitleCasePipe } from '@angular/common';
 import { MapSaveData } from '../../models/map-save-data.model';
 import { GeographicMapService } from '../../services/geographic-map.service';
+import { WikiService } from '../../services/wiki.service';
+import { Wiki } from '../../models/wiki.model';
 import { ToastService } from '../../services/toast.service';
 import { FormsModule } from '@angular/forms';
 
@@ -96,10 +98,24 @@ export class MapEditor implements AfterViewInit {
     { id: 'mountain', label: 'Mountain', icon: '/Cartography/Mountain.png', category: 'nature' },
   ]
   
+  private poiLayer!: Konva.Layer;
   private cursorLayer!: Konva.Layer;
   private cursorCircle!: Konva.Circle;
 
-  constructor(private route: ActivatedRoute, private cdr: ChangeDetectorRef, private geographicMapService: GeographicMapService) {}
+  // --- POI wiki state ---
+  protected selectedPoiId: number | null = null;
+  protected currentPoiWikis: Wiki[] = [];
+  protected showWikiPicker = false;
+  protected wikiSearch = '';
+  protected wikiSearchResults: Wiki[] = [];
+
+  constructor(
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    private geographicMapService: GeographicMapService,
+    private wikiService: WikiService,
+    private zone: NgZone,
+  ) {}
 
   ngAfterViewInit(): void {
     const container = this.canvasContainer.nativeElement;
@@ -231,6 +247,9 @@ export class MapEditor implements AfterViewInit {
     this.stampsLayer = new Konva.Layer();
     this.stage.add(this.stampsLayer);
 
+    this.poiLayer = new Konva.Layer();
+    this.stage.add(this.poiLayer);
+
     this.selectionLayer = new Konva.Layer();
     this.stage.add(this.selectionLayer);
 
@@ -248,6 +267,7 @@ export class MapEditor implements AfterViewInit {
     this.selectionLayer.add(this.selectionRect);
 
     this.setupStampEvents();
+    this.setupPOIEvents();
 
     this.cursorLayer = new Konva.Layer();
     this.stage.add(this.cursorLayer);
@@ -294,6 +314,7 @@ export class MapEditor implements AfterViewInit {
 
     if(this.mapId) {
       this.loadMap();
+      this.loadPOIs();
     }
   }
 
@@ -866,6 +887,7 @@ export class MapEditor implements AfterViewInit {
     this.activeLayerId = id;
 
     if(this.cursorLayer) {
+      this.poiLayer.moveToTop();
       this.selectionLayer.moveToTop();
       this.cursorLayer.moveToTop();
     }
@@ -1232,6 +1254,163 @@ export class MapEditor implements AfterViewInit {
         });
       };
     });
+  }
+
+  private setupPOIEvents(): void {
+    this.stage.on('click', (e) => {
+      if (this.activeTool !== 'poi' || this.isSpaceDown) return;
+      if (!this.mapId || !this.projectId) return;
+
+      const pos = this.stage.getRelativePointerPosition();
+      if (!pos) return;
+      if (pos.x < 0 || pos.y < 0 || pos.x > this.rectWidth || pos.y > this.rectHeight) return;
+
+      this.geographicMapService.createPOI(this.projectId!, this.mapId!, pos.x, pos.y)
+        .subscribe({
+          next: (poi) => this.renderPOI(poi),
+          error: (e) => this.toast.show('error', 'Error creating POI: ' + e.message)
+        });
+    });
+  }
+
+  private renderPOI(poi: { id: number; posX: number; posY: number }): void {
+    const circle = new Konva.Circle({
+      x: poi.posX,
+      y: poi.posY,
+      radius: 8,
+      fill: '#e74c3c',
+      stroke: '#ffffff',
+      strokeWidth: 2,
+    });
+    circle.setAttr('poiId', poi.id);
+
+    circle.on('click', (e) => {
+      e.cancelBubble = true;
+      this.selectPOI(poi.id, circle);
+    });
+
+    this.poiLayer.add(circle);
+    this.poiLayer.batchDraw();
+  }
+
+  private selectedPoiCircle: Konva.Circle | null = null;
+
+  private selectPOI(poiId: number, circle: Konva.Circle): void {
+    if (this.selectedPoiCircle) {
+      this.selectedPoiCircle.stroke('#ffffff');
+      this.selectedPoiCircle.strokeWidth(2);
+      this.poiLayer.batchDraw();
+    }
+
+    this.selectedPoiId = poiId;
+    this.selectedPoiCircle = circle;
+    circle.stroke('#60a3a5');
+    circle.strokeWidth(3);
+    this.poiLayer.batchDraw();
+
+    this.closeWikiPicker();
+    this.currentPoiWikis = [];
+    this.loadPoiWikis();
+    this.cdr.detectChanges();
+  }
+
+  protected clearPoiSelection(): void {
+    if (this.selectedPoiCircle) {
+      this.selectedPoiCircle.stroke('#ffffff');
+      this.selectedPoiCircle.strokeWidth(2);
+      this.poiLayer.batchDraw();
+    }
+    this.selectedPoiId = null;
+    this.selectedPoiCircle = null;
+    this.currentPoiWikis = [];
+    this.closeWikiPicker();
+    this.cdr.detectChanges();
+  }
+
+  private loadPoiWikis(): void {
+    if (!this.selectedPoiId || !this.mapId || !this.projectId) return;
+    this.geographicMapService.getPoiWikis(this.projectId, this.mapId, this.selectedPoiId)
+      .subscribe({
+        next: (wikis) => {
+          this.zone.run(() => {
+            this.currentPoiWikis = wikis;
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {},
+      });
+  }
+
+  private searchProjectWikis(): void {
+    const q = this.wikiSearch.trim() || undefined;
+    this.wikiService.getProjectWikis(Number(this.projectId), q).subscribe({
+      next: (wikis) => {
+        const associatedIds = new Set(this.currentPoiWikis.map((w) => w.id));
+        this.wikiSearchResults = wikis.filter((w) => !associatedIds.has(w.id));
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.wikiSearchResults = [];
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  protected openWikiPicker(): void {
+    this.wikiSearch = '';
+    this.wikiSearchResults = [];
+    this.showWikiPicker = true;
+    this.searchProjectWikis();
+  }
+
+  protected closeWikiPicker(): void {
+    this.showWikiPicker = false;
+    this.wikiSearch = '';
+    this.wikiSearchResults = [];
+  }
+
+  protected onWikiSearchInput(): void {
+    this.searchProjectWikis();
+  }
+
+  protected associateWiki(wiki: Wiki): void {
+    if (!this.selectedPoiId || !this.mapId || !this.projectId) return;
+    this.geographicMapService.associatePoiWiki(this.projectId, this.mapId, this.selectedPoiId, wiki.id)
+      .subscribe({
+        next: () => {
+          this.zone.run(() => {
+            this.loadPoiWikis();
+            this.searchProjectWikis();
+          });
+        },
+        error: () => {},
+      });
+  }
+
+  protected removeWiki(wiki: Wiki): void {
+    if (!this.selectedPoiId || !this.mapId || !this.projectId) return;
+    this.geographicMapService.removePoiWiki(this.projectId, this.mapId, this.selectedPoiId, wiki.id)
+      .subscribe({
+        next: () => {
+          this.zone.run(() => {
+            this.loadPoiWikis();
+          });
+        },
+        error: () => {},
+      });
+  }
+
+  protected navigateToWiki(wiki: Wiki): void {
+    window.open(`/app/projects/${this.projectId}/wikis/${wiki.id}`, '_blank');
+  }
+
+  private loadPOIs(): void {
+    if (!this.mapId || !this.projectId) return;
+    this.geographicMapService.getPOIs(this.projectId, this.mapId)
+      .subscribe({
+        next: (pois) => pois.forEach(poi => this.renderPOI(poi)),
+        error: (e) => this.toast.show('error', 'Error loading POIs: ' + e.message)
+      });
   }
 
   private selectStamp(stamp: Konva.Image): void {
