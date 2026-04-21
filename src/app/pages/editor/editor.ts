@@ -30,6 +30,8 @@ export class EditorComponent implements OnInit {
   title = '';
   isSaving = false;
   isCreatingVersion = false;
+  isRestoring = false;
+  showRestoreConfirm = false;
   versions: NarrativeVersion[] = [];
   selectedVersion?: NarrativeVersion;
   selectedVersionNum = 0;
@@ -73,7 +75,34 @@ export class EditorComponent implements OnInit {
   closeVersionView() {
     this.selectedVersion = undefined;
     this.viewedContent = null;
+    this.showRestoreConfirm = false;
     this.cdr.detectChanges();
+  }
+
+  restoreVersion() {
+    if (!this.selected || !this.selectedVersion || this.isRestoring) return;
+    this.isRestoring = true;
+    this.versionService
+      .restore(this.projectId, this.selected.id, this.selectedVersion.id)
+      .subscribe({
+        next: (updated) => {
+          this.selected = updated;
+          try {
+            this.content = updated.content ? JSON.parse(updated.content) : '';
+          } catch {
+            this.content = '';
+          }
+          this.isRestoring = false;
+          this.closeVersionView();
+          this.toast.show('success', 'Version successfully restored');
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.isRestoring = false;
+          this.toast.show('error', 'Error restoring version');
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   save() {
@@ -90,12 +119,12 @@ export class EditorComponent implements OnInit {
         next: (updated) => {
           this.selected = updated;
           this.isSaving = false;
-          this.toast.show('success', 'Capítulo guardado');
+          this.toast.show('success', 'Chapter saved');
           this.cdr.detectChanges();
         },
         error: () => {
           this.isSaving = false;
-          this.toast.show('error', 'Error al guardar el capítulo');
+          this.toast.show('error', 'Error saving chapter');
           this.cdr.detectChanges();
         },
       });
@@ -117,20 +146,20 @@ export class EditorComponent implements OnInit {
           this.versionService.create(this.projectId, this.selected.id).subscribe({
             next: () => {
               this.isCreatingVersion = false;
-              this.toast.show('success', 'Versión creada');
+              this.toast.show('success', 'Version created');
               this.loadVersions();
               this.cdr.detectChanges();
             },
             error: () => {
               this.isCreatingVersion = false;
-              this.toast.show('error', 'Error al crear la versión');
+              this.toast.show('error', 'Error creating version');
               this.cdr.detectChanges();
             },
           });
         },
         error: () => {
           this.isCreatingVersion = false;
-          this.toast.show('error', 'Error al guardar antes de crear la versión');
+          this.toast.show('error', 'Error saving before creating version');
           this.cdr.detectChanges();
         },
       });

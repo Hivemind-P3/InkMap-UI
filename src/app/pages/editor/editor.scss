@@ -150,6 +150,81 @@ $bg-editor: #fafaf8;
       color: $teal;
     }
 
+    .preview-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .restore-confirm-text {
+      font-size: 0.8rem;
+      color: #555;
+      font-style: italic;
+    }
+
+    .btn-restore {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: $teal;
+      background: transparent;
+      border: 1px solid $teal;
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+
+      &:hover {
+        background: color.adjust($teal, $lightness: 44%);
+      }
+    }
+
+    .btn-restore-confirm {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+      background: $teal;
+      border: none;
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, opacity 0.15s;
+
+      &:hover:not(:disabled) {
+        background: color.adjust($teal, $lightness: -8%);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    .btn-restore-cancel {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #666;
+      background: transparent;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+
+      &:hover:not(:disabled) {
+        background: #f0ede8;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
     .btn-close-preview {
       font-size: 0.8rem;
       font-weight: 600;
