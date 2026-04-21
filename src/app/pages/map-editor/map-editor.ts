@@ -79,6 +79,7 @@ export class MapEditor implements AfterViewInit {
   protected activeStampCategory: string = 'structure';
   protected stampCategories = ['structure', 'nature', 'settlement'];
   private selectedStamp: Konva.Image | null = null;
+  private selectedPoiCircle: Konva.Circle | null = null;
 
   protected stamps: MapStamp[] = [
     { id: 'castle', label: 'Castle', icon: '/Cartography/Castle.png', category: 'structure' },
@@ -102,7 +103,6 @@ export class MapEditor implements AfterViewInit {
   private cursorLayer!: Konva.Layer;
   private cursorCircle!: Konva.Circle;
 
-  // --- POI wiki state ---
   protected selectedPoiId: number | null = null;
   protected currentPoiWikis: Wiki[] = [];
   protected showWikiPicker = false;
@@ -362,11 +362,13 @@ export class MapEditor implements AfterViewInit {
 
         if (this.selectedNodes.includes(clickedNode)) return;
 
+        this.clearSelection();
+
         const clickedOnNode = (e.target as any).getAttr('type') === 'text' 
-          || (e.target as any).getAttr('stampId');
+          || (e.target as any).getAttr('stampId')
+          || (e.target as any).getAttr('poiId');
         if (clickedOnNode) return;
 
-        this.clearSelection();
         const pos = this.stage.getRelativePointerPosition();
         if (!pos) return;
         this.selectionStart = pos;
@@ -530,6 +532,8 @@ export class MapEditor implements AfterViewInit {
   }
 
   private selectText(text: Konva.Text): void {
+    this.clearSelection();
+
     if(this.selectedText) {
       this.selectedText.stroke('');
       this.selectedText.strokeWidth(0);
@@ -1293,9 +1297,9 @@ export class MapEditor implements AfterViewInit {
     this.poiLayer.batchDraw();
   }
 
-  private selectedPoiCircle: Konva.Circle | null = null;
-
   private selectPOI(poiId: number, circle: Konva.Circle): void {
+    this.clearSelection();
+    
     if (this.selectedPoiCircle) {
       this.selectedPoiCircle.stroke('#ffffff');
       this.selectedPoiCircle.strokeWidth(2);
@@ -1414,6 +1418,8 @@ export class MapEditor implements AfterViewInit {
   }
 
   private selectStamp(stamp: Konva.Image): void {
+    this.clearSelection();
+
     if(this.selectedStamp) {
       this.selectedStamp.stroke('');
       this.selectedStamp.strokeWidth(0);
@@ -1448,17 +1454,47 @@ export class MapEditor implements AfterViewInit {
       (node as Konva.Shape).stroke('');
       (node as Konva.Shape).strokeWidth(0);
       node.off('dragstart dragmove');
-    })
-
+    });
     this.selectedNodes = [];
-    this.selectedStamp = null;
-    this.selectedText = null;
+
+    if (this.selectedStamp) {
+      this.selectedStamp.stroke('');
+      this.selectedStamp.strokeWidth(0);
+      this.selectedStamp = null;
+    }
+
+    if (this.selectedText) {
+      this.selectedText.stroke('');
+      this.selectedText.strokeWidth(0);
+      this.selectedText = null;
+    }
+
+    if (this.selectedPoiCircle) {
+      this.selectedPoiCircle.stroke('#ffffff');
+      this.selectedPoiCircle.strokeWidth(2);
+      this.poiLayer?.batchDraw();
+      this.selectedPoiCircle = null;
+      this.selectedPoiId = null;
+    }
+
+    this.mapLayers.forEach(l => l.konvaLayer.batchDraw());
   }
 
   save(): void {
+    this.clearSelection();
+    if(this.selectedText) {
+      this.selectedText.stroke('');
+      this.selectedText.strokeWidth(0);
+      this.selectedText = null;
+    }
+    if(this.selectedStamp) {
+      this.selectedStamp.stroke('');
+      this.selectedStamp.strokeWidth(0);
+      this.selectedStamp = null;
+    }
+
     const oldScale = this.stage.scaleX();
     const oldPos = this.stage.position();
-
     this.stage.scale({ x: 1, y: 1 });
     this.stage.position({ x: 0, y: 0 });
 
@@ -1481,24 +1517,31 @@ export class MapEditor implements AfterViewInit {
         visible: l.visible,
         grid: l.grid,
         overlayGrid: l.overlayGrid,
-        texts: l.konvaLayer.getChildren()
-          .filter((node: any) => node.getAttr('type') === 'text')
-          .map((node: any) => ({
+        texts: (() => {
+          const children = Array.from(l.konvaLayer.getChildren());
+          console.log('Total children:', children.length);
+          children.forEach((node: any, i: number) => {
+            console.log(`Child ${i}:`, typeof node.getAttr, node.getAttr?.('type'), node.attrs?.type, node.className);
+          });
+          const filtered = children.filter((node: any) => node.attrs?.type === 'text');
+          console.log('Filtered texts:', filtered.length);
+          return filtered.map((node: any) => ({
             x: node.x(),
             y: node.y(),
             text: node.text(),
             fontSize: node.fontSize(),
             fontFamily: node.fontFamily(),
-            fill: node.fill()
-          }))
+            fill: node.attrs?.fill
+          }));
+        })()
       })),
       stamps: this.mapLayers.flatMap(l =>
-        l.konvaLayer.getChildren()
-          .filter((node: any) => node.getAttr('stampId'))
+        Array.from(l.konvaLayer.getChildren())
+          .filter((node: any) => node.attrs?.stampId)
           .map((node: any) => ({
             layerId: l.id,
-            stampId: node.getAttr('stampId'),
-            icon: node.getAttr('src'),
+            stampId: node.attrs?.stampId,
+            icon: node.attrs?.src,
             x: node.x(),
             y: node.y(),
             width: Number(node.width()),
@@ -1541,6 +1584,11 @@ export class MapEditor implements AfterViewInit {
           this.cdr.detectChanges();
           if (response.konvaJson) {
             const data: MapSaveData = JSON.parse(response.konvaJson);
+            console.log('Loaded data:', JSON.stringify(data.layers.map(l => ({
+              id: l.id,
+              textCount: l.texts?.length,
+              texts: l.texts
+            }))));
             this.restoreMap(data);
           }
         },
@@ -1549,6 +1597,11 @@ export class MapEditor implements AfterViewInit {
   }
 
   private restoreMap(data: MapSaveData): void {
+    console.log('Restoring map data:', JSON.stringify(data.layers.map(l => ({
+      id: l.id,
+      textCount: l.texts?.length,
+      texts: l.texts
+    }))));
     data.layers.forEach((savedLayer, i) => {
       if (i >= this.mapLayers.length) this.addLayer();
       const layer = this.mapLayers[i];
