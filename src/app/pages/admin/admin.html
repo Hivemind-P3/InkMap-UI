@@ -1,8 +1,18 @@
 <div class="admin-page">
-
   <div class="admin-header">
     <h1 class="admin-title">User Management</h1>
     <p class="admin-subtitle">Manage roles and accounts for all registered users.</p>
+  </div>
+
+  <div class="admin-toolbar">
+    <input
+      class="search-input"
+      type="text"
+      placeholder="Search by name or email…"
+      [(ngModel)]="searchQuery"
+      (input)="onSearchInput()"
+    />
+    <span class="results-count">{{ totalElements }} user{{ totalElements !== 1 ? 's' : '' }}</span>
   </div>
 
   @if (loading) {
@@ -17,12 +27,14 @@
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
+            <th>Created</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @for (user of users; track user.id) {
-            <tr [class.row--self]="isSelf(user)">
+            <tr [class.row--self]="isSelf(user)" [class.row--blocked]="user.blocked">
               <td>
                 {{ user.name }}
                 @if (isSelf(user)) {
@@ -40,6 +52,12 @@
                   <option value="ADMIN">ADMIN</option>
                 </select>
               </td>
+              <td class="date-cell">{{ user.startDt | date: 'MMM d, y' }}</td>
+              <td>
+                <span class="status-badge" [class.status-badge--blocked]="user.blocked">
+                  {{ user.blocked ? 'Blocked' : 'Active' }}
+                </span>
+              </td>
               <td class="actions">
                 <button
                   class="btn-save"
@@ -47,6 +65,14 @@
                   [disabled]="isSelf(user) || savingId === user.id"
                 >
                   {{ savingId === user.id ? 'Saving…' : 'Save' }}
+                </button>
+                <button
+                  class="btn-block"
+                  (click)="blockUser(user)"
+                  [disabled]="isSelf(user) || blockingId === user.id"
+                  [class.btn-block--unblock]="user.blocked"
+                >
+                  {{ blockingId === user.id ? '…' : user.blocked ? 'Unblock' : 'Block' }}
                 </button>
                 <button
                   class="btn-delete"
@@ -61,6 +87,24 @@
         </tbody>
       </table>
     </div>
-  }
 
+    <div class="pagination">
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      @for (page of pages; track page) {
+        <button
+          class="page-btn"
+          [class.page-btn--active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page + 1 }}
+        </button>
+      }
+
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  }
 </div>
