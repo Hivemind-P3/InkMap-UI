@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.local';
+import { Narrative } from './narrative.service';
 
 export interface NarrativeVersion {
   id: number;
@@ -25,6 +26,13 @@ export class NarrativeVersionService {
   list(projectId: number, narrativeId: number): Observable<NarrativeVersion[]> {
     return this.http.get<NarrativeVersion[]>(
       `${this.baseUrl}/projects/${projectId}/narratives/${narrativeId}/versions`,
+    );
+  }
+
+  restore(projectId: number, narrativeId: number, versionId: number): Observable<Narrative> {
+    return this.http.post<Narrative>(
+      `${this.baseUrl}/projects/${projectId}/narratives/${narrativeId}/versions/${versionId}/restore`,
+      {},
     );
   }
 }

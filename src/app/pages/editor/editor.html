@@ -34,7 +34,18 @@
             Viewing <strong>Version {{ selectedVersionNum }}</strong>
             · {{ selectedVersion.createdAt | date:'dd MMM yyyy · HH:mm' }}
           </span>
-          <button class="btn-close-preview" (click)="closeVersionView()">← Back to editing</button>
+          <div class="preview-actions">
+            @if (showRestoreConfirm) {
+              <span class="restore-confirm-text">Do you want to restore this version? Other versions will not be lost.</span>
+              <button class="btn-restore-confirm" (click)="restoreVersion()" [disabled]="isRestoring">
+                {{ isRestoring ? 'Restoring…' : 'Yes, restore' }}
+              </button>
+              <button class="btn-restore-cancel" (click)="showRestoreConfirm = false" [disabled]="isRestoring">Cancel</button>
+            } @else {
+              <button class="btn-restore" (click)="showRestoreConfirm = true">Restore this version</button>
+            }
+            <button class="btn-close-preview" (click)="closeVersionView()">← Back to editing</button>
+          </div>
         </div>
         <quill-editor
           [ngModel]="viewedContent"
