@@ -21,7 +21,13 @@
                 <span class="character-count">{{ totalElements() }}</span>
               }
             </div>
-            <button class="btn-create" (click)="openModal()">Create character</button>
+            <div class="list-header-actions">
+              <button class="btn-ai" type="button" (click)="toggleAiPanel()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                {{ showAiPanel() ? 'Close AI' : 'Generate with AI' }}
+              </button>
+              <button class="btn-create" (click)="openModal()">Create character</button>
+            </div>
           </div>
 
           <div class="search-bar">
@@ -55,6 +61,89 @@
               autocomplete="off"
             />
           </div>
+
+          @if (showAiPanel()) {
+            <div class="ai-panel">
+              <span class="ai-panel-title">Generate character with AI</span>
+              <div class="ai-panel-body">
+                <textarea
+                  class="form-input form-textarea ai-instructions"
+                  [(ngModel)]="aiInstructions"
+                  name="aiInstructions"
+                  placeholder="Describe the character you want... (e.g. 'A wise old wizard who hides a dark past')"
+                  rows="3"
+                ></textarea>
+                <button
+                  class="btn-submit"
+                  type="button"
+                  (click)="generateCharacter()"
+                  [disabled]="aiLoading() || !aiInstructions.trim()"
+                >
+                  {{ aiLoading() ? 'Generating...' : 'Generate' }}
+                </button>
+              </div>
+
+              @if (aiError()) {
+                <p class="submit-error">{{ aiError() }}</p>
+              }
+
+              @if (aiPreview()) {
+                <div class="ai-preview">
+                  <span class="ai-preview-label">Preview</span>
+                  <div class="ai-preview-fields">
+                    <div class="ai-preview-row">
+                      <span class="detail-label">Name</span>
+                      <span class="detail-value">{{ aiPreview()!.name }}</span>
+                    </div>
+                    @if (aiPreview()!.role) {
+                      <div class="ai-preview-row">
+                        <span class="detail-label">Role</span>
+                        <span class="detail-value">{{ aiPreview()!.role }}</span>
+                      </div>
+                    }
+                    <div class="ai-preview-row">
+                      <span class="detail-label">Gender</span>
+                      <span class="detail-value">{{ aiPreview()!.gender ? (aiPreview()!.gender | titlecase) : '—' }}</span>
+                    </div>
+                    @if (aiPreview()!.race) {
+                      <div class="ai-preview-row">
+                        <span class="detail-label">Race</span>
+                        <span class="detail-value">{{ aiPreview()!.race }}</span>
+                      </div>
+                    }
+                    @if (aiPreview()!.age !== undefined) {
+                      <div class="ai-preview-row">
+                        <span class="detail-label">Age</span>
+                        <span class="detail-value">{{ aiPreview()!.age !== null ? aiPreview()!.age : 'Unknown' }}</span>
+                      </div>
+                    }
+                    @if (aiPreview()!.description) {
+                      <div class="ai-preview-row">
+                        <span class="detail-label">Description</span>
+                        <span class="detail-value detail-value--block">{{ aiPreview()!.description }}</span>
+                      </div>
+                    }
+                  </div>
+                  <div class="modal-actions" style="padding-top: 0.5rem;">
+                    <button
+                      type="button"
+                      class="btn-cancel"
+                      (click)="cancelAiPreview()"
+                      [disabled]="isSubmitting()"
+                    >Cancel</button>
+                    <button
+                      type="button"
+                      class="btn-submit"
+                      (click)="confirmAiCharacter()"
+                      [disabled]="isSubmitting()"
+                    >
+                      {{ isSubmitting() ? 'Creating...' : 'Create character' }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
 
           @if (projectHasCharacters() === false) {
             <div class="empty-content">

@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CharactersService } from '../../services/characters.service';
 import { ToastService } from '../../services/toast.service';
-import { StoryCharacter } from '../../models/story-character.model';
+import { CharacterPreview, StoryCharacter } from '../../models/story-character.model';
 
 @Component({
   selector: 'app-characters',
@@ -57,6 +57,13 @@ export class Characters implements OnInit {
   // ── Detail modal state ────────────────────────────────────────────────────
   readonly showDetailModal = signal(false);
   selectedCharacter: StoryCharacter | null = null;
+
+  // ── AI generation state ───────────────────────────────────────────────────
+  readonly showAiPanel = signal(false);
+  readonly aiLoading = signal(false);
+  readonly aiError = signal('');
+  readonly aiPreview = signal<CharacterPreview | null>(null);
+  aiInstructions = '';
 
   // ── Form fields ───────────────────────────────────────────────────────────
   formName = '';
@@ -322,6 +329,75 @@ export class Characters implements OnInit {
         },
       });
     }
+  }
+
+  // ── AI generation ─────────────────────────────────────────────────────────
+
+  toggleAiPanel(): void {
+    if (this.showAiPanel()) {
+      this.cancelAiPreview();
+    } else {
+      this.showAiPanel.set(true);
+    }
+  }
+
+  generateCharacter(): void {
+    if (!this.aiInstructions.trim()) return;
+    this.aiLoading.set(true);
+    this.aiError.set('');
+    this.aiPreview.set(null);
+    this.charactersService
+      .generateCharacter(Number(this.projectId()), this.aiInstructions)
+      .subscribe({
+        next: (preview) => {
+          this.aiPreview.set(preview);
+          this.aiLoading.set(false);
+        },
+        error: (err) => {
+          this.aiLoading.set(false);
+          const raw = err?.error?.message ?? err?.error ?? '';
+          this.aiError.set(typeof raw === 'string' && raw ? raw : 'Could not generate character. Please try again.');
+        },
+      });
+  }
+
+  confirmAiCharacter(): void {
+    const preview = this.aiPreview();
+    if (!preview) return;
+    this.isSubmitting.set(true);
+    this.aiError.set('');
+    const payload = {
+      name: preview.name,
+      ...(preview.role && { role: preview.role }),
+      ...(preview.description && { description: preview.description }),
+      age: preview.age ?? undefined,
+      gender: preview.gender ?? 'OTHER',
+      ...(preview.race && { race: preview.race }),
+    };
+    this.charactersService.createCharacter(Number(this.projectId()), payload).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.cancelAiPreview();
+        this.currentPage.set(0);
+        this.loadCharacters();
+        this.toastService.show('success', 'Character created successfully.');
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        if (err.status === 409) {
+          this.aiError.set('A character with this name already exists in this project.');
+        } else {
+          this.aiError.set('Could not create character. Please try again.');
+        }
+      },
+    });
+  }
+
+  cancelAiPreview(): void {
+    this.aiPreview.set(null);
+    this.aiError.set('');
+    this.aiInstructions = '';
+    this.showAiPanel.set(false);
   }
 
   logout(): void {
