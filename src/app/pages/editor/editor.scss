@@ -533,6 +533,17 @@ $bg-editor: #fafaf8;
       .version-date {
         color: #777;
       }
+
+      .version-author {
+        margin-left: auto;
+        font-size: 0.75rem;
+        color: #999;
+        font-style: italic;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 120px;
+      }
     }
   }
 

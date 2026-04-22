@@ -9,6 +9,7 @@ export interface NarrativeVersion {
   narrativeId: number;
   content: string;
   createdAt: string;
+  author?: string;
 }
 
 export interface CompareVersionsResult {

@@ -89,6 +89,9 @@
           <span class="preview-label">
             Viewing <strong>Version {{ selectedVersionNum }}</strong>
             · {{ selectedVersion.createdAt | date:'dd MMM yyyy · HH:mm' }}
+            @if (selectedVersion.author) {
+              · {{ selectedVersion.author }}
+            }
           </span>
           <div class="preview-actions">
             @if (showRestoreConfirm) {
@@ -157,6 +160,9 @@
                 />
                 <span class="version-num">Version {{ versions.length - i }}</span>
                 <span class="version-date">{{ v.createdAt | date:'dd MMM yyyy · HH:mm' }}</span>
+                @if (v.author) {
+                  <span class="version-author">{{ v.author }}</span>
+                }
               </div>
             }
           </div>
