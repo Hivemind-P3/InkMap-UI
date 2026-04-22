@@ -65,6 +65,14 @@ export class Characters implements OnInit {
   readonly aiPreview = signal<CharacterPreview | null>(null);
   aiInstructions = '';
 
+  // ── AI suggestions state ──────────────────────────────────────────────────
+  readonly showSuggestionsPanel = signal(false);
+  readonly suggestionsLoading = signal(false);
+  readonly suggestionsError = signal('');
+  readonly suggestions = signal<CharacterPreview[]>([]);
+  readonly suggestionsSubmittingIndex = signal<number | null>(null);
+  suggestionsInstructions = '';
+
   // ── Form fields ───────────────────────────────────────────────────────────
   formName = '';
   formRole = '';
@@ -337,6 +345,7 @@ export class Characters implements OnInit {
     if (this.showAiPanel()) {
       this.cancelAiPreview();
     } else {
+      this.closeSuggestionsPanel();
       this.showAiPanel.set(true);
     }
   }
@@ -398,6 +407,75 @@ export class Characters implements OnInit {
     this.aiError.set('');
     this.aiInstructions = '';
     this.showAiPanel.set(false);
+  }
+
+  // ── AI suggestions ────────────────────────────────────────────────────────
+
+  toggleSuggestionsPanel(): void {
+    if (this.showSuggestionsPanel()) {
+      this.closeSuggestionsPanel();
+    } else {
+      this.cancelAiPreview();
+      this.showSuggestionsPanel.set(true);
+    }
+  }
+
+  loadSuggestions(): void {
+    this.suggestionsLoading.set(true);
+    this.suggestionsError.set('');
+    this.suggestions.set([]);
+    this.charactersService
+      .getSuggestions(Number(this.projectId()), this.suggestionsInstructions)
+      .subscribe({
+        next: (list) => {
+          this.suggestions.set(list);
+          this.suggestionsLoading.set(false);
+        },
+        error: (err) => {
+          this.suggestionsLoading.set(false);
+          const raw = err?.error?.message ?? err?.error ?? '';
+          this.suggestionsError.set(typeof raw === 'string' && raw ? raw : 'Could not get suggestions. Please try again.');
+        },
+      });
+  }
+
+  confirmSuggestion(index: number): void {
+    const preview = this.suggestions()[index];
+    if (!preview) return;
+    this.suggestionsSubmittingIndex.set(index);
+    this.suggestionsError.set('');
+    const payload = {
+      name: preview.name,
+      ...(preview.role && { role: preview.role }),
+      ...(preview.description && { description: preview.description }),
+      age: preview.age ?? undefined,
+      gender: preview.gender ?? 'OTHER',
+      ...(preview.race && { race: preview.race }),
+    };
+    this.charactersService.createCharacter(Number(this.projectId()), payload).subscribe({
+      next: () => {
+        this.suggestionsSubmittingIndex.set(null);
+        this.currentPage.set(0);
+        this.loadCharacters();
+        this.toastService.show('success', 'Character created successfully.');
+      },
+      error: (err) => {
+        this.suggestionsSubmittingIndex.set(null);
+        if (err.status === 409) {
+          this.suggestionsError.set('A character with this name already exists in this project.');
+        } else {
+          this.suggestionsError.set('Could not create character. Please try again.');
+        }
+      },
+    });
+  }
+
+  closeSuggestionsPanel(): void {
+    this.suggestions.set([]);
+    this.suggestionsError.set('');
+    this.suggestionsInstructions = '';
+    this.suggestionsSubmittingIndex.set(null);
+    this.showSuggestionsPanel.set(false);
   }
 
   logout(): void {

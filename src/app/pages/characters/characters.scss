@@ -534,6 +534,35 @@ $terra: #c17767;
   gap: 0.2rem;
 }
 
+// ─── Suggestions grid ─────────────────────────────────────────────────────────
+
+.suggestions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.suggestion-card {
+  background: #faf8f5;
+  border: 1px solid #e0d9ce;
+  border-radius: 10px;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.suggestion-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
 // ─── Create button ────────────────────────────────────────────────────────────
 
 .btn-create {

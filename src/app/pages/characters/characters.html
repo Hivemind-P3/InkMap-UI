@@ -22,6 +22,10 @@
               }
             </div>
             <div class="list-header-actions">
+              <button class="btn-ai" type="button" (click)="toggleSuggestionsPanel()">
+                <i class="fa-solid fa-lightbulb"></i>
+                {{ showSuggestionsPanel() ? 'Close suggestions' : 'Suggest characters' }}
+              </button>
               <button class="btn-ai" type="button" (click)="toggleAiPanel()">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                 {{ showAiPanel() ? 'Close AI' : 'Generate with AI' }}
@@ -140,6 +144,72 @@
                       {{ isSubmitting() ? 'Creating...' : 'Create character' }}
                     </button>
                   </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (showSuggestionsPanel()) {
+            <div class="ai-panel">
+              <span class="ai-panel-title">Character suggestions</span>
+              <div class="ai-panel-body">
+                <textarea
+                  class="form-input form-textarea ai-instructions"
+                  [(ngModel)]="suggestionsInstructions"
+                  name="suggestionsInstructions"
+                  placeholder="Optional: describe your story's themes or context to get better suggestions..."
+                  rows="2"
+                ></textarea>
+                <button
+                  class="btn-submit"
+                  type="button"
+                  (click)="loadSuggestions()"
+                  [disabled]="suggestionsLoading()"
+                >
+                  {{ suggestionsLoading() ? 'Loading...' : 'Get suggestions' }}
+                </button>
+              </div>
+
+              @if (suggestionsError()) {
+                <p class="submit-error">{{ suggestionsError() }}</p>
+              }
+
+              @if (suggestions().length > 0) {
+                <div class="suggestions-grid">
+                  @for (s of suggestions(); track $index) {
+                    <div class="suggestion-card">
+                      <div class="card-top">
+                        <h3 class="card-title">{{ s.name }}</h3>
+                        @if (s.role) {
+                          <span class="card-role">{{ s.role }}</span>
+                        }
+                      </div>
+                      <div class="card-meta">
+                        @if (s.gender) {
+                          <span class="card-meta-item">{{ s.gender | titlecase }}</span>
+                        }
+                        @if (s.race) {
+                          <span class="card-meta-item">{{ s.race }}</span>
+                        }
+                        @if (s.age !== undefined) {
+                          <span class="card-meta-item">{{ s.age !== null ? s.age + ' y/o' : 'Unknown age' }}</span>
+                        }
+                      </div>
+                      @if (s.description) {
+                        <p class="card-description">{{ s.description }}</p>
+                      }
+                      <div class="suggestion-card-footer">
+                        <button
+                          type="button"
+                          class="btn-submit"
+                          (click)="confirmSuggestion($index)"
+                          [disabled]="suggestionsSubmittingIndex() !== null"
+                        >
+                          {{ suggestionsSubmittingIndex() === $index ? 'Creating...' : 'Create' }}
+                        </button>
+                      </div>
+                    </div>
+                  }
                 </div>
               }
             </div>

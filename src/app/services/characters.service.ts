@@ -67,4 +67,12 @@ export class CharactersService {
       { headers: this.getHeaders() },
     );
   }
+
+  getSuggestions(projectId: number, instructions?: string): Observable<CharacterPreview[]> {
+    return this.http.post<CharacterPreview[]>(
+      `${this.baseUrl}/projects/${projectId}/characters/suggestions`,
+      { instructions: instructions ?? '' },
+      { headers: this.getHeaders() },
+    );
+  }
 }
