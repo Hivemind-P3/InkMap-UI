@@ -78,10 +78,20 @@
                   rows="3"
                 ></textarea>
                 <button
+                  class="btn-mic"
+                  [class.btn-mic--recording]="isRecording()"
+                  type="button"
+                  (click)="isRecording() ? stopVoice() : startVoice('ai')"
+                  [disabled]="isTranscribing() || aiLoading()"
+                >
+                  <i class="fa-solid" [class.fa-microphone]="!isRecording()" [class.fa-stop]="isRecording()"></i>
+                  {{ isTranscribing() ? 'Transcribing…' : isRecording() ? 'Stop' : 'Voice' }}
+                </button>
+                <button
                   class="btn-submit"
                   type="button"
                   (click)="generateCharacter()"
-                  [disabled]="aiLoading() || !aiInstructions.trim()"
+                  [disabled]="aiLoading() || isRecording() || isTranscribing() || !aiInstructions.trim()"
                 >
                   {{ aiLoading() ? 'Generating...' : 'Generate' }}
                 </button>
@@ -161,10 +171,20 @@
                   rows="2"
                 ></textarea>
                 <button
+                  class="btn-mic"
+                  [class.btn-mic--recording]="isRecording()"
+                  type="button"
+                  (click)="isRecording() ? stopVoice() : startVoice('suggestions')"
+                  [disabled]="isTranscribing() || suggestionsLoading()"
+                >
+                  <i class="fa-solid" [class.fa-microphone]="!isRecording()" [class.fa-stop]="isRecording()"></i>
+                  {{ isTranscribing() ? 'Transcribing…' : isRecording() ? 'Stop' : 'Voice' }}
+                </button>
+                <button
                   class="btn-submit"
                   type="button"
                   (click)="loadSuggestions()"
-                  [disabled]="suggestionsLoading()"
+                  [disabled]="suggestionsLoading() || isRecording() || isTranscribing()"
                 >
                   {{ suggestionsLoading() ? 'Loading...' : 'Get suggestions' }}
                 </button>

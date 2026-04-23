@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { CharactersService } from '../../services/characters.service';
 import { ToastService } from '../../services/toast.service';
 import { CharacterPreview, StoryCharacter } from '../../models/story-character.model';
+import { VoiceService } from '../../services/voice.service';
 
 @Component({
   selector: 'app-characters',
@@ -13,11 +14,12 @@ import { CharacterPreview, StoryCharacter } from '../../models/story-character.m
   templateUrl: './characters.html',
   styleUrl: './characters.scss',
 })
-export class Characters implements OnInit {
+export class Characters implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly charactersService = inject(CharactersService);
   private readonly toastService = inject(ToastService);
+  private readonly voiceService = inject(VoiceService);
 
   private readonly PAGE_SIZE = 9;
 
@@ -64,6 +66,14 @@ export class Characters implements OnInit {
   readonly aiError = signal('');
   readonly aiPreview = signal<CharacterPreview | null>(null);
   aiInstructions = '';
+
+  // ── Voice state ───────────────────────────────────────────────────────────
+  readonly isRecording = signal(false);
+  readonly isTranscribing = signal(false);
+  voiceTarget: 'ai' | 'suggestions' | null = null;
+  private mediaRecorder: any = null;
+  private audioChunks: Blob[] = [];
+  private activeStream: MediaStream | null = null;
 
   // ── AI suggestions state ──────────────────────────────────────────────────
   readonly showSuggestionsPanel = signal(false);
@@ -476,6 +486,56 @@ export class Characters implements OnInit {
     this.suggestionsInstructions = '';
     this.suggestionsSubmittingIndex.set(null);
     this.showSuggestionsPanel.set(false);
+  }
+
+  // ── Voice input ───────────────────────────────────────────────────────────
+
+  async startVoice(target: 'ai' | 'suggestions'): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.activeStream = stream;
+      this.audioChunks = [];
+      this.voiceTarget = target;
+      this.mediaRecorder = new (window as any).MediaRecorder(stream);
+      this.mediaRecorder.ondataavailable = (e: any) => {
+        if (e.data.size > 0) this.audioChunks.push(e.data);
+      };
+      this.mediaRecorder.onstop = () => this.handleRecordingStop();
+      this.mediaRecorder.start();
+      this.isRecording.set(true);
+    } catch {
+      this.toastService.show('error', 'Microphone access denied or not available.');
+    }
+  }
+
+  stopVoice(): void {
+    if (!this.mediaRecorder || !this.isRecording()) return;
+    this.mediaRecorder.stop();
+    this.activeStream?.getTracks().forEach((t) => t.stop());
+    this.activeStream = null;
+    this.isRecording.set(false);
+    this.isTranscribing.set(true);
+  }
+
+  private handleRecordingStop(): void {
+    const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+    const target = this.voiceTarget;
+    this.voiceService.transcribe(blob).subscribe({
+      next: ({ text }) => {
+        if (target === 'ai') this.aiInstructions = text;
+        else if (target === 'suggestions') this.suggestionsInstructions = text;
+        this.isTranscribing.set(false);
+      },
+      error: () => {
+        this.isTranscribing.set(false);
+        this.toastService.show('error', 'Could not transcribe audio. Please try again.');
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.isRecording()) this.mediaRecorder?.stop();
+    this.activeStream?.getTracks().forEach((t) => t.stop());
   }
 
   logout(): void {
