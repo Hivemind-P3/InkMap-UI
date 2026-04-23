@@ -3,8 +3,15 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NarrativeService, Narrative } from '../../services/narrative.service';
-import { NarrativeVersionService, NarrativeVersion } from '../../services/narrative-version.service';
-import { NarrativeAssociationsService, NarrativeAssociations } from '../../services/narrative-associations.service';
+import {
+  NarrativeVersionService,
+  NarrativeVersion,
+  CompareVersionsResult,
+} from '../../services/narrative-version.service';
+import {
+  NarrativeAssociationsService,
+  NarrativeAssociations,
+} from '../../services/narrative-associations.service';
 import { CharactersService } from '../../services/characters.service';
 import { WikiService } from '../../services/wiki.service';
 import { ProjectsService } from '../../services/projects.service';
@@ -13,6 +20,17 @@ import { NarrativeListComponent } from '../narrative-list/narrative-list';
 import { StoryCharacter } from '../../models/story-character.model';
 import { Wiki } from '../../models/wiki.model';
 import { QuillEditorComponent } from 'ngx-quill';
+
+interface ChangeBlock {
+  type: 'modified' | 'added' | 'removed';
+  linesA: string[];
+  linesB: string[];
+}
+
+interface UnifiedLine {
+  text: string;
+  type: 'equal' | 'removed' | 'added' | 'separator';
+}
 
 @Component({
   selector: 'app-editor',
@@ -44,6 +62,17 @@ export class EditorComponent implements OnInit {
   selectedVersion?: NarrativeVersion;
   selectedVersionNum = 0;
   viewedContent: any = null;
+  compareSelectionA?: NarrativeVersion;
+  compareSelectionB?: NarrativeVersion;
+  compareSelectionNumA = 0;
+  compareSelectionNumB = 0;
+  isComparing = false;
+  compareResult?: CompareVersionsResult;
+  compareContentA: any = null;
+  compareContentB: any = null;
+  compareView: 'changes' | 'full' = 'changes';
+  changeBlocks: ChangeBlock[] = [];
+  unifiedLines: UnifiedLine[] = [];
 
   // ── Associations state ────────────────────────────────────────────────────
   associations: NarrativeAssociations | null = null;
@@ -82,17 +111,30 @@ export class EditorComponent implements OnInit {
     this.title = c.title;
     this.selectedVersion = undefined;
     this.viewedContent = null;
+
+    this.compareSelectionA = undefined;
+    this.compareSelectionB = undefined;
+    this.compareResult = undefined;
+    this.compareContentA = null;
+    this.compareContentB = null;
+    this.compareView = 'changes';
+    this.changeBlocks = [];
+    this.unifiedLines = [];
+
     this.associations = null;
     this.isAssocPanelOpen = false;
     this.isAssocEditMode = false;
     this.isAssocSaving = false;
     this.assocError = '';
+
     try {
       this.content = c.content ? JSON.parse(c.content) : '';
     } catch {
       this.content = '';
     }
+
     this.loadVersions();
+
     if (this.pendingSearchTerm) {
       this.scrollToSearchTerm();
     }
@@ -118,6 +160,7 @@ export class EditorComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+
     if (this.availableCharacters.length === 0) {
       this.charactersService.getCharacters(this.projectId, 0, 1000, '').subscribe({
         next: (res) => {
@@ -127,6 +170,7 @@ export class EditorComponent implements OnInit {
         error: () => {},
       });
     }
+
     if (this.availableWikis.length === 0) {
       this.wikiService.getProjectWikis(this.projectId).subscribe({
         next: (wikis) => {
@@ -209,6 +253,9 @@ export class EditorComponent implements OnInit {
   }
 
   selectVersion(v: NarrativeVersion, displayIndex: number) {
+    if (this.compareResult) {
+      this.closeCompareView();
+    }
     try {
       this.viewedContent = v.content ? JSON.parse(v.content) : '';
     } catch {
@@ -225,6 +272,219 @@ export class EditorComponent implements OnInit {
     this.viewedContent = null;
     this.showRestoreConfirm = false;
     this.cdr.detectChanges();
+  }
+
+  toggleCompareSelection(v: NarrativeVersion, displayIndex: number) {
+    const num = this.versions.length - displayIndex;
+    if (this.compareSelectionA?.id === v.id) {
+      this.compareSelectionA = undefined;
+    } else if (this.compareSelectionB?.id === v.id) {
+      this.compareSelectionB = undefined;
+    } else if (!this.compareSelectionA) {
+      this.compareSelectionA = v;
+      this.compareSelectionNumA = num;
+    } else if (!this.compareSelectionB) {
+      this.compareSelectionB = v;
+      this.compareSelectionNumB = num;
+    }
+    this.cdr.detectChanges();
+  }
+
+  compareVersions() {
+    if (!this.selected || !this.compareSelectionA || !this.compareSelectionB || this.isComparing)
+      return;
+
+    this.isComparing = true;
+    this.versionService
+      .compare(
+        this.projectId,
+        this.selected.id,
+        this.compareSelectionA.id,
+        this.compareSelectionB.id,
+      )
+      .subscribe({
+        next: (result) => {
+          this.compareResult = result;
+          const parasA = this.extractParagraphs(result.contentA);
+          const parasB = this.extractParagraphs(result.contentB);
+          const linesA = parasA.flat();
+          const linesB = parasB.flat();
+          this.changeBlocks = this.computeChangeBlocks(linesA, linesB);
+          this.unifiedLines = this.computeUnifiedLines(parasA, parasB);
+          try {
+            this.compareContentA = result.contentA ? JSON.parse(result.contentA) : '';
+          } catch {
+            this.compareContentA = '';
+          }
+          try {
+            this.compareContentB = result.contentB ? JSON.parse(result.contentB) : '';
+          } catch {
+            this.compareContentB = '';
+          }
+          this.compareView = 'changes';
+          this.selectedVersion = undefined;
+          this.viewedContent = null;
+          this.isComparing = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.isComparing = false;
+          this.toast.show('error', 'Error comparing versions');
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  closeCompareView() {
+    this.compareResult = undefined;
+    this.compareContentA = null;
+    this.compareContentB = null;
+    this.compareView = 'changes';
+    this.changeBlocks = [];
+    this.unifiedLines = [];
+    this.isComparing = false;
+    this.cdr.detectChanges();
+  }
+
+  private extractParagraphs(rawContent: string): string[][] {
+    let text: string;
+    try {
+      const delta = JSON.parse(rawContent);
+      if (delta?.ops) {
+        text = delta.ops
+          .filter((op: any) => typeof op.insert === 'string')
+          .map((op: any) => op.insert)
+          .join('');
+      } else {
+        text = rawContent ?? '';
+      }
+    } catch {
+      text = rawContent ?? '';
+    }
+
+    const paragraphs: string[][] = [];
+    for (const para of text.split('\n')) {
+      const trimmed = para.trim();
+      if (trimmed === '') continue;
+      const lines: string[] = [];
+      if (trimmed.length <= 200) {
+        lines.push(trimmed);
+      } else {
+        for (const sentence of trimmed.split(/(?<=[.?!])\s+/)) {
+          const s = sentence.trim();
+          if (s.length > 0) lines.push(s);
+        }
+      }
+      paragraphs.push(lines);
+    }
+
+    return paragraphs.length > 0 ? paragraphs : [['']];
+  }
+
+  private extractLines(rawContent: string): string[] {
+    return this.extractParagraphs(rawContent).flat();
+  }
+
+  private computeChangeBlocks(linesA: string[], linesB: string[]): ChangeBlock[] {
+    const m = linesA.length;
+    const n = linesB.length;
+    const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        dp[i][j] =
+          linesA[i - 1] === linesB[j - 1]
+            ? dp[i - 1][j - 1] + 1
+            : Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+
+    const equalPairs: Array<[number, number]> = [];
+    let i = m;
+    let j = n;
+    while (i > 0 && j > 0) {
+      if (linesA[i - 1] === linesB[j - 1]) {
+        equalPairs.unshift([i - 1, j - 1]);
+        i--;
+        j--;
+      } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+        i--;
+      } else {
+        j--;
+      }
+    }
+
+    const blocks: ChangeBlock[] = [];
+    let prevI = 0;
+    let prevJ = 0;
+
+    const addBlock = (endI: number, endJ: number) => {
+      const removed = linesA.slice(prevI, endI);
+      const added = linesB.slice(prevJ, endJ);
+      if (removed.length === 0 && added.length === 0) return;
+      blocks.push({
+        type:
+          removed.length > 0 && added.length > 0
+            ? 'modified'
+            : removed.length > 0
+              ? 'removed'
+              : 'added',
+        linesA: removed,
+        linesB: added,
+      });
+    };
+
+    for (const [ei, ej] of equalPairs) {
+      addBlock(ei, ej);
+      prevI = ei + 1;
+      prevJ = ej + 1;
+    }
+
+    addBlock(m, n);
+    return blocks;
+  }
+
+  private computeUnifiedLines(parasA: string[][], parasB: string[][]): UnifiedLine[] {
+    const count = Math.max(parasA.length, parasB.length);
+    const result: UnifiedLine[] = [];
+    for (let p = 0; p < count; p++) {
+      if (p > 0) result.push({ text: '', type: 'separator' });
+      result.push(...this.diffParagraph(parasA[p] ?? [], parasB[p] ?? []));
+    }
+    return result;
+  }
+
+  private diffParagraph(linesA: string[], linesB: string[]): UnifiedLine[] {
+    const m = linesA.length;
+    const n = linesB.length;
+    const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        dp[i][j] =
+          linesA[i - 1] === linesB[j - 1]
+            ? dp[i - 1][j - 1] + 1
+            : Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+
+    const result: UnifiedLine[] = [];
+    const walk = (i: number, j: number) => {
+      if (i === 0 && j === 0) return;
+      if (i > 0 && j > 0 && linesA[i - 1] === linesB[j - 1]) {
+        walk(i - 1, j - 1);
+        result.push({ text: linesA[i - 1], type: 'equal' });
+      } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+        walk(i, j - 1);
+        result.push({ text: linesB[j - 1], type: 'added' });
+      } else {
+        walk(i - 1, j);
+        result.push({ text: linesA[i - 1], type: 'removed' });
+      }
+    };
+
+    walk(m, n);
+    return result;
   }
 
   restoreVersion() {

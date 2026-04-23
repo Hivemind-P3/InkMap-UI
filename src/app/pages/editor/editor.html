@@ -26,14 +26,73 @@
         [(ngModel)]="title"
         class="title"
         placeholder="Chapter title"
-        [readOnly]="!!selectedVersion"
+        [readOnly]="!!selectedVersion || !!compareResult"
       />
 
-      @if (selectedVersion) {
+      @if (compareResult) {
+        <div class="version-preview-banner">
+          <span class="preview-label">
+            Comparing <strong>Version {{ compareSelectionNumA }}</strong> vs <strong>Version {{ compareSelectionNumB }}</strong>
+            @if (changeBlocks.length > 0) {
+              <span class="changes-count">· {{ changeBlocks.length }} change{{ changeBlocks.length !== 1 ? 's' : '' }}</span>
+            }
+          </span>
+          <div class="preview-actions">
+            <div class="compare-tabs">
+              <button class="compare-tab" [class.active]="compareView === 'changes'" (click)="compareView = 'changes'">Changes</button>
+              <button class="compare-tab" [class.active]="compareView === 'full'" (click)="compareView = 'full'">Full content</button>
+            </div>
+            <button class="btn-close-preview" (click)="closeCompareView()">← Back to editing</button>
+          </div>
+        </div>
+
+        @if (compareView === 'changes') {
+          @if (unifiedLines.length === 0 || unifiedLines.every(l => l.type === 'equal' || l.type === 'separator')) {
+            <div class="changes-empty">These versions are identical.</div>
+          } @else {
+            <div class="ud-legend">
+              <span class="ud-legend-chip ud-legend-chip--removed">− Version {{ compareSelectionNumA }}</span>
+              <span class="ud-legend-chip ud-legend-chip--added">+ Version {{ compareSelectionNumB }}</span>
+            </div>
+            <div class="unified-diff">
+              @for (line of unifiedLines; track $index) {
+                @if (line.type === 'separator') {
+                  <div class="ud-separator"></div>
+                } @else {
+                  <div class="ud-line ud-line--{{ line.type }}">
+                    <span class="ud-marker">{{ line.type === 'removed' ? '−' : line.type === 'added' ? '+' : '' }}</span>
+                    <span class="ud-text">{{ line.text }}</span>
+                  </div>
+                }
+              }
+            </div>
+          }
+        } @else {
+          <div class="full-content-columns">
+            <div class="full-content-col">
+              <div class="full-content-col-header">
+                <span class="full-content-col-label">Version {{ compareSelectionNumA }}</span>
+                <span class="full-content-col-date">{{ compareResult.createdAtA | date:'dd MMM yyyy · HH:mm' }}</span>
+              </div>
+              <quill-editor [ngModel]="compareContentA" [format]="'object'" [readOnly]="true" class="quill quill-readonly"></quill-editor>
+            </div>
+            <div class="full-content-col">
+              <div class="full-content-col-header">
+                <span class="full-content-col-label">Version {{ compareSelectionNumB }}</span>
+                <span class="full-content-col-date">{{ compareResult.createdAtB | date:'dd MMM yyyy · HH:mm' }}</span>
+              </div>
+              <quill-editor [ngModel]="compareContentB" [format]="'object'" [readOnly]="true" class="quill quill-readonly"></quill-editor>
+            </div>
+          </div>
+        }
+      } @else if (selectedVersion) {
         <div class="version-preview-banner">
           <span class="preview-label">
             Viewing <strong>Version {{ selectedVersionNum }}</strong>
             · {{ selectedVersion.createdAt | date:'dd MMM yyyy · HH:mm' }}
+            @if (selectedVersion.author) {
+              · {{ selectedVersion.author }}
+            }
           </span>
           <div class="preview-actions">
             @if (showRestoreConfirm) {
@@ -73,7 +132,14 @@
       }
 
       <div class="versions-panel">
-        <p class="versions-label">Version history</p>
+        <div class="versions-panel-header">
+          <p class="versions-label">Version history</p>
+          @if (compareSelectionA && compareSelectionB) {
+            <button class="btn-compare" (click)="compareVersions()" [disabled]="isComparing">
+              {{ isComparing ? 'Comparing…' : 'Compare versions' }}
+            </button>
+          }
+        </div>
         @if (versions.length === 0) {
           <p class="versions-empty">No saved versions</p>
         } @else {
@@ -82,10 +148,23 @@
               <div
                 class="version-item"
                 [class.active]="v.id === selectedVersion?.id"
+                [class.compare-a]="v.id === compareSelectionA?.id"
+                [class.compare-b]="v.id === compareSelectionB?.id"
                 (click)="selectVersion(v, i)"
               >
+                <input
+                  type="checkbox"
+                  class="compare-check"
+                  [checked]="v.id === compareSelectionA?.id || v.id === compareSelectionB?.id"
+                  [disabled]="compareSelectionA !== undefined && compareSelectionB !== undefined && v.id !== compareSelectionA?.id && v.id !== compareSelectionB?.id"
+                  (change)="toggleCompareSelection(v, i)"
+                  (click)="$event.stopPropagation()"
+                />
                 <span class="version-num">Version {{ versions.length - i }}</span>
                 <span class="version-date">{{ v.createdAt | date:'dd MMM yyyy · HH:mm' }}</span>
+                @if (v.author) {
+                  <span class="version-author">{{ v.author }}</span>
+                }
               </div>
             }
           </div>
