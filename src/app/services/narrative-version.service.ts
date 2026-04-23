@@ -9,6 +9,16 @@ export interface NarrativeVersion {
   narrativeId: number;
   content: string;
   createdAt: string;
+  author?: string;
+}
+
+export interface CompareVersionsResult {
+  versionAId: number;
+  versionBId: number;
+  contentA: string;
+  contentB: string;
+  createdAtA: string;
+  createdAtB: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -33,6 +43,18 @@ export class NarrativeVersionService {
     return this.http.post<Narrative>(
       `${this.baseUrl}/projects/${projectId}/narratives/${narrativeId}/versions/${versionId}/restore`,
       {},
+    );
+  }
+
+  compare(
+    projectId: number,
+    narrativeId: number,
+    versionAId: number,
+    versionBId: number,
+  ): Observable<CompareVersionsResult> {
+    return this.http.get<CompareVersionsResult>(
+      `${this.baseUrl}/projects/${projectId}/narratives/${narrativeId}/versions/compare`,
+      { params: { versionAId: String(versionAId), versionBId: String(versionBId) } },
     );
   }
 }
