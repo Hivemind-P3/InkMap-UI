@@ -88,6 +88,15 @@ export class EditorComponent implements OnInit {
   private quillInstance: any = null;
   private pendingSearchTerm: string | null = null;
 
+  protected quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ header: [1, 2, 3, false] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['blockquote']
+    ]
+  };
+
   ngOnInit() {
     this.projectsService.getProjectById(this.projectId).subscribe({
       next: (p) => {
@@ -100,6 +109,8 @@ export class EditorComponent implements OnInit {
 
   onEditorReady(quill: any): void {
     this.quillInstance = quill;
+    quill.root.setAttribute('spellcheck', 'true');
+    quill.root.spellcheck = true;
   }
 
   onSearchNavigated(term: string): void {
@@ -502,6 +513,7 @@ export class EditorComponent implements OnInit {
           }
           this.isRestoring = false;
           this.closeVersionView();
+          this.service.updateCached(updated);
           this.toast.show('success', 'Version successfully restored');
           this.cdr.detectChanges();
         },
@@ -587,5 +599,9 @@ export class EditorComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  get isTitleReadOnly(): boolean {
+    return !!this.selectedVersion || !!this.compareResult;
   }
 }
