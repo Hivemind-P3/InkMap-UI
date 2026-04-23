@@ -4,9 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NarrativeService, Narrative } from '../../services/narrative.service';
 import { NarrativeVersionService, NarrativeVersion } from '../../services/narrative-version.service';
+import { NarrativeAssociationsService, NarrativeAssociations } from '../../services/narrative-associations.service';
+import { CharactersService } from '../../services/characters.service';
+import { WikiService } from '../../services/wiki.service';
 import { ProjectsService } from '../../services/projects.service';
 import { ToastService } from '../../services/toast.service';
 import { NarrativeListComponent } from '../narrative-list/narrative-list';
+import { StoryCharacter } from '../../models/story-character.model';
+import { Wiki } from '../../models/wiki.model';
 import { QuillEditorComponent } from 'ngx-quill';
 
 @Component({
@@ -18,6 +23,9 @@ import { QuillEditorComponent } from 'ngx-quill';
 export class EditorComponent implements OnInit {
   private service = inject(NarrativeService);
   private versionService = inject(NarrativeVersionService);
+  private assocService = inject(NarrativeAssociationsService);
+  private charactersService = inject(CharactersService);
+  private wikiService = inject(WikiService);
   private projectsService = inject(ProjectsService);
   private toast = inject(ToastService);
   private route = inject(ActivatedRoute);
@@ -36,6 +44,17 @@ export class EditorComponent implements OnInit {
   selectedVersion?: NarrativeVersion;
   selectedVersionNum = 0;
   viewedContent: any = null;
+
+  // ── Associations state ────────────────────────────────────────────────────
+  associations: NarrativeAssociations | null = null;
+  availableCharacters: StoryCharacter[] = [];
+  availableWikis: Wiki[] = [];
+  isAssocPanelOpen = false;
+  isAssocEditMode = false;
+  isAssocSaving = false;
+  assocError = '';
+  selectedCharIds = new Set<number>();
+  selectedWikiIds = new Set<number>();
 
   private quillInstance: any = null;
   private pendingSearchTerm: string | null = null;
@@ -63,6 +82,11 @@ export class EditorComponent implements OnInit {
     this.title = c.title;
     this.selectedVersion = undefined;
     this.viewedContent = null;
+    this.associations = null;
+    this.isAssocPanelOpen = false;
+    this.isAssocEditMode = false;
+    this.isAssocSaving = false;
+    this.assocError = '';
     try {
       this.content = c.content ? JSON.parse(c.content) : '';
     } catch {
@@ -72,6 +96,100 @@ export class EditorComponent implements OnInit {
     if (this.pendingSearchTerm) {
       this.scrollToSearchTerm();
     }
+  }
+
+  toggleAssocPanel(): void {
+    if (!this.selected) return;
+    this.isAssocPanelOpen = !this.isAssocPanelOpen;
+    if (this.isAssocPanelOpen && this.associations === null) {
+      this.loadAssociations();
+    }
+  }
+
+  private loadAssociations(): void {
+    if (!this.selected) return;
+    this.assocService.getAssociations(this.selected.id, this.projectId).subscribe({
+      next: (assoc) => {
+        this.associations = assoc;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.assocError = 'Error loading associations';
+        this.cdr.detectChanges();
+      },
+    });
+    if (this.availableCharacters.length === 0) {
+      this.charactersService.getCharacters(this.projectId, 0, 1000, '').subscribe({
+        next: (res) => {
+          this.availableCharacters = res.content;
+          this.cdr.detectChanges();
+        },
+        error: () => {},
+      });
+    }
+    if (this.availableWikis.length === 0) {
+      this.wikiService.getProjectWikis(this.projectId).subscribe({
+        next: (wikis) => {
+          this.availableWikis = wikis;
+          this.cdr.detectChanges();
+        },
+        error: () => {},
+      });
+    }
+  }
+
+  enterAssocEdit(): void {
+    this.isAssocEditMode = true;
+    this.selectedCharIds = new Set(this.associations?.characters.map((c) => c.id) ?? []);
+    this.selectedWikiIds = new Set(this.associations?.places.map((p) => p.id) ?? []);
+    this.assocError = '';
+    this.cdr.detectChanges();
+  }
+
+  toggleAssocChar(id: number): void {
+    const next = new Set(this.selectedCharIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.selectedCharIds = next;
+  }
+
+  toggleAssocWiki(id: number): void {
+    const next = new Set(this.selectedWikiIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.selectedWikiIds = next;
+  }
+
+  saveAssociations(): void {
+    if (!this.selected || this.isAssocSaving) return;
+    this.isAssocSaving = true;
+    this.assocService
+      .updateAssociations(this.selected.id, {
+        projectId: this.projectId,
+        characterIds: [...this.selectedCharIds],
+        wikiIds: [...this.selectedWikiIds],
+      })
+      .subscribe({
+        next: (updated) => {
+          this.associations = updated;
+          this.isAssocSaving = false;
+          this.isAssocEditMode = false;
+          this.toast.show('success', 'Associations saved');
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.isAssocSaving = false;
+          this.assocError = 'Error saving associations';
+          this.toast.show('error', 'Error saving associations');
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  cancelAssocEdit(): void {
+    this.isAssocEditMode = false;
+    this.assocError = '';
+    this.cdr.detectChanges();
   }
 
   private scrollToSearchTerm(): void {
