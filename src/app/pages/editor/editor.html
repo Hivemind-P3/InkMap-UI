@@ -3,6 +3,7 @@
   <app-narrative-list
     [projectId]="projectId"
     (selected)="onSelected($event)"
+    (searchNavigated)="onSearchNavigated($event)"
   ></app-narrative-list>
 
   <div class="editor">
@@ -58,6 +59,7 @@
           [(ngModel)]="content"
           [format]="'object'"
           class="quill"
+          (onEditorCreated)="onEditorReady($event)"
         ></quill-editor>
 
         <div class="actions">

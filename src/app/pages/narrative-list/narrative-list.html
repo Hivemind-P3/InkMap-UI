@@ -6,6 +6,27 @@
     </button>
   </div>
 
+  <div class="search-bar">
+    <input
+      [(ngModel)]="searchQuery"
+      name="searchQuery"
+      placeholder="Search in chapters..."
+      autocomplete="off"
+      (keydown.enter)="executeSearch()"
+    />
+    @if (searchResults !== null) {
+      <button class="btn-clear" type="button" (click)="clearSearch()" title="Clear search">✕</button>
+    } @else {
+      <button
+        class="btn-search"
+        type="button"
+        (click)="executeSearch()"
+        [disabled]="searchQuery.trim().length < 3 || isSearching"
+        title="Search"
+      >↵</button>
+    }
+  </div>
+
   @if (isCreating) {
     <div class="create-form">
       <input
@@ -24,25 +45,46 @@
     </div>
   }
 
-  <div class="list">
-    @for (c of narratives; track c.id; let i = $index) {
-      <div class="item" [class.active]="c.id === selectedId" (click)="select(c)">
-        <span class="item-title">{{ c.title }}</span>
-        <div class="item-order" (click)="$event.stopPropagation()">
-          <button
-            class="btn-move"
-            (click)="move(i, -1)"
-            [disabled]="i === 0 || isReordering"
-            title="Move up"
-          >↑</button>
-          <button
-            class="btn-move"
-            (click)="move(i, 1)"
-            [disabled]="i === narratives.length - 1 || isReordering"
-            title="Move down"
-          >↓</button>
+  @if (searchResults !== null) {
+    <div class="list">
+      @if (isSearching) {
+        <p class="search-status">Searching...</p>
+      } @else if (searchError) {
+        <p class="search-status search-status--error">{{ searchError }}</p>
+      } @else if (searchResults.length === 0) {
+        <p class="search-status">No results for «{{ searchQuery }}»</p>
+      } @else {
+        @for (r of searchResults; track r.narrativeId) {
+          <div class="item result-item" (click)="selectResult(r)">
+            <div class="result-content">
+              <span class="item-title">{{ r.narrativeTitle }}</span>
+              <span class="result-snippet">{{ r.snippet }}</span>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  } @else {
+    <div class="list">
+      @for (c of narratives; track c.id; let i = $index) {
+        <div class="item" [class.active]="c.id === selectedId" (click)="select(c)">
+          <span class="item-title">{{ c.title }}</span>
+          <div class="item-order" (click)="$event.stopPropagation()">
+            <button
+              class="btn-move"
+              (click)="move(i, -1)"
+              [disabled]="i === 0 || isReordering"
+              title="Move up"
+            >↑</button>
+            <button
+              class="btn-move"
+              (click)="move(i, 1)"
+              [disabled]="i === narratives.length - 1 || isReordering"
+              title="Move down"
+            >↓</button>
+          </div>
         </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
+  }
 </div>

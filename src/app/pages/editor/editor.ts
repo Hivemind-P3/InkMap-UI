@@ -37,6 +37,9 @@ export class EditorComponent implements OnInit {
   selectedVersionNum = 0;
   viewedContent: any = null;
 
+  private quillInstance: any = null;
+  private pendingSearchTerm: string | null = null;
+
   ngOnInit() {
     this.projectsService.getProjectById(this.projectId).subscribe({
       next: (p) => {
@@ -45,6 +48,14 @@ export class EditorComponent implements OnInit {
       },
       error: () => {},
     });
+  }
+
+  onEditorReady(quill: any): void {
+    this.quillInstance = quill;
+  }
+
+  onSearchNavigated(term: string): void {
+    this.pendingSearchTerm = term;
   }
 
   onSelected(c: Narrative) {
@@ -58,6 +69,25 @@ export class EditorComponent implements OnInit {
       this.content = '';
     }
     this.loadVersions();
+    if (this.pendingSearchTerm) {
+      this.scrollToSearchTerm();
+    }
+  }
+
+  private scrollToSearchTerm(): void {
+    const term = this.pendingSearchTerm;
+    this.pendingSearchTerm = null;
+    setTimeout(() => {
+      if (!term || !this.quillInstance) return;
+      const text: string = this.quillInstance.getText().toLowerCase();
+      const index = text.indexOf(term.toLowerCase());
+      if (index >= 0) {
+        this.quillInstance.setSelection(index, term.length, 'silent');
+        const bounds = this.quillInstance.getBounds(index, term.length);
+        const editorEl: HTMLElement = this.quillInstance.root;
+        editorEl.scrollTop = editorEl.scrollTop + bounds.top - 100;
+      }
+    }, 80);
   }
 
   selectVersion(v: NarrativeVersion, displayIndex: number) {
