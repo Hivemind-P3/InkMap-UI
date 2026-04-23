@@ -80,4 +80,9 @@ export class NarrativeService {
       { params: { q } },
     );
   }
+
+  updateCached(updated: Narrative): void {
+    const updatedList = this.narrativesSubject.value.map(n => n.id === updated.id ? updated : n);
+    this.narrativesSubject.next(updatedList);
+  }
 }
