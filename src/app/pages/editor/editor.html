@@ -3,6 +3,7 @@
   <app-narrative-list
     [projectId]="projectId"
     (selected)="onSelected($event)"
+    (searchNavigated)="onSearchNavigated($event)"
   ></app-narrative-list>
 
   <div class="editor">
@@ -117,6 +118,7 @@
           [(ngModel)]="content"
           [format]="'object'"
           class="quill"
+          (onEditorCreated)="onEditorReady($event)"
         ></quill-editor>
 
         <div class="actions">
@@ -168,6 +170,87 @@
           </div>
         }
       </div>
+
+      <div class="assoc-panel">
+        <div class="assoc-panel-header" (click)="toggleAssocPanel()">
+          <p class="assoc-panel-label">Associations</p>
+          <span class="assoc-toggle-icon">{{ isAssocPanelOpen ? '▲' : '▼' }}</span>
+        </div>
+        @if (isAssocPanelOpen) {
+          <div class="assoc-panel-body">
+            @if (associations === null && !assocError) {
+              <p class="assoc-loading">Loading…</p>
+            } @else if (assocError && associations === null) {
+              <p class="assoc-error">{{ assocError }}</p>
+            } @else if (!isAssocEditMode) {
+              <div class="assoc-section">
+                <span class="assoc-section-title">Characters</span>
+                @if (associations!.characters.length === 0) {
+                  <span class="assoc-none">None</span>
+                } @else {
+                  <div class="assoc-tags">
+                    @for (c of associations!.characters; track c.id) {
+                      <span class="assoc-tag">{{ c.name }}</span>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="assoc-section">
+                <span class="assoc-section-title">Places</span>
+                @if (associations!.places.length === 0) {
+                  <span class="assoc-none">None</span>
+                } @else {
+                  <div class="assoc-tags">
+                    @for (p of associations!.places; track p.id) {
+                      <span class="assoc-tag">{{ p.title }}</span>
+                    }
+                  </div>
+                }
+              </div>
+              <button class="btn-assoc-edit" (click)="enterAssocEdit()">Edit</button>
+            } @else {
+              <div class="assoc-section">
+                <span class="assoc-section-title">Characters</span>
+                <div class="assoc-checklist">
+                  @for (c of availableCharacters; track c.id) {
+                    <label class="assoc-check-item">
+                      <input type="checkbox" [checked]="selectedCharIds.has(c.id)" (change)="toggleAssocChar(c.id)" />
+                      {{ c.name }}
+                    </label>
+                  }
+                  @if (availableCharacters.length === 0) {
+                    <span class="assoc-none">No characters in project</span>
+                  }
+                </div>
+              </div>
+              <div class="assoc-section">
+                <span class="assoc-section-title">Places (Wiki)</span>
+                <div class="assoc-checklist">
+                  @for (w of availableWikis; track w.id) {
+                    <label class="assoc-check-item">
+                      <input type="checkbox" [checked]="selectedWikiIds.has(w.id)" (change)="toggleAssocWiki(w.id)" />
+                      {{ w.title }}
+                    </label>
+                  }
+                  @if (availableWikis.length === 0) {
+                    <span class="assoc-none">No wiki entries in project</span>
+                  }
+                </div>
+              </div>
+              @if (assocError) {
+                <p class="assoc-error">{{ assocError }}</p>
+              }
+              <div class="assoc-edit-actions">
+                <button class="btn-assoc-save" (click)="saveAssociations()" [disabled]="isAssocSaving">
+                  {{ isAssocSaving ? 'Saving…' : 'Save' }}
+                </button>
+                <button class="btn-assoc-cancel" (click)="cancelAssocEdit()" [disabled]="isAssocSaving">Cancel</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
     } @else {
       <div class="empty-state">
         <p>Select a chapter to start editing.</p>

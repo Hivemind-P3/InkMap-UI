@@ -25,6 +25,12 @@ export interface ReorderNarrativesRequest {
   orderedIds: number[];
 }
 
+export interface NarrativeSearchResult {
+  narrativeId: number;
+  narrativeTitle: string;
+  snippet: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -66,5 +72,12 @@ export class NarrativeService {
         orderedIds: data.orderedIds,
       })
       .pipe(tap((updated) => this.narrativesSubject.next(updated)));
+  }
+
+  search(projectId: number, q: string): Observable<NarrativeSearchResult[]> {
+    return this.http.get<NarrativeSearchResult[]>(
+      `${this.baseUrl}/narratives/projects/${projectId}/search`,
+      { params: { q } },
+    );
   }
 }

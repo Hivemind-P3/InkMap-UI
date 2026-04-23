@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NarrativeService, Narrative } from '../../services/narrative.service';
+import { NarrativeService, Narrative, NarrativeSearchResult } from '../../services/narrative.service';
 import { ToastService } from '../../services/toast.service';
 import { Subscription } from 'rxjs';
 
@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 export class NarrativeListComponent implements OnInit, OnDestroy {
   @Input() projectId!: number;
   @Output() selected = new EventEmitter<Narrative>();
+  @Output() searchNavigated = new EventEmitter<string>();
 
   narratives: Narrative[] = [];
   selectedId?: number;
@@ -21,6 +22,11 @@ export class NarrativeListComponent implements OnInit, OnDestroy {
   isCreating = false;
   newTitle = '';
   isReordering = false;
+
+  searchQuery = '';
+  isSearching = false;
+  searchResults: NarrativeSearchResult[] | null = null;
+  searchError = '';
 
   private sub!: Subscription;
   private cdr = inject(ChangeDetectorRef);
@@ -63,6 +69,43 @@ export class NarrativeListComponent implements OnInit, OnDestroy {
   select(c: Narrative) {
     this.selectedId = c.id;
     this.selected.emit(c);
+  }
+
+  executeSearch(): void {
+    if (this.searchQuery.trim().length < 3) return;
+    this.isSearching = true;
+    this.searchError = '';
+    this.searchResults = [];
+    this.service.search(this.projectId, this.searchQuery.trim()).subscribe({
+      next: (results) => {
+        this.searchResults = results;
+        this.isSearching = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isSearching = false;
+        const raw = err?.error?.message ?? err?.error ?? '';
+        this.searchError = typeof raw === 'string' && raw ? raw : 'Search failed. Please try again.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.searchResults = null;
+    this.searchError = '';
+    this.cdr.detectChanges();
+  }
+
+  selectResult(r: NarrativeSearchResult): void {
+    const narrative = this.narratives.find((n) => n.id === r.narrativeId);
+    if (narrative) {
+      const term = this.searchQuery.trim();
+      this.searchNavigated.emit(term);
+      this.clearSearch();
+      this.select(narrative);
+    }
   }
 
   move(index: number, dir: -1 | 1) {

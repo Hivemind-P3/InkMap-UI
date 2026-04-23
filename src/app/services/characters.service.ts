@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.local';
 import { AuthService } from './auth.service';
 import { PagedStoryCharacterResponse } from '../models/paged-story-character-response.model';
-import { StoryCharacter, CreateCharacterRequest } from '../models/story-character.model';
+import { StoryCharacter, CreateCharacterRequest, CharacterPreview } from '../models/story-character.model';
 
 @Injectable({ providedIn: 'root' })
 export class CharactersService {
@@ -56,6 +56,22 @@ export class CharactersService {
   deleteCharacter(projectId: number, characterId: number): Observable<void> {
     return this.http.delete<void>(
       `${this.baseUrl}/projects/${projectId}/characters/${characterId}`,
+      { headers: this.getHeaders() },
+    );
+  }
+
+  generateCharacter(projectId: number, instructions: string): Observable<CharacterPreview> {
+    return this.http.post<CharacterPreview>(
+      `${this.baseUrl}/projects/${projectId}/characters/generate`,
+      { instructions },
+      { headers: this.getHeaders() },
+    );
+  }
+
+  getSuggestions(projectId: number, instructions?: string): Observable<CharacterPreview[]> {
+    return this.http.post<CharacterPreview[]>(
+      `${this.baseUrl}/projects/${projectId}/characters/suggestions`,
+      { instructions: instructions ?? '' },
       { headers: this.getHeaders() },
     );
   }
