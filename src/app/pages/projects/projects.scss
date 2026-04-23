@@ -9,7 +9,7 @@ $terra: #c17767;
 // ─── Page shell ───────────────────────────────────────────────────────────────
 
 .projects-page {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--header-height));
   background: $beige;
   display: flex;
   flex-direction: row;
@@ -26,7 +26,7 @@ $terra: #c17767;
   padding: 1.5rem 0;
   position: sticky;
   top: 0;
-  height: 100vh;
+  min-height: calc(100vh - var(--header-height));
   overflow-y: auto;
 }
 
