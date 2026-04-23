@@ -19,6 +19,7 @@ export class App implements OnInit{
   protected authService = inject(AuthService)
   protected isTeamLanding = false;
   protected isMapEditor = false;
+  protected isNodemapEditor = false;
 
   constructor(private router: Router) {
     this.router.events.pipe(
@@ -26,6 +27,7 @@ export class App implements OnInit{
     ).subscribe((e: NavigationEnd) => {
       this.isTeamLanding = e.url === '/hivemind';
       this.isMapEditor = e.url.startsWith('/app/map-editor/');
+      this.isNodemapEditor = e.url.startsWith('/app/node-map-editor/');
     });
   }
 

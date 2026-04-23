@@ -3,13 +3,13 @@
         <app-sidebar></app-sidebar>
     }
     <div class="app-main">
-        @if (!isTeamLanding && !isMapEditor) {
+        @if (!isTeamLanding && !isMapEditor && !isNodemapEditor) {
             <app-header></app-header>
         }
         <div [ngClass]="{'router-wrapper': !isTeamLanding && !isMapEditor}">
             <router-outlet></router-outlet>
         </div>
-        @if (!isTeamLanding && !isMapEditor) {
+        @if (isTeamLanding) {
             <app-footer></app-footer>
         }
     </div>
