@@ -75,7 +75,6 @@ export class AdminPanel implements OnInit {
 
     this.http.get<PageResponse<AdminUser>>(url, { headers: this.headers() }).subscribe({
       next: (data) => {
-        console.log('API response:', data);
         this.users = data.content;
         this.totalPages = data.totalPages;
         this.totalElements = data.totalElements;
