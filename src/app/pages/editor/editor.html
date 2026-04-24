@@ -157,12 +157,24 @@
           <span class="suggestions-title">✦ Narrative Suggestions</span>
           <button class="btn-close-suggestions" (click)="closeSuggestions()">✕</button>
         </div>
-        <textarea
-          class="suggestions-instructions"
-          [(ngModel)]="suggestionsInstructions"
-          placeholder="Additional instructions (optional)..."
-          rows="3"
-        ></textarea>
+        <div class="suggestions-input-row">
+          <textarea
+            class="suggestions-instructions"
+            [(ngModel)]="suggestionsInstructions"
+            placeholder="Additional instructions (optional)..."
+            rows="3"
+          ></textarea>
+          <button
+            class="btn-mic"
+            [class.btn-mic--recording]="isRecording()"
+            type="button"
+            (click)="isRecording() ? stopVoice() : startVoice()"
+            [disabled]="isTranscribing() || isLoadingSuggestions"
+          >
+            <i class="fa-solid" [class.fa-microphone]="!isRecording()" [class.fa-stop]="isRecording()"></i>
+            {{ isTranscribing() ? 'Transcribing…' : isRecording() ? 'Stop' : 'Voice' }}
+          </button>
+        </div>
         <button class="btn-get-suggestions" (click)="fetchSuggestions()" [disabled]="isLoadingSuggestions">
           {{ isLoadingSuggestions ? 'Analysing…' : 'Analyse story' }}
         </button>

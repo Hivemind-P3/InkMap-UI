@@ -666,3 +666,47 @@ $bg-editor: #fafaf8;
     padding-top: 14px;
   }
 }
+
+.suggestions-input-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.suggestions-instructions {
+  flex: 1;
+  border: 1px solid #e0ddd6;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+  &:focus { outline: none; border-color: $teal; }
+}
+
+.btn-mic {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $teal;
+  background: transparent;
+  border: 1px solid $teal;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover:not(:disabled) { background: color.adjust($teal, $lightness: 50%); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--recording {
+    color: #c0392b;
+    border-color: #c0392b;
+    &:hover:not(:disabled) { background: #fdf0ee; }
+  }
+}
