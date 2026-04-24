@@ -17,6 +17,10 @@ import { ProjectDashboard } from './pages/project-dashboard/project-dashboard';
 import { GeographicMaps } from './pages/geographic-maps/geographic-maps';
 import { EditorComponent } from './pages/editor/editor';
 import { MapEditor } from './pages/map-editor/map-editor';
+import { NodeMaps } from './pages/node-maps/node-maps';
+import { NodeMapEditor } from './pages/node-map-editor/node-map-editor';
+import { Wikis } from './pages/wikis/wikis';
+import { WikiDetail } from './pages/wiki-detail/wiki-detail';
 
 export const routes: Routes = [
   { 
@@ -68,7 +72,7 @@ export const routes: Routes = [
         component: ProjectDashboard
       },
       {
-        path: 'geographic-maps/:id',
+        path: 'geographic-maps/:projectId',
         component: GeographicMaps
       },
       {
@@ -82,6 +86,26 @@ export const routes: Routes = [
       {
         path: 'map-editor/:projectId',
         component: MapEditor
+      },
+      {
+        path: 'map-editor/:projectId/edit/:mapId',
+        component: MapEditor
+      },
+      {
+        path: 'node-maps/:id',
+        component: NodeMaps
+      },
+      {
+        path: 'node-map-editor/:projectId/:mapId',
+        component: NodeMapEditor
+      },
+      {
+        path: 'projects/:projectId/wikis',
+        component: Wikis
+      },
+      {
+        path: 'projects/:projectId/wikis/:wikiId',
+        component: WikiDetail
       }
     ]
   },

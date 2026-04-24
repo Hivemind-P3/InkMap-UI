@@ -1,24 +1,25 @@
-import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CharactersService } from '../../services/characters.service';
 import { ToastService } from '../../services/toast.service';
-import { StoryCharacter } from '../../models/story-character.model';
+import { CharacterPreview, StoryCharacter } from '../../models/story-character.model';
+import { VoiceService } from '../../services/voice.service';
 
 @Component({
   selector: 'app-characters',
-  imports: [RouterLink, DatePipe, TitleCasePipe, FormsModule],
+  imports: [ DatePipe, TitleCasePipe, FormsModule],
   templateUrl: './characters.html',
   styleUrl: './characters.scss',
 })
-export class Characters implements OnInit {
+export class Characters implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly charactersService = inject(CharactersService);
   private readonly toastService = inject(ToastService);
+  private readonly voiceService = inject(VoiceService);
 
   private readonly PAGE_SIZE = 9;
 
@@ -58,6 +59,29 @@ export class Characters implements OnInit {
   // ── Detail modal state ────────────────────────────────────────────────────
   readonly showDetailModal = signal(false);
   selectedCharacter: StoryCharacter | null = null;
+
+  // ── AI generation state ───────────────────────────────────────────────────
+  readonly showAiPanel = signal(false);
+  readonly aiLoading = signal(false);
+  readonly aiError = signal('');
+  readonly aiPreview = signal<CharacterPreview | null>(null);
+  aiInstructions = '';
+
+  // ── Voice state ───────────────────────────────────────────────────────────
+  readonly isRecording = signal(false);
+  readonly isTranscribing = signal(false);
+  voiceTarget: 'ai' | 'suggestions' | null = null;
+  private mediaRecorder: any = null;
+  private audioChunks: Blob[] = [];
+  private activeStream: MediaStream | null = null;
+
+  // ── AI suggestions state ──────────────────────────────────────────────────
+  readonly showSuggestionsPanel = signal(false);
+  readonly suggestionsLoading = signal(false);
+  readonly suggestionsError = signal('');
+  readonly suggestions = signal<CharacterPreview[]>([]);
+  readonly suggestionsSubmittingIndex = signal<number | null>(null);
+  suggestionsInstructions = '';
 
   // ── Form fields ───────────────────────────────────────────────────────────
   formName = '';
@@ -323,6 +347,195 @@ export class Characters implements OnInit {
         },
       });
     }
+  }
+
+  // ── AI generation ─────────────────────────────────────────────────────────
+
+  toggleAiPanel(): void {
+    if (this.showAiPanel()) {
+      this.cancelAiPreview();
+    } else {
+      this.closeSuggestionsPanel();
+      this.showAiPanel.set(true);
+    }
+  }
+
+  generateCharacter(): void {
+    if (!this.aiInstructions.trim()) return;
+    this.aiLoading.set(true);
+    this.aiError.set('');
+    this.aiPreview.set(null);
+    this.charactersService
+      .generateCharacter(Number(this.projectId()), this.aiInstructions)
+      .subscribe({
+        next: (preview) => {
+          this.aiPreview.set(preview);
+          this.aiLoading.set(false);
+        },
+        error: (err) => {
+          this.aiLoading.set(false);
+          const raw = err?.error?.message ?? err?.error ?? '';
+          this.aiError.set(typeof raw === 'string' && raw ? raw : 'Could not generate character. Please try again.');
+        },
+      });
+  }
+
+  confirmAiCharacter(): void {
+    const preview = this.aiPreview();
+    if (!preview) return;
+    this.isSubmitting.set(true);
+    this.aiError.set('');
+    const payload = {
+      name: preview.name,
+      ...(preview.role && { role: preview.role }),
+      ...(preview.description && { description: preview.description }),
+      age: preview.age ?? undefined,
+      gender: preview.gender ?? 'OTHER',
+      ...(preview.race && { race: preview.race }),
+    };
+    this.charactersService.createCharacter(Number(this.projectId()), payload).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.cancelAiPreview();
+        this.currentPage.set(0);
+        this.loadCharacters();
+        this.toastService.show('success', 'Character created successfully.');
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        if (err.status === 409) {
+          this.aiError.set('A character with this name already exists in this project.');
+        } else {
+          this.aiError.set('Could not create character. Please try again.');
+        }
+      },
+    });
+  }
+
+  cancelAiPreview(): void {
+    this.aiPreview.set(null);
+    this.aiError.set('');
+    this.aiInstructions = '';
+    this.showAiPanel.set(false);
+  }
+
+  // ── AI suggestions ────────────────────────────────────────────────────────
+
+  toggleSuggestionsPanel(): void {
+    if (this.showSuggestionsPanel()) {
+      this.closeSuggestionsPanel();
+    } else {
+      this.cancelAiPreview();
+      this.showSuggestionsPanel.set(true);
+    }
+  }
+
+  loadSuggestions(): void {
+    this.suggestionsLoading.set(true);
+    this.suggestionsError.set('');
+    this.suggestions.set([]);
+    this.charactersService
+      .getSuggestions(Number(this.projectId()), this.suggestionsInstructions)
+      .subscribe({
+        next: (list) => {
+          this.suggestions.set(list);
+          this.suggestionsLoading.set(false);
+        },
+        error: (err) => {
+          this.suggestionsLoading.set(false);
+          const raw = err?.error?.message ?? err?.error ?? '';
+          this.suggestionsError.set(typeof raw === 'string' && raw ? raw : 'Could not get suggestions. Please try again.');
+        },
+      });
+  }
+
+  confirmSuggestion(index: number): void {
+    const preview = this.suggestions()[index];
+    if (!preview) return;
+    this.suggestionsSubmittingIndex.set(index);
+    this.suggestionsError.set('');
+    const payload = {
+      name: preview.name,
+      ...(preview.role && { role: preview.role }),
+      ...(preview.description && { description: preview.description }),
+      age: preview.age ?? undefined,
+      gender: preview.gender ?? 'OTHER',
+      ...(preview.race && { race: preview.race }),
+    };
+    this.charactersService.createCharacter(Number(this.projectId()), payload).subscribe({
+      next: () => {
+        this.suggestionsSubmittingIndex.set(null);
+        this.currentPage.set(0);
+        this.loadCharacters();
+        this.toastService.show('success', 'Character created successfully.');
+      },
+      error: (err) => {
+        this.suggestionsSubmittingIndex.set(null);
+        if (err.status === 409) {
+          this.suggestionsError.set('A character with this name already exists in this project.');
+        } else {
+          this.suggestionsError.set('Could not create character. Please try again.');
+        }
+      },
+    });
+  }
+
+  closeSuggestionsPanel(): void {
+    this.suggestions.set([]);
+    this.suggestionsError.set('');
+    this.suggestionsInstructions = '';
+    this.suggestionsSubmittingIndex.set(null);
+    this.showSuggestionsPanel.set(false);
+  }
+
+  // ── Voice input ───────────────────────────────────────────────────────────
+
+  async startVoice(target: 'ai' | 'suggestions'): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.activeStream = stream;
+      this.audioChunks = [];
+      this.voiceTarget = target;
+      this.mediaRecorder = new (window as any).MediaRecorder(stream);
+      this.mediaRecorder.ondataavailable = (e: any) => {
+        if (e.data.size > 0) this.audioChunks.push(e.data);
+      };
+      this.mediaRecorder.onstop = () => this.handleRecordingStop();
+      this.mediaRecorder.start();
+      this.isRecording.set(true);
+    } catch {
+      this.toastService.show('error', 'Microphone access denied or not available.');
+    }
+  }
+
+  stopVoice(): void {
+    if (!this.mediaRecorder || !this.isRecording()) return;
+    this.mediaRecorder.stop();
+    this.activeStream?.getTracks().forEach((t) => t.stop());
+    this.activeStream = null;
+    this.isRecording.set(false);
+    this.isTranscribing.set(true);
+  }
+
+  private handleRecordingStop(): void {
+    const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+    const target = this.voiceTarget;
+    this.voiceService.transcribe(blob).subscribe({
+      next: ({ text }) => {
+        if (target === 'ai') this.aiInstructions = text;
+        else if (target === 'suggestions') this.suggestionsInstructions = text;
+        this.isTranscribing.set(false);
+      },
+      error: () => {
+        this.isTranscribing.set(false);
+        this.toastService.show('error', 'Could not transcribe audio. Please try again.');
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.isRecording()) this.mediaRecorder?.stop();
+    this.activeStream?.getTracks().forEach((t) => t.stop());
   }
 
   logout(): void {

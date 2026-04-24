@@ -4,19 +4,30 @@ import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment.local';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { DatePipe } from '@angular/common';
 
 interface AdminUser {
   id: number;
   name: string;
   email: string;
   role: string;
+  startDt: string;
+  blocked: boolean;
+}
+
+interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
 }
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.html',
   styleUrls: ['./admin.scss'],
-  imports: [FormsModule],
+  imports: [FormsModule, DatePipe],
 })
 export class AdminPanel implements OnInit {
   users: AdminUser[] = [];
@@ -24,6 +35,15 @@ export class AdminPanel implements OnInit {
   savingId: number | null = null;
   deletingId: number | null = null;
   currentUserId: number | null = null;
+  blockingId: number | null = null;
+
+  currentPage = 0;
+  pageSize = 10;
+  totalPages = 0;
+  totalElements = 0;
+
+  searchQuery = '';
+  private searchTimeout: any;
 
   private readonly baseUrl = environment.apiBaseUrl;
   private readonly auth = inject(AuthService);
@@ -48,18 +68,45 @@ export class AdminPanel implements OnInit {
 
   loadUsers(): void {
     this.loading = true;
-    this.http.get<AdminUser[]>(`${this.baseUrl}/users`, { headers: this.headers() }).subscribe({
+    let url = `${this.baseUrl}/users?page=${this.currentPage}&size=${this.pageSize}`;
+    if (this.searchQuery.trim()) {
+      url += `&search=${encodeURIComponent(this.searchQuery.trim())}`;
+    }
+
+    this.http.get<PageResponse<AdminUser>>(url, { headers: this.headers() }).subscribe({
       next: (data) => {
-        this.users = data;
+        this.users = data.content;
+        this.totalPages = data.totalPages;
+        this.totalElements = data.totalElements;
+        this.currentPage = data.number;
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
+        console.error('API error:', err);
         this.toast.show('error', err.error?.message || 'Could not load users.');
         this.loading = false;
         this.cdr.detectChanges();
       },
     });
+  }
+
+  onSearchInput(): void {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.currentPage = 0;
+      this.loadUsers();
+    }, 350);
+  }
+
+  goToPage(page: number): void {
+    if(page < 0 || page >= this.totalPages) return;
+    this.currentPage = page;
+    this.loadUsers();
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i);
   }
 
   updateRole(user: AdminUser): void {
@@ -80,6 +127,30 @@ export class AdminPanel implements OnInit {
         error: (err) => {
           this.savingId = null;
           this.toast.show('error', err.error?.message || 'Could not update role.');
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  blockUser(user: AdminUser): void {
+    if (this.isSelf(user)) {
+      this.toast.show('error', 'You cannot block your own account.');
+      return;
+    }
+    this.blockingId = user.id;
+    const action = user.blocked ? 'unblock' : 'block';
+    this.http
+      .patch(`${this.baseUrl}/users/${user.id}/${action}`, {}, { headers: this.headers() })
+      .subscribe({
+        next: () => {
+          user.blocked = !user.blocked;
+          this.blockingId = null;
+          this.toast.show('success', `User ${user.email} ${action}ed successfully.`);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.blockingId = null;
+          this.toast.show('error', err.error?.message || `Could not ${action} user.`);
           this.cdr.detectChanges();
         },
       });

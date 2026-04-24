@@ -1,4 +1,4 @@
-<div class="page-wrapper w-100 h-100 p-5">
+<div class="page-wrapper w-100 p-5">
     @if (isLoading) {
         <div class="d-flex justify-content-center align-items-center h-100">
             <div class="spinner-border text-secondary" role="status"></div>
@@ -9,7 +9,7 @@
             <span class="project-subtitle">Every great story starts here. Shape your world, your characters, and your lore</span>
             <hr class="section-divider mt-3 mb-4">
         </div>
-        <div class="py-4 row row-cols-1 row-cols-xl-3 g-5">
+        <div class="py-4 row row-cols-1 row-cols-xl-2 row-cols-xxl-4 g-5">
             <div class="col">
                 <app-project-section-card
                     [title]="'Geographic Maps'"
@@ -17,6 +17,15 @@
                     [icon]="'fa-regular fa-map'"
                     [image]="'geographic-map.png'"
                     [route]="'/app/geographic-maps/' + projectId"
+                ></app-project-section-card>
+            </div>
+            <div class="col">
+                <app-project-section-card
+                    [title]="'Node Maps'"
+                    [description]="'Build node diagrams to map relationships, timelines and story connections.'"
+                    [icon]="'fa-solid fa-diagram-project'"
+                    [image]="'geographic-map.png'"
+                    [route]="'/app/node-maps/' + projectId"
                 ></app-project-section-card>
             </div>
             <div class="col">
@@ -35,6 +44,15 @@
                     [icon]="'fa-solid fa-pen-nib'"
                     [image]="'document.png'"
                     [route]="'/app/editor/' + projectId"
+                ></app-project-section-card>
+            </div>
+            <div class="col">
+                <app-project-section-card
+                    [title]="'Wikis'"
+                    [description]="'Document your world lore, characters and story elements in structured wiki pages.'"
+                    [icon]="'fa-regular fa-file-lines'"
+                    [image]="'document.png'"
+                    [route]="'/app/projects/' + projectId + '/wikis'"
                 ></app-project-section-card>
             </div>
         </div>

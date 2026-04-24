@@ -12,11 +12,10 @@ $terra: #C17767;
   border-bottom: 1px solid rgba($dark, 0.08);
   position: sticky;
   top: 0;
-  z-index: 1030; // above Bootstrap default
+  z-index: 1030; 
 
   .navbar-brand { padding: 0; }
 
-  // Bootstrap .nav-link override
   .nav-link {
     color: rgba($dark, 0.6);
     font-size: 0.875rem;
@@ -333,7 +332,6 @@ $terra: #C17767;
   line-height: 1.7;
 }
 
-// Bootstrap .h-100 .p-4 .rounded-3 handle layout/spacing; custom below handles visuals
 .feat-card {
   background: #fff;
   border: 1px solid rgba($dark, 0.06);
@@ -369,7 +367,6 @@ $terra: #C17767;
   padding: 96px 0;
 }
 
-// Bootstrap .h-100 .p-4/.p-lg-5 .rounded-4 handle layout; custom below handles visuals
 .step-card {
   background: $beige;
   border: 1px solid rgba($dark, 0.06);

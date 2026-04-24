@@ -8,8 +8,8 @@ i {
   flex-shrink: 0;
   opacity: 0.55;
   font-size: 1.2rem;
-  width: 1.2rem;        // add this
-  text-align: center;   // add this
+  width: 1.2rem;        
+  text-align: center;   
 }
 
 .app-sidebar {
@@ -100,6 +100,19 @@ i {
     overflow: hidden;
     white-space: nowrap;
     transition: opacity 0.2s ease, width 0.3s ease;
+  }
+
+  &--disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    cursor: default;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.55);
+      background: none;
+      font-weight: 500;
+      i { opacity: 0.55; color: inherit; }
+    }
   }
 
   &--active {

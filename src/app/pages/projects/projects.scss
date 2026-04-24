@@ -1,3 +1,5 @@
+@use "sass:color";
+
 $dark-blue: #2c3e50;
 $beige: #e8dcc4;
 $brown: #8b7355;
@@ -7,7 +9,7 @@ $terra: #c17767;
 // ─── Page shell ───────────────────────────────────────────────────────────────
 
 .projects-page {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--header-height));
   background: $beige;
   display: flex;
   flex-direction: row;
@@ -24,7 +26,7 @@ $terra: #c17767;
   padding: 1.5rem 0;
   position: sticky;
   top: 0;
-  height: 100vh;
+  min-height: calc(100vh - var(--header-height));
   overflow-y: auto;
 }
 
@@ -291,7 +293,7 @@ $terra: #c17767;
   white-space: nowrap;
 
   &:hover {
-    background: darken($teal, 8%);
+    background: color.adjust($teal, $lightness: -8%)
   }
 
   &--centered {
@@ -883,7 +885,7 @@ $terra: #c17767;
   transition: background 0.2s;
 
   &:hover:not(:disabled) {
-    background: darken($teal, 8%);
+    background: color.adjust($teal, $lightness: -8%)
   }
 
   &:disabled {

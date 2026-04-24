@@ -7,35 +7,36 @@
 
     <nav class="sidebar-nav">
       <span class="nav-section-label">Workspace</span>
-      <div class="nav-item nav-item--disabled">
-        <i class="fa-solid fa-table-cells-large"></i>
-        <span>Dashboard</span>
-      </div>
       <div class="nav-item nav-item--active" routerLink="/app/projects">
         <i class="fa-solid fa-layer-group"></i>
         <span>Projects</span>
       </div>
 
       <span class="nav-section-label">Story</span>
-      <div class="nav-item nav-item--disabled">
+      <div class="nav-item" [class.nav-item--disabled]="!projectId"
+           [routerLink]="projectId ? '/app/projects/' + projectId + '/characters' : null">
         <i class="fa-solid fa-person"></i>
         <span>Characters</span>
       </div>
-      <div class="nav-item nav-item--disabled">
-        <i class="fa-solid fa-earth-americas"></i>
-        <span>Worldbuilding</span>
-      </div>
-      <div class="nav-item nav-item--disabled">
+      <div class="nav-item" [class.nav-item--disabled]="!projectId"
+           [routerLink]="projectId ? '/app/geographic-maps/' + projectId : null">
         <i class="fa-regular fa-map"></i>
         <span>Maps</span>
       </div>
-      <div class="nav-item nav-item--disabled">
+      <div class="nav-item" [class.nav-item--disabled]="!projectId"
+           [routerLink]="projectId ? '/app/node-maps/' + projectId : null">
         <i class="fa-solid fa-diagram-project"></i>
         <span>Narrative Maps</span>
       </div>
+      <div class="nav-item" [class.nav-item--disabled]="!projectId"
+           [routerLink]="projectId ? '/app/projects/' + projectId + '/wikis' : null">
+        <i class="fa-regular fa-file-lines"></i>
+        <span>Wikis</span>
+      </div>
 
       <span class="nav-section-label">Tools</span>
-      <div class="nav-item nav-item--disabled">
+      <div class="nav-item" [class.nav-item--disabled]="!projectId"
+           [routerLink]="projectId ? '/app/editor/' + projectId : null">
         <i class="fa-solid fa-pen"></i>
         <span>Editor</span>
       </div>
@@ -45,10 +46,6 @@
       </div>
 
       <span class="nav-section-label">Team</span>
-      <div class="nav-item nav-item--disabled">
-        <i class="fa-regular fa-handshake"></i>
-        <span>Collaboration</span>
-      </div>
       <div class="nav-item nav-item--disabled">
         <i class="fa-regular fa-bell"></i>
         <span>Notifications</span>

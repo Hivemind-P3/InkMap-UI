@@ -27,7 +27,6 @@ export class Login {
   onSubmit() {
     if (this.loading()) return;
     this.loading.set(true);
-
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
         this.loading.set(false);
@@ -35,7 +34,10 @@ export class Login {
       },
       error: (err) => {
         this.loading.set(false);
-        const message = err?.error?.message ?? 'Sign in failed. Please try again.';
+        const status = err?.status;
+        const message = status === 403
+          ? (err?.error?.message ?? 'Your account has been blocked. Please contact an admin.')
+          : (err?.error?.message ?? 'Sign in failed. Please try again.');
         this.toast.show('error', message);
       },
     });

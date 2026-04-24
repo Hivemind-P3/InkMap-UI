@@ -1,15 +1,14 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { GeographicMap } from '../../models/geographic-map.model';
 import { GeographicMapService } from '../../services/geographic-map.service';
-import { BaseService } from '../../services/base.service';
 import { Project } from '../../models/project.model';
-import { ProjectsService } from '../../services/projects.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-geographic-maps',
-  imports: [RouterLink],
+  imports: [DatePipe],
   templateUrl: './geographic-maps.html',
   styleUrl: './geographic-maps.scss',
 })
@@ -30,7 +29,8 @@ export class GeographicMaps implements OnInit {
   constructor(private route: ActivatedRoute) {}
   
   ngOnInit(): void {
-    this.projectId = this.route.snapshot.paramMap.get('id') ?? '';
+    this.projectId = this.route.snapshot.paramMap.get('projectId') ?? '';
+    if(!this.projectId) return;
     this.loadMaps();
   }
   
@@ -51,7 +51,7 @@ export class GeographicMaps implements OnInit {
   nextPage(): void {
     if (this.currentPage < this.totalPages - 1) {
       this.currentPage++;
-      this.loadMaps;
+      this.loadMaps();
     }
   }
 
@@ -64,5 +64,9 @@ export class GeographicMaps implements OnInit {
 
   redirect(): void {
     window.location.href = '/app/map-editor/' + this.projectId;
+  }
+
+  openMap(mapId: number): void {
+    window.location.href = '/app/map-editor/' + this.projectId + '/edit/' + mapId;
   }
 }

@@ -17,3 +17,12 @@ export interface CreateCharacterRequest {
   gender: string;
   race?: string;
 }
+
+export interface CharacterPreview {
+  name: string;
+  role?: string;
+  description?: string;
+  age?: number | null;
+  gender?: string;
+  race?: string;
+}

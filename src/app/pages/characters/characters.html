@@ -21,7 +21,17 @@
                 <span class="character-count">{{ totalElements() }}</span>
               }
             </div>
-            <button class="btn-create" (click)="openModal()">Create character</button>
+            <div class="list-header-actions">
+              <button class="btn-ai" type="button" (click)="toggleSuggestionsPanel()">
+                <i class="fa-solid fa-lightbulb"></i>
+                {{ showSuggestionsPanel() ? 'Close suggestions' : 'Suggest characters' }}
+              </button>
+              <button class="btn-ai" type="button" (click)="toggleAiPanel()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                {{ showAiPanel() ? 'Close AI' : 'Generate with AI' }}
+              </button>
+              <button class="btn-create" (click)="openModal()">Create character</button>
+            </div>
           </div>
 
           <div class="search-bar">
@@ -55,6 +65,175 @@
               autocomplete="off"
             />
           </div>
+
+          @if (showAiPanel()) {
+            <div class="ai-panel">
+              <span class="ai-panel-title">Generate character with AI</span>
+              <div class="ai-panel-body">
+                <textarea
+                  class="form-input form-textarea ai-instructions"
+                  [(ngModel)]="aiInstructions"
+                  name="aiInstructions"
+                  placeholder="Describe the character you want... (e.g. 'A wise old wizard who hides a dark past')"
+                  rows="3"
+                ></textarea>
+                <button
+                  class="btn-mic"
+                  [class.btn-mic--recording]="isRecording()"
+                  type="button"
+                  (click)="isRecording() ? stopVoice() : startVoice('ai')"
+                  [disabled]="isTranscribing() || aiLoading()"
+                >
+                  <i class="fa-solid" [class.fa-microphone]="!isRecording()" [class.fa-stop]="isRecording()"></i>
+                  {{ isTranscribing() ? 'Transcribing…' : isRecording() ? 'Stop' : 'Voice' }}
+                </button>
+                <button
+                  class="btn-submit"
+                  type="button"
+                  (click)="generateCharacter()"
+                  [disabled]="aiLoading() || isRecording() || isTranscribing() || !aiInstructions.trim()"
+                >
+                  {{ aiLoading() ? 'Generating...' : 'Generate' }}
+                </button>
+              </div>
+
+              @if (aiError()) {
+                <p class="submit-error">{{ aiError() }}</p>
+              }
+
+              @if (aiPreview()) {
+                <div class="ai-preview">
+                  <span class="ai-preview-label">Preview</span>
+                  <div class="ai-preview-fields">
+                    <div class="ai-preview-row">
+                      <span class="detail-label">Name</span>
+                      <span class="detail-value">{{ aiPreview()!.name }}</span>
+                    </div>
+                    @if (aiPreview()!.role) {
+                      <div class="ai-preview-row">
+                        <span class="detail-label">Role</span>
+                        <span class="detail-value">{{ aiPreview()!.role }}</span>
+                      </div>
+                    }
+                    <div class="ai-preview-row">
+                      <span class="detail-label">Gender</span>
+                      <span class="detail-value">{{ aiPreview()!.gender ? (aiPreview()!.gender | titlecase) : '—' }}</span>
+                    </div>
+                    @if (aiPreview()!.race) {
+                      <div class="ai-preview-row">
+                        <span class="detail-label">Race</span>
+                        <span class="detail-value">{{ aiPreview()!.race }}</span>
+                      </div>
+                    }
+                    @if (aiPreview()!.age !== undefined) {
+                      <div class="ai-preview-row">
+                        <span class="detail-label">Age</span>
+                        <span class="detail-value">{{ aiPreview()!.age !== null ? aiPreview()!.age : 'Unknown' }}</span>
+                      </div>
+                    }
+                    @if (aiPreview()!.description) {
+                      <div class="ai-preview-row">
+                        <span class="detail-label">Description</span>
+                        <span class="detail-value detail-value--block">{{ aiPreview()!.description }}</span>
+                      </div>
+                    }
+                  </div>
+                  <div class="modal-actions" style="padding-top: 0.5rem;">
+                    <button
+                      type="button"
+                      class="btn-cancel"
+                      (click)="cancelAiPreview()"
+                      [disabled]="isSubmitting()"
+                    >Cancel</button>
+                    <button
+                      type="button"
+                      class="btn-submit"
+                      (click)="confirmAiCharacter()"
+                      [disabled]="isSubmitting()"
+                    >
+                      {{ isSubmitting() ? 'Creating...' : 'Create character' }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (showSuggestionsPanel()) {
+            <div class="ai-panel">
+              <span class="ai-panel-title">Character suggestions</span>
+              <div class="ai-panel-body">
+                <textarea
+                  class="form-input form-textarea ai-instructions"
+                  [(ngModel)]="suggestionsInstructions"
+                  name="suggestionsInstructions"
+                  placeholder="Optional: describe your story's themes or context to get better suggestions..."
+                  rows="2"
+                ></textarea>
+                <button
+                  class="btn-mic"
+                  [class.btn-mic--recording]="isRecording()"
+                  type="button"
+                  (click)="isRecording() ? stopVoice() : startVoice('suggestions')"
+                  [disabled]="isTranscribing() || suggestionsLoading()"
+                >
+                  <i class="fa-solid" [class.fa-microphone]="!isRecording()" [class.fa-stop]="isRecording()"></i>
+                  {{ isTranscribing() ? 'Transcribing…' : isRecording() ? 'Stop' : 'Voice' }}
+                </button>
+                <button
+                  class="btn-submit"
+                  type="button"
+                  (click)="loadSuggestions()"
+                  [disabled]="suggestionsLoading() || isRecording() || isTranscribing()"
+                >
+                  {{ suggestionsLoading() ? 'Loading...' : 'Get suggestions' }}
+                </button>
+              </div>
+
+              @if (suggestionsError()) {
+                <p class="submit-error">{{ suggestionsError() }}</p>
+              }
+
+              @if (suggestions().length > 0) {
+                <div class="suggestions-grid">
+                  @for (s of suggestions(); track $index) {
+                    <div class="suggestion-card">
+                      <div class="card-top">
+                        <h3 class="card-title">{{ s.name }}</h3>
+                        @if (s.role) {
+                          <span class="card-role">{{ s.role }}</span>
+                        }
+                      </div>
+                      <div class="card-meta">
+                        @if (s.gender) {
+                          <span class="card-meta-item">{{ s.gender | titlecase }}</span>
+                        }
+                        @if (s.race) {
+                          <span class="card-meta-item">{{ s.race }}</span>
+                        }
+                        @if (s.age !== undefined) {
+                          <span class="card-meta-item">{{ s.age !== null ? s.age + ' y/o' : 'Unknown age' }}</span>
+                        }
+                      </div>
+                      @if (s.description) {
+                        <p class="card-description">{{ s.description }}</p>
+                      }
+                      <div class="suggestion-card-footer">
+                        <button
+                          type="button"
+                          class="btn-submit"
+                          (click)="confirmSuggestion($index)"
+                          [disabled]="suggestionsSubmittingIndex() !== null"
+                        >
+                          {{ suggestionsSubmittingIndex() === $index ? 'Creating...' : 'Create' }}
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
 
           @if (projectHasCharacters() === false) {
             <div class="empty-content">

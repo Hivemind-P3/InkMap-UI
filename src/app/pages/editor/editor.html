@@ -1,25 +1,317 @@
-<div class="container">
+<div class="editor-container">
 
   <app-narrative-list
     [projectId]="projectId"
     (selected)="onSelected($event)"
+    (searchNavigated)="onSearchNavigated($event)"
   ></app-narrative-list>
 
   <div class="editor">
 
-    <input
-      [(ngModel)]="title"
-      class="title"
-      placeholder="Title"
-    />
+    <div class="editor-context">
+      <div class="ctx-top">
+        <span class="ctx-label">Narrative Editor</span>
+        @if (projectName) {
+          <span class="ctx-sep">·</span>
+          <span class="ctx-project">{{ projectName }}</span>
+        }
+      </div>
+      @if (selected) {
+        <p class="ctx-chapter">Editing: <strong>{{ selected.title }}</strong></p>
+      }
+    </div>
 
-    <quill-editor
-      [(ngModel)]="content"
-      class="quill"
-    ></quill-editor>
+    @if (selected) {
 
-    <button (click)="save()">Save</button>
+      <div class="document-sheet">
+
+        <div class="title-row">
+          <input
+            [(ngModel)]="title"
+            class="title"
+            placeholder="Chapter title"
+            [readOnly]="isTitleReadOnly"
+          />
+          @if (!selectedVersion && !compareResult) {
+            <div class="actions">
+              <button class="btn-suggestions" (click)="openSuggestions()">✦ Suggestions</button>
+              <button class="btn-version" (click)="createVersion()" [disabled]="isCreatingVersion">
+                {{ isCreatingVersion ? 'Saving…' : '+ Version' }}
+              </button>
+              <button (click)="save()" [disabled]="isSaving">
+                {{ isSaving ? 'Saving…' : 'Save' }}
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (compareResult) {
+          <div class="version-preview-banner">
+            <span class="preview-label">
+              Comparing <strong>Version {{ compareSelectionNumA }}</strong> vs <strong>Version {{ compareSelectionNumB }}</strong>
+              @if (changeBlocks.length > 0) {
+                <span class="changes-count">· {{ changeBlocks.length }} change{{ changeBlocks.length !== 1 ? 's' : '' }}</span>
+              }
+            </span>
+            <div class="preview-actions">
+              <div class="compare-tabs">
+                <button class="compare-tab" [class.active]="compareView === 'changes'" (click)="compareView = 'changes'">Changes</button>
+                <button class="compare-tab" [class.active]="compareView === 'full'" (click)="compareView = 'full'">Full content</button>
+              </div>
+              <button class="btn-close-preview" (click)="closeCompareView()">← Back to editing</button>
+            </div>
+          </div>
+
+          @if (compareView === 'changes') {
+            @if (unifiedLines.length === 0 || unifiedLines.every(l => l.type === 'equal' || l.type === 'separator')) {
+              <div class="changes-empty">These versions are identical.</div>
+            } @else {
+              <div class="ud-legend">
+                <span class="ud-legend-chip ud-legend-chip--removed">− Version {{ compareSelectionNumA }}</span>
+                <span class="ud-legend-chip ud-legend-chip--added">+ Version {{ compareSelectionNumB }}</span>
+              </div>
+              <div class="unified-diff">
+                @for (line of unifiedLines; track $index) {
+                  @if (line.type === 'separator') {
+                    <div class="ud-separator"></div>
+                  } @else {
+                    <div class="ud-line ud-line--{{ line.type }}">
+                      <span class="ud-marker">{{ line.type === 'removed' ? '−' : line.type === 'added' ? '+' : '' }}</span>
+                      <span class="ud-text">{{ line.text }}</span>
+                    </div>
+                  }
+                }
+              </div>
+            }
+          } @else {
+            <div class="full-content-columns">
+              <div class="full-content-col">
+                <div class="full-content-col-header">
+                  <span class="full-content-col-label">Version {{ compareSelectionNumA }}</span>
+                  <span class="full-content-col-date">{{ compareResult.createdAtA | date:'dd MMM yyyy · HH:mm' }}</span>
+                </div>
+                <quill-editor [ngModel]="compareContentA" [format]="'object'" [modules]="quillModules" [readOnly]="true" class="quill quill-readonly"></quill-editor>
+              </div>
+              <div class="full-content-col">
+                <div class="full-content-col-header">
+                  <span class="full-content-col-label">Version {{ compareSelectionNumB }}</span>
+                  <span class="full-content-col-date">{{ compareResult.createdAtB | date:'dd MMM yyyy · HH:mm' }}</span>
+                </div>
+                <quill-editor [ngModel]="compareContentB" [format]="'object'" [modules]="quillModules" [readOnly]="true" class="quill quill-readonly"></quill-editor>
+              </div>
+            </div>
+          }
+
+        } @else if (selectedVersion) {
+          <div class="version-preview-banner">
+            <span class="preview-label">
+              Viewing <strong>Version {{ selectedVersionNum }}</strong>
+              · {{ selectedVersion.createdAt | date:'dd MMM yyyy · HH:mm' }}
+              @if (selectedVersion.author) {
+                · {{ selectedVersion.author }}
+              }
+            </span>
+            <div class="preview-actions">
+              @if (showRestoreConfirm) {
+                <span class="restore-confirm-text">Do you want to restore this version? Other versions will not be lost.</span>
+                <button class="btn-restore-confirm" (click)="restoreVersion()" [disabled]="isRestoring">
+                  {{ isRestoring ? 'Restoring…' : 'Yes, restore' }}
+                </button>
+                <button class="btn-restore-cancel" (click)="showRestoreConfirm = false" [disabled]="isRestoring">Cancel</button>
+              } @else {
+                <button class="btn-restore" (click)="showRestoreConfirm = true">Restore this version</button>
+              }
+              <button class="btn-close-preview" (click)="closeVersionView()">← Back to editing</button>
+            </div>
+          </div>
+          <quill-editor
+            [ngModel]="viewedContent"
+            [format]="'object'"
+            [readOnly]="true"
+            [modules]="quillModules"
+            class="quill quill-readonly"
+          ></quill-editor>
+
+        } @else {
+          <quill-editor
+            [(ngModel)]="content"
+            [format]="'object'"
+            [modules]="quillModules"
+            class="quill"
+            (onEditorCreated)="onEditorReady($event)"
+          ></quill-editor>
+        }
+
+      </div>
+
+    } @else {
+      <div class="empty-state">
+        <p>Select a chapter to start editing.</p>
+      </div>
+    }
+
+    @if (isSuggestionsOpen) {
+      <div class="suggestions-overlay" (click)="closeSuggestions()"></div>
+      <div class="suggestions-panel">
+        <div class="suggestions-header">
+          <span class="suggestions-title">✦ Narrative Suggestions</span>
+          <button class="btn-close-suggestions" (click)="closeSuggestions()">✕</button>
+        </div>
+        <div class="suggestions-input-row">
+          <textarea
+            class="suggestions-instructions"
+            [(ngModel)]="suggestionsInstructions"
+            placeholder="Additional instructions (optional)..."
+            rows="3"
+          ></textarea>
+          <button
+            class="btn-mic"
+            [class.btn-mic--recording]="isRecording()"
+            type="button"
+            (click)="isRecording() ? stopVoice() : startVoice()"
+            [disabled]="isTranscribing() || isLoadingSuggestions"
+          >
+            <i class="fa-solid" [class.fa-microphone]="!isRecording()" [class.fa-stop]="isRecording()"></i>
+            {{ isTranscribing() ? 'Transcribing…' : isRecording() ? 'Stop' : 'Voice' }}
+          </button>
+        </div>
+        <button class="btn-get-suggestions" (click)="fetchSuggestions()" [disabled]="isLoadingSuggestions">
+          {{ isLoadingSuggestions ? 'Analysing…' : 'Analyse story' }}
+        </button>
+        @if (suggestionsResult) {
+          <div class="suggestions-result">{{ suggestionsResult }}</div>
+        }
+      </div>
+    }
 
   </div>
+
+  @if (selected) {
+    <div class="right-panel">
+
+      <div class="right-panel-section">
+        <div class="right-panel-header">
+          <span class="right-panel-label">Version History</span>
+          @if (compareSelectionA && compareSelectionB) {
+            <button class="btn-compare" (click)="compareVersions()" [disabled]="isComparing">
+              {{ isComparing ? '…' : 'Compare' }}
+            </button>
+          }
+        </div>
+        @if (versions.length === 0) {
+          <p class="right-panel-empty">No saved versions</p>
+        } @else {
+          <div class="versions-list">
+            @for (v of versions; track v.id; let i = $index) {
+              <div
+                class="version-item"
+                [class.active]="v.id === selectedVersion?.id"
+                [class.compare-a]="v.id === compareSelectionA?.id"
+                [class.compare-b]="v.id === compareSelectionB?.id"
+                (click)="selectVersion(v, i)"
+              >
+                <input
+                  type="checkbox"
+                  class="compare-check"
+                  [checked]="v.id === compareSelectionA?.id || v.id === compareSelectionB?.id"
+                  [disabled]="compareSelectionA !== undefined && compareSelectionB !== undefined && v.id !== compareSelectionA?.id && v.id !== compareSelectionB?.id"
+                  (change)="toggleCompareSelection(v, i)"
+                  (click)="$event.stopPropagation()"
+                />
+                <div class="version-info">
+                  <span class="version-num">V{{ versions.length - i }}</span>
+                  <span class="version-date">{{ v.createdAt | date:'dd MMM yy · HH:mm' }}</span>
+                  @if (v.author) {
+                    <span class="version-author">{{ v.author }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="right-panel-section right-panel-section--assoc">
+        <div class="right-panel-header" (click)="toggleAssocPanel()" style="cursor:pointer">
+          <span class="right-panel-label">Associations</span>
+          <span class="assoc-toggle-icon">{{ isAssocPanelOpen ? '▲' : '▼' }}</span>
+        </div>
+        @if (isAssocPanelOpen) {
+          <div class="assoc-panel-body">
+            @if (associations === null && !assocError) {
+              <p class="assoc-loading">Loading…</p>
+            } @else if (assocError && associations === null) {
+              <p class="assoc-error">{{ assocError }}</p>
+            } @else if (!isAssocEditMode) {
+              <div class="assoc-section">
+                <span class="assoc-section-title">Characters</span>
+                @if (associations!.characters.length === 0) {
+                  <span class="assoc-none">None</span>
+                } @else {
+                  <div class="assoc-tags">
+                    @for (c of associations!.characters; track c.id) {
+                      <span class="assoc-tag">{{ c.name }}</span>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="assoc-section">
+                <span class="assoc-section-title">Places</span>
+                @if (associations!.places.length === 0) {
+                  <span class="assoc-none">None</span>
+                } @else {
+                  <div class="assoc-tags">
+                    @for (p of associations!.places; track p.id) {
+                      <span class="assoc-tag">{{ p.title }}</span>
+                    }
+                  </div>
+                }
+              </div>
+              <button class="btn-assoc-edit" (click)="enterAssocEdit()">Edit</button>
+            } @else {
+              <div class="assoc-section">
+                <span class="assoc-section-title">Characters</span>
+                <div class="assoc-checklist">
+                  @for (c of availableCharacters; track c.id) {
+                    <label class="assoc-check-item">
+                      <input type="checkbox" [checked]="selectedCharIds.has(c.id)" (change)="toggleAssocChar(c.id)" />
+                      {{ c.name }}
+                    </label>
+                  }
+                  @if (availableCharacters.length === 0) {
+                    <span class="assoc-none">No characters in project</span>
+                  }
+                </div>
+              </div>
+              <div class="assoc-section">
+                <span class="assoc-section-title">Places (Wiki)</span>
+                <div class="assoc-checklist">
+                  @for (w of availableWikis; track w.id) {
+                    <label class="assoc-check-item">
+                      <input type="checkbox" [checked]="selectedWikiIds.has(w.id)" (change)="toggleAssocWiki(w.id)" />
+                      {{ w.title }}
+                    </label>
+                  }
+                  @if (availableWikis.length === 0) {
+                    <span class="assoc-none">No wiki entries in project</span>
+                  }
+                </div>
+              </div>
+              @if (assocError) {
+                <p class="assoc-error">{{ assocError }}</p>
+              }
+              <div class="assoc-edit-actions">
+                <button class="btn-assoc-save" (click)="saveAssociations()" [disabled]="isAssocSaving">
+                  {{ isAssocSaving ? 'Saving…' : 'Save' }}
+                </button>
+                <button class="btn-assoc-cancel" (click)="cancelAssocEdit()" [disabled]="isAssocSaving">Cancel</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+  }
 
 </div>
