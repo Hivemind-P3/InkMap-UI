@@ -1,6 +1,6 @@
 @use 'sass:color';
 $teal: #4a7c7e;
-$bg-page: #e8e8e8;       // ✅ grey page background like Word
+$bg-page: #e8e8e8;       
 $bg-editor: #fafaf8;
 
 :host {
@@ -8,12 +8,13 @@ $bg-editor: #fafaf8;
   flex: 1;
   min-width: 0;
   width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
 .editor-container {
   display: flex;
-  height: calc(100vh - var(--header-height));
+  min-height: 100%;
   width: 100%;
   overflow: hidden;
 }
@@ -82,11 +83,10 @@ $bg-editor: #fafaf8;
     padding: 48px 64px 32px;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 0;
     box-sizing: border-box;
 
     .quill {
+      min-height: calc(100vh - 300px);
 
       ::ng-deep .ql-container {
         border: none;
@@ -171,7 +171,7 @@ $bg-editor: #fafaf8;
     flex: 1;
     min-height: 400px;
     background: #fff;
-    border: none;           // ✅ no border — it's inside the white sheet
+    border: none;           
     border-radius: 0;
 
     ::ng-deep .ql-toolbar {
@@ -582,4 +582,87 @@ $bg-editor: #fafaf8;
 
   &:hover:not(:disabled) { background: #f0ede8; }
   &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.suggestions-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+.suggestions-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  padding: 28px;
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  .suggestions-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .suggestions-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: $teal;
+    }
+
+    .btn-close-suggestions {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      color: #aaa;
+      cursor: pointer;
+      &:hover { color: #333; }
+    }
+  }
+
+  .suggestions-instructions {
+    width: 100%;
+    border: 1px solid #e0ddd6;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+    &:focus { outline: none; border-color: $teal; }
+  }
+
+  .btn-get-suggestions {
+    align-self: flex-start;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: $teal;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+
+    &:hover:not(:disabled) { background: color.adjust($teal, $lightness: -8%); }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+
+  .suggestions-result {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre-wrap;
+    border-top: 1px solid #e0ddd6;
+    padding-top: 14px;
+  }
 }

@@ -3,7 +3,7 @@
     border-radius: 15px;
     overflow: hidden;
     transition: box-shadow 0.15s ease-in-out, border 0.15s ease-in-out;
-    height: 100% !important; // back to 100% so cards stretch equally
+    height: 100% !important;
     display: flex;
     flex-direction: column;
     span {
@@ -44,5 +44,5 @@
     width: 3rem;
     min-width: 3rem;
     min-height: 3rem;
-    flex-shrink: 0; // add this so it doesn't shrink
+    flex-shrink: 0;
 }
