@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -20,6 +20,7 @@ import { NarrativeListComponent } from '../narrative-list/narrative-list';
 import { StoryCharacter } from '../../models/story-character.model';
 import { Wiki } from '../../models/wiki.model';
 import { QuillEditorComponent } from 'ngx-quill';
+import { VoiceService } from '../../services/voice.service';
 
 interface ChangeBlock {
   type: 'modified' | 'added' | 'removed';
@@ -48,6 +49,7 @@ export class EditorComponent implements OnInit {
   private toast = inject(ToastService);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
+  private voiceService = inject(VoiceService);
 
   projectId = Number(this.route.snapshot.paramMap.get('projectId'));
   projectName = '';
@@ -88,6 +90,26 @@ export class EditorComponent implements OnInit {
   private quillInstance: any = null;
   private pendingSearchTerm: string | null = null;
 
+  protected quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ header: [1, 2, 3, false] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['blockquote']
+    ]
+  };
+
+  isSuggestionsOpen = false;
+  suggestionsInstructions = '';
+  suggestionsResult = '';
+  isLoadingSuggestions = false;
+
+  readonly isRecording = signal(false);
+  readonly isTranscribing = signal(false);
+  private mediaRecorder: any = null;
+  private audioChunks: Blob[] = [];
+  private activeStream: MediaStream | null = null;
+
   ngOnInit() {
     this.projectsService.getProjectById(this.projectId).subscribe({
       next: (p) => {
@@ -100,6 +122,8 @@ export class EditorComponent implements OnInit {
 
   onEditorReady(quill: any): void {
     this.quillInstance = quill;
+    quill.root.setAttribute('spellcheck', 'true');
+    quill.root.spellcheck = true;
   }
 
   onSearchNavigated(term: string): void {
@@ -502,6 +526,7 @@ export class EditorComponent implements OnInit {
           }
           this.isRestoring = false;
           this.closeVersionView();
+          this.service.updateCached(updated);
           this.toast.show('success', 'Version successfully restored');
           this.cdr.detectChanges();
         },
@@ -587,5 +612,79 @@ export class EditorComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  openSuggestions() { this.isSuggestionsOpen = true };
+
+  closeSuggestions() { this.isSuggestionsOpen = false };
+
+  fetchSuggestions() {
+    if(this.isLoadingSuggestions) return;
+    this.isLoadingSuggestions = true;
+    this.suggestionsResult = '';
+
+    this.service.getSuggestions(this.projectId, this.suggestionsInstructions).subscribe({
+      next: (res) => {
+        this.suggestionsResult = res.suggestions;
+        this.isLoadingSuggestions = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.suggestionsResult = 'Error generating suggestions.';
+        this.isLoadingSuggestions = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  get isTitleReadOnly(): boolean {
+    return !!this.selectedVersion || !!this.compareResult;
+  }
+
+  async startVoice(): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.activeStream = stream;
+      this.audioChunks = [];
+      this.mediaRecorder = new (window as any).MediaRecorder(stream);
+      this.mediaRecorder.ondataavailable = (e: any) => {
+        if (e.data.size > 0) this.audioChunks.push(e.data);
+      };
+      this.mediaRecorder.onstop = () => this.handleRecordingStop();
+      this.mediaRecorder.start();
+      this.isRecording.set(true);
+    } catch {
+      this.toast.show('error', 'Microphone access denied or not available.');
+    }
+  }
+
+  stopVoice(): void {
+    if (!this.mediaRecorder || !this.isRecording()) return;
+    this.mediaRecorder.stop();
+    this.activeStream?.getTracks().forEach((t) => t.stop());
+    this.activeStream = null;
+    this.isRecording.set(false);
+    this.isTranscribing.set(true);
+  }
+
+  private handleRecordingStop(): void {
+    const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+    this.voiceService.transcribe(blob).subscribe({
+      next: ({ text }) => {
+        this.suggestionsInstructions = text;
+        this.isTranscribing.set(false);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isTranscribing.set(false);
+        this.toast.show('error', 'Could not transcribe audio. Please try again.');
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    if(this.isRecording()) this.mediaRecorder?.stop();
+    this.activeStream?.getTracks().forEach((t) => t.stop());
   }
 }

@@ -207,7 +207,7 @@ footer {
     font-size: 0.78rem;
     backdrop-filter: blur(6px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    pointer-events: none; // so it doesn't block canvas interaction
+    pointer-events: none; 
     white-space: nowrap;
 
     kbd {

@@ -4,7 +4,7 @@ $teal: #4a7c7e;
 
 .page-wrapper {
     background-color: var(--secondary-color);
-    min-height: 100vh;
+    min-height: calc(100vh - var(--header-height));
 }
 
 .content-wrapper {

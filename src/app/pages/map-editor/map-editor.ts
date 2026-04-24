@@ -973,7 +973,6 @@ export class MapEditor implements AfterViewInit {
 
     if (landChanged) {
       const filledCells = layer.grid.flat().filter(Boolean).length;
-      console.log('Filled cells after erase:', filledCells);
 
       layer.maskCanvas = undefined;
       layer.colorCtx!.clearRect(0, 0, layer.colorCanvas!.width, layer.colorCanvas!.height);
@@ -986,7 +985,6 @@ export class MapEditor implements AfterViewInit {
     const children = [...layer.konvaLayer.getChildren()];
 
     children.forEach((child: Konva.Node) => {
-      // ✅ Never erase the land or overlay shapes
       if (child === layer.landShape) return;
       if (child === layer.overlayShape) return;
 
@@ -1519,12 +1517,9 @@ export class MapEditor implements AfterViewInit {
         overlayGrid: l.overlayGrid,
         texts: (() => {
           const children = Array.from(l.konvaLayer.getChildren());
-          console.log('Total children:', children.length);
           children.forEach((node: any, i: number) => {
-            console.log(`Child ${i}:`, typeof node.getAttr, node.getAttr?.('type'), node.attrs?.type, node.className);
           });
           const filtered = children.filter((node: any) => node.attrs?.type === 'text');
-          console.log('Filtered texts:', filtered.length);
           return filtered.map((node: any) => ({
             x: node.x(),
             y: node.y(),
@@ -1584,11 +1579,6 @@ export class MapEditor implements AfterViewInit {
           this.cdr.detectChanges();
           if (response.konvaJson) {
             const data: MapSaveData = JSON.parse(response.konvaJson);
-            console.log('Loaded data:', JSON.stringify(data.layers.map(l => ({
-              id: l.id,
-              textCount: l.texts?.length,
-              texts: l.texts
-            }))));
             this.restoreMap(data);
           }
         },
@@ -1597,11 +1587,6 @@ export class MapEditor implements AfterViewInit {
   }
 
   private restoreMap(data: MapSaveData): void {
-    console.log('Restoring map data:', JSON.stringify(data.layers.map(l => ({
-      id: l.id,
-      textCount: l.texts?.length,
-      texts: l.texts
-    }))));
     data.layers.forEach((savedLayer, i) => {
       if (i >= this.mapLayers.length) this.addLayer();
       const layer = this.mapLayers[i];

@@ -7,7 +7,7 @@ $terra: #c17767;
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 .admin-page {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--header-height));
   background: $beige;
   padding: 2.5rem 2rem;
 }

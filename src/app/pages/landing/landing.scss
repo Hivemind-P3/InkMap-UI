@@ -36,7 +36,6 @@ $terra: #C17767;
     }
   }
 
-  // Collapsed nav background on mobile
   .navbar-collapse {
     background: rgba($dark, 0.98);
     padding: 0 0.5rem 1rem;
@@ -284,7 +283,6 @@ $terra: #C17767;
   padding: 96px 0;
 }
 
-// Bootstrap .h-100 .p-4/.p-lg-5 .rounded-3 handle layout; custom below for visuals
 .hm-cap-card {
   background: #fff;
   border: 1px solid rgba($dark, 0.06);
@@ -352,7 +350,6 @@ $terra: #C17767;
   }
 }
 
-// InkMap screen mockup ── (fully custom, no Bootstrap equivalent)
 .hm-inkmap-screen {
   width: 100%;
   max-width: 440px;

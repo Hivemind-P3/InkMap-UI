@@ -1,6 +1,6 @@
 .page-wrapper {
     background-color: var(--secondary-color);
-    min-height: 75vh;
+    min-height: calc(100vh - var(--header-height));
 }
 
 .project-title {

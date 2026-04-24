@@ -1,6 +1,23 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import 'quill/dist/quill.snow.css';
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c8bfb0 transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #c8bfb0;
+    border-radius: 999px;
+  }
+}
+
 html, body {
     height: 100%;
     margin: 0;
@@ -21,6 +38,8 @@ html, body {
     --header1: 2rem;
     --header2: 1.5rem;
     --header3: 0.5rem;
+
+    --header-height: 73px;
 }
 
 // Global classes
@@ -65,10 +84,4 @@ html, body {
     &:hover {
         background-color: rgb(58.904, 98.704, 100.296);
     }
-}
-
-app-header {
-    position: sticky;
-    top: 0;
-    z-index: 9999;
 }

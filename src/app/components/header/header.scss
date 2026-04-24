@@ -109,3 +109,7 @@ $terra: #C17767;
     box-shadow: 0 8px 24px rgba($teal, 0.32);
   }
 }
+
+:host {
+  position: static;
+}

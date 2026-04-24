@@ -27,8 +27,8 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
 
   // Relaciones: viven en memoria mientras el editor esté abierto
   private relations: NodeRelation[] = [];
-  private relationLines = new Map<number, Konva.Line>(); // relationId → line
-  private relationSet = new Set<string>(); // "minId-maxId" para dedup visual
+  private relationLines = new Map<number, Konva.Line>();
+  private relationSet = new Set<string>();
 
   // Estado de la línea de conexión en curso
   private tempLine: Konva.Line | null = null;
@@ -179,7 +179,6 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
       }
     });
 
-    // relationsLayer va primero → se renderiza detrás de los nodos
     this.relationsLayer = new Konva.Layer();
     this.stage.add(this.relationsLayer);
     this.layer = new Konva.Layer();
@@ -216,7 +215,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
           });
           this.relationsLayer.batchDraw();
         },
-        error: () => {}, // no romper el editor si falla la carga
+        error: () => {},
       });
   }
 
@@ -293,7 +292,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     const fromNodeId = this.connectingFromNodeId!;
     this.cancelConnect();
     const key = this.relationKey(fromNodeId, toNodeId);
-    if (this.relationSet.has(key)) return; // ya existe visualmente
+    if (this.relationSet.has(key)) return;
     this.relationService
       .create(Number(this.projectId), Number(this.mapId), {
         sourceNodeId: fromNodeId,
@@ -310,7 +309,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
             this.relationsLayer.batchDraw();
           });
         },
-        error: () => {}, // backend rechaza duplicado u otros errores → ignorar silenciosamente
+        error: () => {},
       });
   }
 
@@ -438,7 +437,7 @@ export class NodeMapEditor implements OnInit, AfterViewInit {
     });
 
     handle.on('mousedown', (e) => {
-      e.cancelBubble = true; // evita que el grupo inicie drag
+      e.cancelBubble = true;
       ring.visible(false);
       handle.visible(false);
       this.layer.batchDraw();
