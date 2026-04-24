@@ -34,6 +34,7 @@
           />
           @if (!selectedVersion && !compareResult) {
             <div class="actions">
+              <button class="btn-suggestions" (click)="openSuggestions()">✦ Suggestions</button>
               <button class="btn-version" (click)="createVersion()" [disabled]="isCreatingVersion">
                 {{ isCreatingVersion ? 'Saving…' : '+ Version' }}
               </button>
@@ -146,6 +147,28 @@
     } @else {
       <div class="empty-state">
         <p>Select a chapter to start editing.</p>
+      </div>
+    }
+
+    @if (isSuggestionsOpen) {
+      <div class="suggestions-overlay" (click)="closeSuggestions()"></div>
+      <div class="suggestions-panel">
+        <div class="suggestions-header">
+          <span class="suggestions-title">✦ Narrative Suggestions</span>
+          <button class="btn-close-suggestions" (click)="closeSuggestions()">✕</button>
+        </div>
+        <textarea
+          class="suggestions-instructions"
+          [(ngModel)]="suggestionsInstructions"
+          placeholder="Additional instructions (optional)..."
+          rows="3"
+        ></textarea>
+        <button class="btn-get-suggestions" (click)="fetchSuggestions()" [disabled]="isLoadingSuggestions">
+          {{ isLoadingSuggestions ? 'Analysing…' : 'Analyse story' }}
+        </button>
+        @if (suggestionsResult) {
+          <div class="suggestions-result">{{ suggestionsResult }}</div>
+        }
       </div>
     }
 

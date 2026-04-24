@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { environment } from '../../environments/environment.local';
+import { NarrativeSuggestionsRequest, NarrativeSuggestionsResponse } from '../models/narrativeSuggestions.model';
 
 export interface Narrative {
   id: number;
@@ -84,5 +85,11 @@ export class NarrativeService {
   updateCached(updated: Narrative): void {
     const updatedList = this.narrativesSubject.value.map(n => n.id === updated.id ? updated : n);
     this.narrativesSubject.next(updatedList);
+  }
+
+  getSuggestions(projectId: number, additionalInstructions?: string): Observable<NarrativeSuggestionsResponse> {
+    const body: NarrativeSuggestionsRequest = { projectId, additionalInstructions };
+
+    return this.http.post<NarrativeSuggestionsResponse>(`${this.baseUrl}/narratives/projects/${projectId}/suggestions`, body);
   }
 }

@@ -97,6 +97,11 @@ export class EditorComponent implements OnInit {
     ]
   };
 
+  isSuggestionsOpen = false;
+  suggestionsInstructions = '';
+  suggestionsResult = '';
+  isLoadingSuggestions = false;
+
   ngOnInit() {
     this.projectsService.getProjectById(this.projectId).subscribe({
       next: (p) => {
@@ -598,6 +603,29 @@ export class EditorComponent implements OnInit {
         this.versions = [];
         this.cdr.detectChanges();
       },
+    });
+  }
+
+  openSuggestions() { this.isSuggestionsOpen = true };
+
+  closeSuggestions() { this.isSuggestionsOpen = false };
+
+  fetchSuggestions() {
+    if(this.isLoadingSuggestions) return;
+    this.isLoadingSuggestions = true;
+    this.suggestionsResult = '';
+
+    this.service.getSuggestions(this.projectId, this.suggestionsInstructions).subscribe({
+      next: (res) => {
+        this.suggestionsResult = res.suggestions;
+        this.isLoadingSuggestions = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.suggestionsResult = 'Error generating suggestions.';
+        this.isLoadingSuggestions = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
