@@ -20,6 +20,7 @@ export class App implements OnInit{
   protected isTeamLanding = false;
   protected isMapEditor = false;
   protected isNodemapEditor = false;
+  protected isTextEditor = false;
 
   constructor(private router: Router) {
     this.router.events.pipe(
@@ -28,6 +29,7 @@ export class App implements OnInit{
       this.isTeamLanding = e.url === '/hivemind';
       this.isMapEditor = e.url.startsWith('/app/map-editor/');
       this.isNodemapEditor = e.url.startsWith('/app/node-map-editor/');
+      this.isTextEditor = e.url.startsWith('/app/editor');
     });
   }
 
